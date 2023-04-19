@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "967394383529",
+    "project_id": "hausmeisterapp-ccc2d",
+    "storage_bucket": "hausmeisterapp-ccc2d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:967394383529:android:5d725f4290442b03c43bb8",
+        "android_client_info": {
+          "package_name": "de.gsgiebert.hausmeisterservice"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "967394383529-n771m51is2rlfp2r39nf1jht4ssggees.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDk6ab9UHNKkD0I5ckpj31g5_wjY4okz8A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "967394383529-n771m51is2rlfp2r39nf1jht4ssggees.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "967394383529-04oipqss943iqiv2k0rot8dqfafcp2nc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "de.gs-giebert.hausmeisterservice"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:967394383529:android:313675322329ebe7c43bb8",
+        "android_client_info": {
+          "package_name": "de.gsgiebert.mein_digitaler_hausmeister"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "967394383529-n771m51is2rlfp2r39nf1jht4ssggees.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDk6ab9UHNKkD0I5ckpj31g5_wjY4okz8A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "967394383529-n771m51is2rlfp2r39nf1jht4ssggees.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "967394383529-04oipqss943iqiv2k0rot8dqfafcp2nc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "de.gs-giebert.hausmeisterservice"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
