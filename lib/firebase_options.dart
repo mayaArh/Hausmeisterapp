@@ -45,17 +45,17 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyBwXTnlNK9E-ELG6R2T16nTs6HB_11tws8',
-    appId: '1:967394383529:web:8ec52f1a1ee5593cc43bb8',
+    appId: '1:967394383529:web:3589fcc9b3191171c43bb8',
     messagingSenderId: '967394383529',
     projectId: 'hausmeisterapp-ccc2d',
     authDomain: 'hausmeisterapp-ccc2d.firebaseapp.com',
     storageBucket: 'hausmeisterapp-ccc2d.appspot.com',
-    measurementId: 'G-TX5QESYC9V',
+    measurementId: 'G-KG7QSQ6QXP',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDk6ab9UHNKkD0I5ckpj31g5_wjY4okz8A',
-    appId: '1:967394383529:android:313675322329ebe7c43bb8',
+    appId: '1:967394383529:android:28e31239bae5e88cc43bb8',
     messagingSenderId: '967394383529',
     projectId: 'hausmeisterapp-ccc2d',
     storageBucket: 'hausmeisterapp-ccc2d.appspot.com',
@@ -63,7 +63,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBJVRvQfedI9Ss488wfiYcQj4z_UL86IpY',
-    appId: '1:967394383529:ios:8ef3fcc8ecefad9ec43bb8',
+    appId: '1:967394383529:ios:e0b8b6f03fb70bd2c43bb8',
     messagingSenderId: '967394383529',
     projectId: 'hausmeisterapp-ccc2d',
     storageBucket: 'hausmeisterapp-ccc2d.appspot.com',
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyBJVRvQfedI9Ss488wfiYcQj4z_UL86IpY',
-    appId: '1:967394383529:ios:8ef3fcc8ecefad9ec43bb8',
+    appId: '1:967394383529:ios:e0b8b6f03fb70bd2c43bb8',
     messagingSenderId: '967394383529',
     projectId: 'hausmeisterapp-ccc2d',
     storageBucket: 'hausmeisterapp-ccc2d.appspot.com',
