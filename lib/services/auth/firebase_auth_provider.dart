@@ -1,9 +1,12 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_exceptions.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_provider.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_user.dart';
 
 import 'package:firebase_auth/firebase_auth.dart'
     show FirebaseAuth, FirebaseAuthException;
+
+import '../../firebase_options.dart';
 
 class FirebaseAuthProvider extends AuthProvider {
   @override
@@ -90,5 +93,11 @@ class FirebaseAuthProvider extends AuthProvider {
     } else {
       throw UserNotLoggedInAuthException();
     }
+  }
+
+  @override
+  Future<void> initialize() async {
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
   }
 }
