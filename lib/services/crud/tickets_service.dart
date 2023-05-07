@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:image/image.dart';
 
 import 'package:flutter/foundation.dart';
@@ -19,11 +18,81 @@ class UserAlreadyExists implements Exception {}
 
 class CouldNotFindUser implements Exception {}
 
+class CouldNotDeleteTicket implements Exception {}
+
+class CouldNotFindTicket implements Exception {}
+
 class TicketService {
   Database? _db;
 
+  Future<Iterable<DatabaseTicket>> getAllTickets({required userId}) async {
+    final db = _getDatabase();
+    final tickets = await db.query(
+      ticketTable,
+      where: 'userId = ?',
+      whereArgs: [userId],
+    );
+    return tickets.map((ticketRow) => DatabaseTicket.fromRow(ticketRow));
+  }
+
+  Future<DatabaseTicket> getTicket(
+      {required int userId, required int ticketId}) async {
+    final db = _getDatabase();
+    final tickets = await db.query(
+      ticketTable,
+      limit: 1,
+      where: 'userId = ? AND ticketId = ?',
+      whereArgs: [userId, ticketId],
+    );
+    if (tickets.isEmpty) {
+      throw CouldNotFindTicket();
+    } else {
+      return DatabaseTicket.fromRow(tickets.first);
+    }
+  }
+
+  Future<void> deleteTicket(
+      {required int userId, required int ticketId}) async {
+    final db = _getDatabase();
+    final deletedCount = await db.delete(
+      ticketTable,
+      where: 'userId = ? AND ticketId = ?',
+      whereArgs: [userId, ticketId],
+    );
+    if (deletedCount == 0) {
+      throw CouldNotDeleteTicket();
+    }
+  }
+
+  Future<DatabaseTicket> createTicket({required DatabaseUser owner}) async {
+    final db = _getDatabase();
+
+    final dbUser = await getUser(email: owner.email);
+    if (dbUser != owner) {
+      throw CouldNotFindUser();
+    }
+
+    final ticketId = await db.insert(ticketTable, {
+      userIdColumn: owner.id,
+      imgIdColumn: Null,
+      descriptionColumn: '',
+      statusColumn: TicketStatus.open.toString(),
+      isSyncedWithCloudColumn: 1
+    });
+
+    final ticket = DatabaseTicket(
+        id: ticketId,
+        userId: owner.id,
+        imgId: null,
+        description: '',
+        status: TicketStatus.open,
+        isSyncedWithCloud: true);
+
+    return ticket;
+  }
+
   Future<DatabaseUser> getUser({required String email}) async {
-    final db = getDatabase();
+    final db = _getDatabase();
     final results = await db.query(
       userTable,
       limit: 1,
@@ -39,7 +108,7 @@ class TicketService {
 
   Future<DatabaseUser> createUser(
       {required String name, required String email}) async {
-    final db = getDatabase();
+    final db = _getDatabase();
     //check if user already exists
     final results = await db.query(
       userTable,
@@ -58,7 +127,7 @@ class TicketService {
   }
 
   Future<void> deleteUser({required String email}) async {
-    final db = getDatabase();
+    final db = _getDatabase();
     final deletedCount = await db.delete(
       userTable,
       where: 'email = ?',
@@ -69,7 +138,7 @@ class TicketService {
     }
   }
 
-  Database getDatabase() {
+  Database _getDatabase() {
     final db = _db;
     if (db == null) {
       throw DatabaseIsNotOpen();
@@ -135,13 +204,13 @@ class DatabaseUser {
 }
 
 @immutable
-class DatabaseTicketPhoto {
+class DatabaseTicketImage {
   final int id;
   final Image img;
 
-  const DatabaseTicketPhoto({required this.id, required this.img});
+  const DatabaseTicketImage({required this.id, required this.img});
 
-  DatabaseTicketPhoto.fromRow(Map<String, int> map)
+  DatabaseTicketImage.fromRow(Map<String, int> map)
       : id = map[idColumn] as int,
         img = map[imgColumn] as Image;
 
@@ -149,7 +218,7 @@ class DatabaseTicketPhoto {
   String toString() => 'Photo ID: $id';
 
   @override
-  bool operator ==(covariant DatabaseTicketPhoto other) => id == other.id;
+  bool operator ==(covariant DatabaseTicketImage other) => id == other.id;
 
   @override
   int get hashCode => id.hashCode;
@@ -159,27 +228,30 @@ class DatabaseTicketPhoto {
 class DatabaseTicket {
   final int id;
   final int userId;
-  final int photoId;
-  final String content;
+  final int? imgId;
+  final String description;
   final TicketStatus status;
+  final bool isSyncedWithCloud;
 
   const DatabaseTicket(
       {required this.id,
       required this.userId,
-      required this.photoId,
-      required this.content,
-      required this.status});
+      required this.imgId,
+      required this.description,
+      required this.status,
+      required this.isSyncedWithCloud});
 
   DatabaseTicket.fromRow(Map<String, Object?> map)
       : id = map[idColumn] as int,
-        userId = map[userColumn] as int,
-        content = map[descriptionColumn] as String,
-        photoId = map[imgColumn] as int,
-        status = TicketStatus.values.byName(map[statusColumn] as String);
+        userId = map[userIdColumn] as int,
+        description = map[descriptionColumn] as String,
+        imgId = map[imgIdColumn] as int?,
+        status = TicketStatus.values.byName(map[statusColumn] as String),
+        isSyncedWithCloud = map[isSyncedWithCloudColumn] as bool;
 
   @override
   String toString() =>
-      'Ticket: ID = $id, ${userId.toString()}, content: $content, ${photoId.toString()}, status: ${status.toString()}';
+      'Ticket: ID = $id, ${userId.toString()}, description: $description, ${imgId.toString()}, status: ${status.toString()}, isSyncedWithCloud: ${isSyncedWithCloud.toString()}';
 
   @override
   bool operator ==(covariant DatabaseTicket other) => id == other.id;
@@ -190,12 +262,15 @@ class DatabaseTicket {
 
 const dbName = 'ticket_db';
 const idColumn = 'id';
+const userIdColumn = 'userId';
 const nameColumn = 'name';
 const emailColumn = 'email';
+const imgColumn = 'image';
 const userColumn = 'user';
 const descriptionColumn = 'description';
-const imgColumn = 'image';
+const imgIdColumn = 'imageId';
 const statusColumn = 'status';
+const isSyncedWithCloudColumn = 'isSyncedWithCloud';
 const userTable = "users";
 const ticketPhotoTable = "ticket_photos";
 const ticketTable = "tickets";
@@ -212,11 +287,12 @@ const createTicketPhotoTable = '''CREATE TABLE IF NOT EXISTS "ticket_photos" (
       );''';
 const createTicketTable = '''CREATE TABLE IF NOT EXISTS "tickets" (
         "id" INTEGER NOT NULL,
-        "ticketPhoto_id" INTEGER NOT NULL,
-        "content" TEXT,
+        "userId" INTEGER NOT NULL,
+        "imageId" INTEGER,
+        "description" TEXT,
         "status" TEXT NOT NULL,
-        "is_synced_with_cloud" INTEGER NOT NULL DEFAULT 0,
+        "isSyncedWithCloud" INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY ("user_id") REFERENCES "users"("id"),
-        FOREIGN KEY ("ticketPhoto_id") REFERENCES "ticket_photos"("id"),
+        FOREIGN KEY ("imageId") REFERENCES "ticket_photos"("id"),
         PRIMARY KEY("id" AUTOINCREMENT)
       );''';
