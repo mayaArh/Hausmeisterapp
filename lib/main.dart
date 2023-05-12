@@ -3,7 +3,7 @@ import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import 'constants/routes.dart';
 import 'views/login_view.dart';
 import 'views/register_view.dart';
-import 'views/renter_main_view.dart';
+import 'views/renter_tickets_overview.dart';
 import 'views/verify_email_view.dart';
 import 'dart:developer' as developer;
 
@@ -19,7 +19,7 @@ void main() {
         routes: {
           loginRoute: (context) => const LoginView(),
           registerRoute: (context) => const RegisterView(),
-          renterHomeRoute: (context) => const RenterMainView(),
+          renterHomeRoute: (context) => const RenterTicketOverview(),
           verifyEmailRoute: (context) => const VerifyEmailView()
         }),
   );
@@ -40,7 +40,7 @@ class HomePage extends StatelessWidget {
               developer.log(user.toString());
               if (user != null) {
                 if (user.isEmailVerified) {
-                  return const RenterMainView();
+                  return const RenterTicketOverview();
                 } else {
                   return const VerifyEmailView();
                 }
