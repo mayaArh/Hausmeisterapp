@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:image/image.dart';
 
 import 'package:flutter/foundation.dart';
@@ -6,32 +8,65 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' show join;
 
-class DatabaseAlreadyOpenException implements Exception {}
-
-class UnableToGetDocumentsDirectory implements Exception {}
-
-class DatabaseIsNotOpen implements Exception {}
-
-class CouldNotDeleteUser implements Exception {}
-
-class UserAlreadyExists implements Exception {}
-
-class CouldNotFindUser implements Exception {}
-
-class CouldNotDeleteTicket implements Exception {}
-
-class CouldNotFindTicket implements Exception {}
+import 'crud_exceptions.dart';
 
 class TicketService {
   Database? _db;
 
-  Future<Iterable<DatabaseTicket>> getAllTickets({required userId}) async {
+  List<DatabaseTicket> _tickets = List.empty(growable: true);
+
+  final _ticketsStreamController =
+      StreamController<List<DatabaseTicket>>.broadcast();
+
+  Future<void> _cacheNotes() async {
+    final allTickets = await getAllTickets();
+    _tickets = allTickets.toList();
+    _ticketsStreamController.add(_tickets);
+  }
+
+  Future<DatabaseTicket> updateTicketDescription(
+      {required DatabaseTicket ticket, required String description}) async {
     final db = _getDatabase();
-    final tickets = await db.query(
+
+    //make sure ticket exists
+    await getTicket(userId: ticket.userId, ticketId: ticket.id);
+
+    final updatesCount = await db.update(
       ticketTable,
-      where: 'userId = ?',
-      whereArgs: [userId],
+      {descriptionColumn: description, isSyncedWithCloudColumn: 0},
     );
+
+    if (updatesCount == 0) {
+      throw CouldNotUpdateTicket();
+    } else {
+      final updatedTicket =
+          await getTicket(userId: ticket.userId, ticketId: ticket.id);
+      _tickets.removeWhere((ticket) => ticket.id == updatedTicket.id);
+      _tickets.add(updatedTicket);
+      _ticketsStreamController.add(_tickets);
+      return updatedTicket;
+    }
+  }
+
+  Future<DatabaseUser> getOrCreateUser(
+      {required String firstName,
+      required String lastName,
+      required String email}) async {
+    try {
+      final user = await getUser(email: email);
+      return user;
+    } on CouldNotFindUser {
+      final createdUser = await createUser(
+          firstName: firstName, lastName: lastName, email: email);
+      return createdUser;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Iterable<DatabaseTicket>> getAllTickets() async {
+    final db = _getDatabase();
+    final tickets = await db.query(ticketTable);
     return tickets.map((ticketRow) => DatabaseTicket.fromRow(ticketRow));
   }
 
@@ -47,7 +82,11 @@ class TicketService {
     if (tickets.isEmpty) {
       throw CouldNotFindTicket();
     } else {
-      return DatabaseTicket.fromRow(tickets.first);
+      final ticket = DatabaseTicket.fromRow(tickets.first);
+      _tickets.removeWhere((ticket) => ticket.id == ticketId);
+      _tickets.add(ticket);
+      _ticketsStreamController.add(_tickets);
+      return ticket;
     }
   }
 
@@ -61,6 +100,9 @@ class TicketService {
     );
     if (deletedCount == 0) {
       throw CouldNotDeleteTicket();
+    } else {
+      _tickets.removeWhere((ticket) => ticket.id == ticketId);
+      _ticketsStreamController.add(_tickets);
     }
   }
 
@@ -88,6 +130,9 @@ class TicketService {
         status: TicketStatus.open,
         isSyncedWithCloud: true);
 
+    _tickets.add(ticket);
+    _ticketsStreamController.add(_tickets);
+
     return ticket;
   }
 
@@ -107,7 +152,9 @@ class TicketService {
   }
 
   Future<DatabaseUser> createUser(
-      {required String name, required String email}) async {
+      {required String firstName,
+      required String lastName,
+      required String email}) async {
     final db = _getDatabase();
     //check if user already exists
     final results = await db.query(
@@ -120,10 +167,14 @@ class TicketService {
       throw UserAlreadyExists();
     }
 
-    final userId = await db.insert(userTable,
-        {nameColumn: name.toLowerCase(), emailColumn: email.toLowerCase()});
+    final userId = await db.insert(userTable, {
+      firstNameColumn: firstName.toLowerCase(),
+      lastNameColumn: lastName.toLowerCase(),
+      emailColumn: email.toLowerCase()
+    });
 
-    return DatabaseUser(id: userId, name: name, email: email);
+    return DatabaseUser(
+        id: userId, firstName: firstName, lastName: lastName, email: email);
   }
 
   Future<void> deleteUser({required String email}) async {
@@ -170,6 +221,7 @@ class TicketService {
       await db.execute(createUserTable);
       await db.execute(createTicketPhotoTable);
       await db.execute(createTicketTable);
+      await _cacheNotes();
     } on MissingPlatformDirectoryException {
       throw UnableToGetDocumentsDirectory();
     }
@@ -179,22 +231,26 @@ class TicketService {
 @immutable
 class DatabaseUser {
   final int id;
-  final String name;
+  final String firstName;
+  final String lastName;
   final String email;
 
   const DatabaseUser({
     required this.id,
-    required this.name,
+    required this.firstName,
+    required this.lastName,
     required this.email,
   });
 
   DatabaseUser.fromRow(Map<String, Object?> map)
       : id = map[idColumn] as int,
-        name = map[nameColumn] as String,
+        firstName = map[firstNameColumn] as String,
+        lastName = map[lastNameColumn] as String,
         email = map[emailColumn] as String;
 
   @override
-  String toString() => 'User: Name = $name, ID = $id, E-Mail = $email';
+  String toString() =>
+      'User: First Name = $firstName, Last Name = $lastName, E-Mail = $email, ID = $id';
 
   @override
   bool operator ==(covariant DatabaseUser other) => id == other.id;
@@ -263,7 +319,8 @@ class DatabaseTicket {
 const dbName = 'ticket_db';
 const idColumn = 'id';
 const userIdColumn = 'userId';
-const nameColumn = 'name';
+const firstNameColumn = 'firstName';
+const lastNameColumn = 'lastName';
 const emailColumn = 'email';
 const imgColumn = 'image';
 const userColumn = 'user';
@@ -276,7 +333,8 @@ const ticketPhotoTable = "ticket_photos";
 const ticketTable = "tickets";
 const createUserTable = '''CREATE TABLE IF NOT EXISTS "users" (
         "id" INTEGER NOT NULL,
-        "name" TEXT NOT NULL;
+        "firstName" TEXT NOT NULL,
+        "lastName" TEXT NOT NULL,
         "email" TEXT NOT NULL UNIQUE,
         PRIMARY KEY("id" AUTOINCREMENT)
       );''';

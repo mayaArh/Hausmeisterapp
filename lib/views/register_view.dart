@@ -13,11 +13,25 @@ class RegisterView extends StatefulWidget {
 }
 
 class RegisterViewState extends State<RegisterView> {
+  late final TextEditingController _firstName;
+  late final TextEditingController _lastName;
+  late final TextEditingController _streetname;
+  late final TextEditingController _houseNumber;
+  late final TextEditingController _postalCode;
+  late final TextEditingController _city;
+  late final TextEditingController _federalState;
   late final TextEditingController _email;
   late final TextEditingController _password;
 
   @override
   void initState() {
+    _firstName = TextEditingController();
+    _lastName = TextEditingController();
+    _streetname = TextEditingController();
+    _houseNumber = TextEditingController();
+    _postalCode = TextEditingController();
+    _city = TextEditingController();
+    _federalState = TextEditingController();
     _email = TextEditingController();
     _password = TextEditingController();
     super.initState();
@@ -39,6 +53,69 @@ class RegisterViewState extends State<RegisterView> {
       body: Column(
         children: [
           TextField(
+            controller: _firstName,
+            enableSuggestions: false,
+            autocorrect: false,
+            keyboardType: TextInputType.name,
+            decoration: const InputDecoration(
+              hintText: 'first name',
+            ),
+          ),
+          TextField(
+            controller: _lastName,
+            enableSuggestions: false,
+            autocorrect: false,
+            keyboardType: TextInputType.name,
+            decoration: const InputDecoration(
+              hintText: 'last name',
+            ),
+          ),
+          TextField(
+            controller: _streetname,
+            enableSuggestions: false,
+            autocorrect: false,
+            keyboardType: TextInputType.streetAddress,
+            decoration: const InputDecoration(
+              hintText: 'streetname',
+            ),
+          ),
+          TextField(
+            controller: _houseNumber,
+            enableSuggestions: false,
+            autocorrect: false,
+            keyboardType: TextInputType.streetAddress,
+            decoration: const InputDecoration(
+              hintText: 'house number',
+            ),
+          ),
+          TextField(
+            controller: _postalCode,
+            enableSuggestions: false,
+            autocorrect: false,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              hintText: 'postal code',
+            ),
+          ),
+          TextField(
+            controller: _city,
+            enableSuggestions: false,
+            autocorrect: false,
+            keyboardType: TextInputType.text,
+            decoration: const InputDecoration(
+              hintText: 'Enter your city here',
+            ),
+          ),
+          TextField(
+            controller: _federalState,
+            enableSuggestions: false,
+            autocorrect: false,
+            keyboardType: TextInputType.text,
+            decoration: const InputDecoration(
+              hintText: 'Enter your federal state here',
+            ),
+          ),
+          TextField(
             controller: _email,
             enableSuggestions: false,
             autocorrect: false,
@@ -58,6 +135,13 @@ class RegisterViewState extends State<RegisterView> {
           ),
           TextButton(
             onPressed: () async {
+              final firstName = _firstName.text;
+              final lastName = _lastName.text;
+              final streetname = _streetname.text;
+              final houseNumber = _houseNumber.value;
+              final postalCode = _postalCode.value;
+              final city = _city.text;
+              final federalState = _federalState.text;
               final email = _email.text;
               final password = _password.text;
               try {
