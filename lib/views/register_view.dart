@@ -17,9 +17,9 @@ class RegisterViewState extends State<RegisterView> {
   late final TextEditingController _lastName;
   late final TextEditingController _streetname;
   late final TextEditingController _houseNumber;
+  late final TextEditingController _flatNumber;
   late final TextEditingController _postalCode;
   late final TextEditingController _city;
-  late final TextEditingController _federalState;
   late final TextEditingController _email;
   late final TextEditingController _password;
 
@@ -29,9 +29,9 @@ class RegisterViewState extends State<RegisterView> {
     _lastName = TextEditingController();
     _streetname = TextEditingController();
     _houseNumber = TextEditingController();
+    _flatNumber = TextEditingController();
     _postalCode = TextEditingController();
     _city = TextEditingController();
-    _federalState = TextEditingController();
     _email = TextEditingController();
     _password = TextEditingController();
     super.initState();
@@ -48,7 +48,7 @@ class RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register'),
+        title: const Text('Registrieren'),
       ),
       body: Column(
         children: [
@@ -58,7 +58,7 @@ class RegisterViewState extends State<RegisterView> {
             autocorrect: false,
             keyboardType: TextInputType.name,
             decoration: const InputDecoration(
-              hintText: 'first name',
+              hintText: 'Vorname',
             ),
           ),
           TextField(
@@ -67,7 +67,7 @@ class RegisterViewState extends State<RegisterView> {
             autocorrect: false,
             keyboardType: TextInputType.name,
             decoration: const InputDecoration(
-              hintText: 'last name',
+              hintText: 'Nachname',
             ),
           ),
           TextField(
@@ -76,7 +76,7 @@ class RegisterViewState extends State<RegisterView> {
             autocorrect: false,
             keyboardType: TextInputType.streetAddress,
             decoration: const InputDecoration(
-              hintText: 'streetname',
+              hintText: 'Straße',
             ),
           ),
           TextField(
@@ -85,7 +85,16 @@ class RegisterViewState extends State<RegisterView> {
             autocorrect: false,
             keyboardType: TextInputType.streetAddress,
             decoration: const InputDecoration(
-              hintText: 'house number',
+              hintText: 'Hausnummer',
+            ),
+          ),
+          TextField(
+            controller: _flatNumber,
+            enableSuggestions: false,
+            autocorrect: false,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              hintText: 'Wohnungsnummer',
             ),
           ),
           TextField(
@@ -94,7 +103,7 @@ class RegisterViewState extends State<RegisterView> {
             autocorrect: false,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
-              hintText: 'postal code',
+              hintText: 'PLZ',
             ),
           ),
           TextField(
@@ -103,16 +112,7 @@ class RegisterViewState extends State<RegisterView> {
             autocorrect: false,
             keyboardType: TextInputType.text,
             decoration: const InputDecoration(
-              hintText: 'Enter your city here',
-            ),
-          ),
-          TextField(
-            controller: _federalState,
-            enableSuggestions: false,
-            autocorrect: false,
-            keyboardType: TextInputType.text,
-            decoration: const InputDecoration(
-              hintText: 'Enter your federal state here',
+              hintText: 'Ort',
             ),
           ),
           TextField(
@@ -121,7 +121,7 @@ class RegisterViewState extends State<RegisterView> {
             autocorrect: false,
             keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(
-              hintText: 'Enter your email here',
+              hintText: 'E-Mail Adresse',
             ),
           ),
           TextField(
@@ -130,7 +130,7 @@ class RegisterViewState extends State<RegisterView> {
             enableSuggestions: false,
             autocorrect: false,
             decoration: const InputDecoration(
-              hintText: 'Enter your password here',
+              hintText: 'App-Passwort',
             ),
           ),
           TextButton(
@@ -139,9 +139,9 @@ class RegisterViewState extends State<RegisterView> {
               final lastName = _lastName.text;
               final streetname = _streetname.text;
               final houseNumber = _houseNumber.value;
+              final flatNumber = _flatNumber.value;
               final postalCode = _postalCode.value;
               final city = _city.text;
-              final federalState = _federalState.text;
               final email = _email.text;
               final password = _password.text;
               try {

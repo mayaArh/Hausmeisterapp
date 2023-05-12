@@ -18,6 +18,9 @@ class TicketService {
   final _ticketsStreamController =
       StreamController<List<DatabaseTicket>>.broadcast();
 
+  Stream<List<DatabaseTicket>> get allTickets =>
+      _ticketsStreamController.stream;
+
   Future<void> _cacheNotes() async {
     final allTickets = await getAllTickets();
     _tickets = allTickets.toList();
@@ -26,6 +29,7 @@ class TicketService {
 
   Future<DatabaseTicket> updateTicketDescription(
       {required DatabaseTicket ticket, required String description}) async {
+    await _ensureDbIsOpen();
     final db = _getDatabase();
 
     //make sure ticket exists
@@ -48,16 +52,12 @@ class TicketService {
     }
   }
 
-  Future<DatabaseUser> getOrCreateUser(
-      {required String firstName,
-      required String lastName,
-      required String email}) async {
+  Future<DatabaseUser> getOrCreateUser({required String email}) async {
     try {
       final user = await getUser(email: email);
       return user;
     } on CouldNotFindUser {
-      final createdUser = await createUser(
-          firstName: firstName, lastName: lastName, email: email);
+      final createdUser = await createUser(email: email);
       return createdUser;
     } catch (e) {
       rethrow;
@@ -65,6 +65,7 @@ class TicketService {
   }
 
   Future<Iterable<DatabaseTicket>> getAllTickets() async {
+    await _ensureDbIsOpen();
     final db = _getDatabase();
     final tickets = await db.query(ticketTable);
     return tickets.map((ticketRow) => DatabaseTicket.fromRow(ticketRow));
@@ -72,6 +73,7 @@ class TicketService {
 
   Future<DatabaseTicket> getTicket(
       {required int userId, required int ticketId}) async {
+    await _ensureDbIsOpen();
     final db = _getDatabase();
     final tickets = await db.query(
       ticketTable,
@@ -92,6 +94,7 @@ class TicketService {
 
   Future<void> deleteTicket(
       {required int userId, required int ticketId}) async {
+    await _ensureDbIsOpen();
     final db = _getDatabase();
     final deletedCount = await db.delete(
       ticketTable,
@@ -107,6 +110,7 @@ class TicketService {
   }
 
   Future<DatabaseTicket> createTicket({required DatabaseUser owner}) async {
+    await _ensureDbIsOpen();
     final db = _getDatabase();
 
     final dbUser = await getUser(email: owner.email);
@@ -137,6 +141,7 @@ class TicketService {
   }
 
   Future<DatabaseUser> getUser({required String email}) async {
+    await _ensureDbIsOpen();
     final db = _getDatabase();
     final results = await db.query(
       userTable,
@@ -151,10 +156,8 @@ class TicketService {
     }
   }
 
-  Future<DatabaseUser> createUser(
-      {required String firstName,
-      required String lastName,
-      required String email}) async {
+  Future<DatabaseUser> createUser({required String email}) async {
+    await _ensureDbIsOpen();
     final db = _getDatabase();
     //check if user already exists
     final results = await db.query(
@@ -167,17 +170,14 @@ class TicketService {
       throw UserAlreadyExists();
     }
 
-    final userId = await db.insert(userTable, {
-      firstNameColumn: firstName.toLowerCase(),
-      lastNameColumn: lastName.toLowerCase(),
-      emailColumn: email.toLowerCase()
-    });
+    final userId =
+        await db.insert(userTable, {emailColumn: email.toLowerCase()});
 
-    return DatabaseUser(
-        id: userId, firstName: firstName, lastName: lastName, email: email);
+    return DatabaseUser(id: userId, email: email);
   }
 
   Future<void> deleteUser({required String email}) async {
+    await _ensureDbIsOpen();
     final db = _getDatabase();
     final deletedCount = await db.delete(
       userTable,
@@ -208,6 +208,14 @@ class TicketService {
     }
   }
 
+  Future<void> _ensureDbIsOpen() async {
+    try {
+      await open();
+    } on DatabaseAlreadyOpenException {
+      //empty
+    }
+  }
+
   Future<void> open() async {
     if (_db != null) {
       throw DatabaseAlreadyOpenException();
@@ -231,21 +239,19 @@ class TicketService {
 @immutable
 class DatabaseUser {
   final int id;
-  final String firstName;
-  final String lastName;
+  final String firstName = "dummy";
+  final String lastName = "dummy";
   final String email;
 
   const DatabaseUser({
     required this.id,
-    required this.firstName,
-    required this.lastName,
     required this.email,
   });
 
   DatabaseUser.fromRow(Map<String, Object?> map)
       : id = map[idColumn] as int,
-        firstName = map[firstNameColumn] as String,
-        lastName = map[lastNameColumn] as String,
+        //firstName = map[firstNameColumn] as String,
+        //lastName = map[lastNameColumn] as String,
         email = map[emailColumn] as String;
 
   @override
