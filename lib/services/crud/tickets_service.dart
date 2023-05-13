@@ -15,6 +15,11 @@ class TicketService {
 
   List<DatabaseTicket> _tickets = List.empty(growable: true);
 
+  //Singleton
+  static final TicketService _shared = TicketService._sharedInstance();
+  TicketService._sharedInstance();
+  factory TicketService() => _shared;
+
   final _ticketsStreamController =
       StreamController<List<DatabaseTicket>>.broadcast();
 

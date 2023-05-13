@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import 'package:mein_digitaler_hausmeister/services/crud/tickets_service.dart';
 
-import '../constants/routes.dart';
-import '../enums/menu_entries.dart';
-import '../utilities/show_error_dialog.dart';
+import '../../constants/routes.dart';
+import '../../enums/menu_entries.dart';
+import '../../utilities/show_error_dialog.dart';
 
 class RenterTicketOverview extends StatefulWidget {
   const RenterTicketOverview({super.key});
@@ -33,8 +33,13 @@ class _RenterTicketOverviewState extends State<RenterTicketOverview> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Main UI'),
+          title: const Text('Deine Tickets'),
           actions: [
+            IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed(newTicketRoute);
+                },
+                icon: const Icon(Icons.add)),
             PopupMenuButton<MenuEntry>(
               onSelected: (value) async {
                 switch (value) {
@@ -66,6 +71,7 @@ class _RenterTicketOverviewState extends State<RenterTicketOverview> {
                       builder: (context, snapshot) {
                         switch (snapshot.connectionState) {
                           case ConnectionState.waiting:
+                          case ConnectionState.active:
                             return const Text('Ticketansicht wird geladen...');
                           default:
                             return const CircularProgressIndicator();

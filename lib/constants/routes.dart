@@ -1,4 +1,5 @@
 const loginRoute = '/login/';
 const registerRoute = '/register/';
 const renterHomeRoute = '/renter_home/';
-const verifyEmailRoute = '/verify-email/';
+const verifyEmailRoute = '/verify_email/';
+const newTicketRoute = 'renter_views/new_ticket/';
