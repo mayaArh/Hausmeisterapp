@@ -45,8 +45,6 @@ dependencies:
   image: ^4.0.16
   path: ^1.8.2
   flutter_secure_storage: ^8.0.0
-  image_picker: ^0.8.7+5
-  firebase_storage: ^11.2.0
 
 dev_dependencies:
   flutter_test:

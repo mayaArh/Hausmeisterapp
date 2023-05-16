@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:image/image.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
 import 'package:sqflite/sqflite.dart';
@@ -133,7 +135,6 @@ class TicketService {
         id: ticketId,
         userId: owner.id,
         imgId: null,
-        topic: '',
         description: '',
         status: TicketStatus.open,
         isSyncedWithCloud: true);
@@ -272,20 +273,13 @@ class DatabaseUser {
 @immutable
 class DatabaseTicketImage {
   final int id;
-  final String img;
+  final Image img;
 
   const DatabaseTicketImage({required this.id, required this.img});
 
-  DatabaseTicketImage.fromRow(Map<String, dynamic> map)
+  DatabaseTicketImage.fromRow(Map<String, int> map)
       : id = map[idColumn] as int,
-        img = map[imgColumn] as String;
-
-  Map<String, dynamic> toMap() {
-    var map = <String, dynamic>{};
-    map['id'] = id;
-    map['image'] = img;
-    return map;
-  }
+        img = map[imgColumn] as Image;
 
   @override
   String toString() => 'Photo ID: $id';
@@ -302,7 +296,6 @@ class DatabaseTicket {
   final int id;
   final int userId;
   final int? imgId;
-  final String topic;
   final String description;
   final TicketStatus status;
   final bool isSyncedWithCloud;
@@ -311,7 +304,6 @@ class DatabaseTicket {
       {required this.id,
       required this.userId,
       required this.imgId,
-      required this.topic,
       required this.description,
       required this.status,
       required this.isSyncedWithCloud});
@@ -319,7 +311,6 @@ class DatabaseTicket {
   DatabaseTicket.fromRow(Map<String, Object?> map)
       : id = map[idColumn] as int,
         userId = map[userIdColumn] as int,
-        topic = map[topicColumn] as String,
         description = map[descriptionColumn] as String,
         imgId = map[imgIdColumn] as int?,
         status = TicketStatus.values.byName(map[statusColumn] as String),
@@ -327,7 +318,7 @@ class DatabaseTicket {
 
   @override
   String toString() =>
-      'Ticket: ID = $id, ${userId.toString()}, topic: $topic, description: $description, ${imgId.toString()}, status: ${status.toString()}, isSyncedWithCloud: ${isSyncedWithCloud.toString()}';
+      'Ticket: ID = $id, ${userId.toString()}, description: $description, ${imgId.toString()}, status: ${status.toString()}, isSyncedWithCloud: ${isSyncedWithCloud.toString()}';
 
   @override
   bool operator ==(covariant DatabaseTicket other) => id == other.id;
@@ -344,7 +335,6 @@ const lastNameColumn = 'lastName';
 const emailColumn = 'email';
 const imgColumn = 'image';
 const userColumn = 'user';
-const topicColumn = 'topic';
 const descriptionColumn = 'description';
 const imgIdColumn = 'imageId';
 const statusColumn = 'status';
@@ -361,18 +351,17 @@ const createUserTable = '''CREATE TABLE IF NOT EXISTS "users" (
       );''';
 const createTicketPhotoTable = '''CREATE TABLE IF NOT EXISTS "ticket_photos" (
         "id" INTEGER NOT NULL,
-        "image" TEXT NOT NULL,
+        "image" TEXT NOT NULL;
         PRIMARY KEY("id" AUTOINCREMENT)
       );''';
 const createTicketTable = '''CREATE TABLE IF NOT EXISTS "tickets" (
         "id" INTEGER NOT NULL,
         "userId" INTEGER NOT NULL,
         "imageId" INTEGER,
-        "topic" TEXT NOT NULL,
         "description" TEXT,
         "status" TEXT NOT NULL,
         "isSyncedWithCloud" INTEGER NOT NULL DEFAULT 0,
-        FOREIGN KEY ("userId") REFERENCES "users"("id"),
+        FOREIGN KEY ("user_id") REFERENCES "users"("id"),
         FOREIGN KEY ("imageId") REFERENCES "ticket_photos"("id"),
         PRIMARY KEY("id" AUTOINCREMENT)
       );''';

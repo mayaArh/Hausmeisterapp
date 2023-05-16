@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
-import 'package:mein_digitaler_hausmeister/views/renter_views/create_ticket_view.dart';
+import 'package:mein_digitaler_hausmeister/views/renter_views/create_ticket.dart';
 import 'constants/routes.dart';
 import 'views/login_view.dart';
 import 'views/register_view.dart';
