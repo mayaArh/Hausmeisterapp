@@ -33,13 +33,8 @@ class _RenterTicketOverviewState extends State<RenterTicketOverview> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Deine Tickets'),
+          title: const Text('Main UI'),
           actions: [
-            IconButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamed(newTicketRoute);
-                },
-                icon: const Icon(Icons.add)),
             PopupMenuButton<MenuEntry>(
               onSelected: (value) async {
                 switch (value) {
@@ -71,7 +66,6 @@ class _RenterTicketOverviewState extends State<RenterTicketOverview> {
                       builder: (context, snapshot) {
                         switch (snapshot.connectionState) {
                           case ConnectionState.waiting:
-                          case ConnectionState.active:
                             return const Text('Ticketansicht wird geladen...');
                           default:
                             return const CircularProgressIndicator();
