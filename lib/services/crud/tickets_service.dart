@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:image/image.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
 import 'package:sqflite/sqflite.dart';
@@ -296,7 +298,6 @@ class DatabaseTicket {
   DatabaseTicket.fromRow(Map<String, Object?> map)
       : id = map[idColumn] as int,
         userId = map[userIdColumn] as int,
-        topic = map[topicColumn] as String,
         description = map[descriptionColumn] as String,
         img = map[imgColumn] as String?,
         status = TicketStatus.values.byName(map[statusColumn] as String),
@@ -321,7 +322,6 @@ const lastNameColumn = 'lastName';
 const emailColumn = 'email';
 const imgColumn = 'image';
 const userColumn = 'user';
-const topicColumn = 'topic';
 const descriptionColumn = 'description';
 const statusColumn = 'status';
 const isSyncedWithCloudColumn = 'isSyncedWithCloud';
@@ -348,7 +348,7 @@ const createTicketTable = '''CREATE TABLE IF NOT EXISTS "tickets" (
         "image" TEXT,
         "status" TEXT NOT NULL,
         "isSyncedWithCloud" INTEGER NOT NULL DEFAULT 0,
-        FOREIGN KEY ("userId") REFERENCES "users"("id"),
+        FOREIGN KEY ("user_id") REFERENCES "users"("id"),
         FOREIGN KEY ("imageId") REFERENCES "ticket_photos"("id"),
         PRIMARY KEY("id" AUTOINCREMENT)
       );''';
