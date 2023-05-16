@@ -346,7 +346,7 @@ const createUserTable = '''CREATE TABLE IF NOT EXISTS "users" (
       );''';
 const createTicketPhotoTable = '''CREATE TABLE IF NOT EXISTS "ticket_photos" (
         "id" INTEGER NOT NULL,
-        "image" TEXT NOT NULL;
+        "image" TEXT NOT NULL,
         PRIMARY KEY("id" AUTOINCREMENT)
       );''';
 const createTicketTable = '''CREATE TABLE IF NOT EXISTS "tickets" (
