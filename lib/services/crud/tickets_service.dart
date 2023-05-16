@@ -13,13 +13,13 @@ class TicketService {
 
   List<DatabaseTicket> _tickets = List.empty(growable: true);
 
-  //Singleton
+  //Singleton: bad way to create in dart?
   static final TicketService _shared = TicketService._sharedInstance();
   TicketService._sharedInstance();
   factory TicketService() => _shared;
 
-  final _ticketsStreamController =
-      StreamController<List<DatabaseTicket>>.broadcast();
+  final _ticketsStreamController = StreamController<
+      List<DatabaseTicket>>.broadcast(); //TODO: understand why it´s good
 
   Stream<List<DatabaseTicket>> get allTickets =>
       _ticketsStreamController.stream;
@@ -112,7 +112,11 @@ class TicketService {
     }
   }
 
-  Future<DatabaseTicket> createTicket({required DatabaseUser owner}) async {
+  Future<DatabaseTicket> createTicket(
+      {required DatabaseUser owner,
+      required String topic,
+      required String description,
+      required String? image}) async {
     await _ensureDbIsOpen();
     final db = _getDatabase();
 
@@ -123,18 +127,19 @@ class TicketService {
 
     final ticketId = await db.insert(ticketTable, {
       userIdColumn: owner.id,
-      imgIdColumn: Null,
-      descriptionColumn: '',
+      topicColumn: topic,
+      descriptionColumn: description,
+      imgColumn: image,
       statusColumn: TicketStatus.open.toString(),
-      isSyncedWithCloudColumn: 1
+      isSyncedWithCloudColumn: 1 //TODO: Sure?
     });
 
     final ticket = DatabaseTicket(
         id: ticketId,
         userId: owner.id,
-        imgId: null,
-        topic: '',
-        description: '',
+        topic: topic,
+        description: description,
+        img: image,
         status: TicketStatus.open,
         isSyncedWithCloud: true);
 
@@ -270,38 +275,10 @@ class DatabaseUser {
 }
 
 @immutable
-class DatabaseTicketImage {
-  final int id;
-  final String img;
-
-  const DatabaseTicketImage({required this.id, required this.img});
-
-  DatabaseTicketImage.fromRow(Map<String, dynamic> map)
-      : id = map[idColumn] as int,
-        img = map[imgColumn] as String;
-
-  Map<String, dynamic> toMap() {
-    var map = <String, dynamic>{};
-    map['id'] = id;
-    map['image'] = img;
-    return map;
-  }
-
-  @override
-  String toString() => 'Photo ID: $id';
-
-  @override
-  bool operator ==(covariant DatabaseTicketImage other) => id == other.id;
-
-  @override
-  int get hashCode => id.hashCode;
-}
-
-@immutable
 class DatabaseTicket {
   final int id;
   final int userId;
-  final int? imgId;
+  final String? img;
   final String topic;
   final String description;
   final TicketStatus status;
@@ -310,7 +287,7 @@ class DatabaseTicket {
   const DatabaseTicket(
       {required this.id,
       required this.userId,
-      required this.imgId,
+      required this.img,
       required this.topic,
       required this.description,
       required this.status,
@@ -321,13 +298,13 @@ class DatabaseTicket {
         userId = map[userIdColumn] as int,
         topic = map[topicColumn] as String,
         description = map[descriptionColumn] as String,
-        imgId = map[imgIdColumn] as int?,
+        img = map[imgColumn] as String?,
         status = TicketStatus.values.byName(map[statusColumn] as String),
         isSyncedWithCloud = map[isSyncedWithCloudColumn] as bool;
 
   @override
   String toString() =>
-      'Ticket: ID = $id, ${userId.toString()}, topic: $topic, description: $description, ${imgId.toString()}, status: ${status.toString()}, isSyncedWithCloud: ${isSyncedWithCloud.toString()}';
+      'Ticket: ID = $id, ${userId.toString()}, topic: $topic, description: $description, status: ${status.toString()}, isSyncedWithCloud: ${isSyncedWithCloud.toString()}';
 
   @override
   bool operator ==(covariant DatabaseTicket other) => id == other.id;
@@ -346,7 +323,6 @@ const imgColumn = 'image';
 const userColumn = 'user';
 const topicColumn = 'topic';
 const descriptionColumn = 'description';
-const imgIdColumn = 'imageId';
 const statusColumn = 'status';
 const isSyncedWithCloudColumn = 'isSyncedWithCloud';
 const userTable = "users";
@@ -367,9 +343,9 @@ const createTicketPhotoTable = '''CREATE TABLE IF NOT EXISTS "ticket_photos" (
 const createTicketTable = '''CREATE TABLE IF NOT EXISTS "tickets" (
         "id" INTEGER NOT NULL,
         "userId" INTEGER NOT NULL,
-        "imageId" INTEGER,
         "topic" TEXT NOT NULL,
         "description" TEXT,
+        "image" TEXT,
         "status" TEXT NOT NULL,
         "isSyncedWithCloud" INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY ("userId") REFERENCES "users"("id"),

@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 
 import '../../services/crud/tickets_service.dart';
 
@@ -18,7 +18,6 @@ class TicketCreationView extends StatefulWidget {
 }
 
 class _TicketCreationViewState extends State<TicketCreationView> {
-  DatabaseTicket? _ticket;
   late final TicketService _ticketService;
 
   late final TextEditingController _topic;
@@ -42,6 +41,17 @@ class _TicketCreationViewState extends State<TicketCreationView> {
         throw ImageCouldNotBeReadAsBytes();
       }
     }
+  }
+
+  Future<DatabaseTicket> createNewTicket(
+      {required String topic,
+      required String description,
+      required String? image}) async {
+    final currentUser = AuthService.firebase().currentUser!;
+    final email = currentUser.email!;
+    final owner = await _ticketService.getUser(email: email);
+    return await _ticketService.createTicket(
+        owner: owner, topic: topic, description: description, image: image);
   }
 
   @override
@@ -72,21 +82,54 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                   hintText: 'Thema',
                 )),
             TextField(
+                minLines: 8,
+                maxLines: 20,
                 controller: _description,
                 keyboardType: TextInputType.text,
                 decoration: const InputDecoration(
                   hintText: 'Problembeschreibung',
                 )),
-            SizedBox(
-              height: 200,
-              child: ElevatedButton.icon(
-                  onPressed: () {
-                    _getImage(context);
-                    Image.file(File(_image!.path), height: 200);
-                  },
-                  icon: const Icon(Icons.add_a_photo_outlined),
-                  label: const Text('Bild hinzufügen')),
-            ),
+            Container(
+                //TODO: make it possible to put several images + save them to database
+                height: 200,
+                width: 400,
+                decoration:
+                    BoxDecoration(border: Border.all(color: Colors.blueAccent)),
+                child: _image == null
+                    ? ElevatedButton.icon(
+                        onPressed: () {
+                          _getImage(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white),
+                        icon: const Icon(
+                          Icons.add_a_photo_outlined,
+                          color: Colors.black,
+                        ),
+                        label: const Text(
+                          'Bild hinzufügen',
+                          style: TextStyle(color: Colors.black),
+                        ))
+                    : Image.file(
+                        File(_image!.path),
+                      )),
+            TextButton(
+              onPressed: () {
+                //TODO: actually send to janitor
+                //first save ticket in database
+                final topic = _topic.text;
+                final description = _description.text;
+                createNewTicket(
+                    topic: topic, description: description, image: ''); //TODO
+                Fluttertoast.showToast(
+                    msg: "Dein Ticket wurde erfolgreich versendet!",
+                    toastLength: Toast.LENGTH_SHORT,
+                    textColor: Colors.black,
+                    fontSize: 16,
+                    backgroundColor: Colors.grey[200]);
+              },
+              child: const Text('An meinen Hausmeister senden'),
+            )
           ],
         ));
   }
