@@ -15,3 +15,5 @@ class CouldNotDeleteTicket implements Exception {}
 class CouldNotFindTicket implements Exception {}
 
 class CouldNotUpdateTicket implements Exception {}
+
+class CouldNotFindGivenHouse implements Exception {}
