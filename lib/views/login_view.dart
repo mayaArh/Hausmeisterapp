@@ -8,23 +8,15 @@ import '../services/auth/auth_service.dart';
 import '../services/firestore_crud/registration_service.dart';
 
 class LoginView extends StatefulWidget {
-  final Renter renter;
-  final Map renterAddress;
-  const LoginView({Key? key, required this.renter, required this.renterAddress})
-      : super(key: key);
+  const LoginView({Key? key}) : super(key: key);
 
   @override
-  State<LoginView> createState() =>
-      _LoginViewState(renter: renter, renterAddress: renterAddress);
+  State<LoginView> createState() => _LoginViewState();
 }
 
 class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
-  final Renter renter;
-  final Map renterAddress;
-
-  _LoginViewState({required this.renter, required this.renterAddress});
 
   @override
   void initState() {
