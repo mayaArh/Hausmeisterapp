@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/registration_service.dart';
 import 'package:mein_digitaler_hausmeister/views/login_view.dart';
 
 import '../services/auth/auth_exceptions.dart';
@@ -21,7 +22,10 @@ class RegisterViewState extends State<RegisterView> {
   late final TextEditingController _postalCode;
   late final TextEditingController _city;
   late final TextEditingController _email;
+  late final TextEditingController _phoneNumber;
   late final TextEditingController _password;
+  late final Renter renter;
+  late final Map renterAddress;
 
   @override
   void initState() {
@@ -33,6 +37,7 @@ class RegisterViewState extends State<RegisterView> {
     _postalCode = TextEditingController();
     _city = TextEditingController();
     _email = TextEditingController();
+    _phoneNumber = TextEditingController();
     _password = TextEditingController();
     super.initState();
   }
@@ -125,6 +130,15 @@ class RegisterViewState extends State<RegisterView> {
             ),
           ),
           TextField(
+            controller: _phoneNumber,
+            enableSuggestions: false,
+            autocorrect: false,
+            keyboardType: TextInputType.phone,
+            decoration: const InputDecoration(
+              hintText: 'Telefonnummer',
+            ),
+          ),
+          TextField(
             controller: _password,
             obscureText: true,
             enableSuggestions: false,
@@ -138,17 +152,31 @@ class RegisterViewState extends State<RegisterView> {
               final firstName = _firstName.text;
               final lastName = _lastName.text;
               final streetname = _streetname.text;
-              final houseNumber = _houseNumber.value;
-              final flatNumber = _flatNumber.value;
-              final postalCode = _postalCode.value;
+              final houseNumber = _houseNumber.text;
+              final flatNumber = _flatNumber.text;
+              final postalCode = _postalCode.text;
               final city = _city.text;
               final email = _email.text;
+              final phoneNumber = _phoneNumber.text;
               final password = _password.text;
               try {
+                //if house exists, otherwise show message
                 await AuthService.firebase().createUser(
                   email: email,
                   password: password,
                 );
+                renter = Renter(
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    phoneNumber: phoneNumber,
+                    flatNumber: int.parse(flatNumber));
+                renterAddress = {
+                  'streetname': streetname,
+                  'houseNumber': int.parse(houseNumber),
+                  'postalCode': int.parse(postalCode),
+                  'city': city
+                };
                 await AuthService.firebase().sendEmailVerification();
                 Navigator.of(context).pushNamed(verifyEmailRoute);
               } on WeakPasswordAuthException {
@@ -165,8 +193,12 @@ class RegisterViewState extends State<RegisterView> {
           ),
           TextButton(
               onPressed: () {
-                Navigator.of(context)
-                    .pushNamedAndRemoveUntil(loginRoute, (route) => false);
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => LoginView(
+                            renter: renter, renterAddress: renterAddress)),
+                    (route) => false);
               },
               child: const Text('Already registered? Login here!'))
         ],

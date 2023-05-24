@@ -6,7 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 
-import '../../services/crud/tickets_service.dart';
+import '../../services/firestore_crud/registration_service.dart';
 
 class ImageCouldNotBeReadAsBytes implements Exception {}
 

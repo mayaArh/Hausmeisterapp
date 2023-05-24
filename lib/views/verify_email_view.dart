@@ -3,7 +3,9 @@ import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 
 class VerifyEmailView extends StatefulWidget {
-  const VerifyEmailView({super.key});
+  const VerifyEmailView({
+    super.key,
+  });
 
   @override
   State<VerifyEmailView> createState() => _VerifyEmailViewState();

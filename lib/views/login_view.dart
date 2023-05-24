@@ -3,18 +3,28 @@ import 'dart:developer' as developer;
 
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_exceptions.dart';
-import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
+import '../services/auth/auth_service.dart';
+
+import '../services/firestore_crud/registration_service.dart';
 
 class LoginView extends StatefulWidget {
-  const LoginView({Key? key}) : super(key: key);
+  final Renter renter;
+  final Map renterAddress;
+  const LoginView({Key? key, required this.renter, required this.renterAddress})
+      : super(key: key);
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<LoginView> createState() =>
+      _LoginViewState(renter: renter, renterAddress: renterAddress);
 }
 
 class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
+  final Renter renter;
+  final Map renterAddress;
+
+  _LoginViewState({required this.renter, required this.renterAddress});
 
   @override
   void initState() {
@@ -68,6 +78,8 @@ class _LoginViewState extends State<LoginView> {
                 developer.log(userCredential.toString());
                 final user = AuthService.firebase().currentUser;
                 if (user?.isEmailVerified ?? false) {
+                  RegistrationService()
+                      .createFirestoreRenter(renter, renterAddress);
                   Navigator.of(context).pushNamedAndRemoveUntil(
                     renterHomeRoute,
                     (route) => false,

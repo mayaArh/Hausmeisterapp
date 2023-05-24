@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
-import 'package:mein_digitaler_hausmeister/services/crud/tickets_service.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/registration_service.dart';
 
 import '../constants/routes.dart';
 import '../enums/menu_entries.dart';
