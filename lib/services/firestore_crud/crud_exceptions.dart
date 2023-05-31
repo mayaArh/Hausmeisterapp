@@ -17,3 +17,5 @@ class CouldNotFindTicket implements Exception {}
 class CouldNotUpdateTicket implements Exception {}
 
 class CouldNotFindGivenHouse implements Exception {}
+
+class SeveralUsersWithSameEmail implements Exception {}
