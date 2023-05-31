@@ -1,31 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
-import 'package:mein_digitaler_hausmeister/services/firestore_crud/user_provider.dart';
-import 'package:provider/provider.dart';
 import 'constants/routes.dart';
-import 'views/login_view.dart';
-import 'views/register_view.dart';
-import 'views/renter_tickets_overview.dart';
+import 'views/administration_views/login_view.dart';
+import 'views/administration_views/register_view.dart';
+import 'views/administration_views/tickets_overview.dart';
 import 'views/verify_email_view.dart';
 import 'dart:developer' as developer;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(ChangeNotifierProvider(
-    create: ((context) => UserProvider()),
-    child: MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.deepOrange,
-        ),
-        home: const HomePage(),
-        routes: {
-          loginRoute: (context) => const LoginView(),
-          registerRoute: (context) => const RegisterView(),
-          renterHomeRoute: (context) => const RenterTicketOverview(),
-          verifyEmailRoute: (context) => const VerifyEmailView()
-        }),
-  ));
+  MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.deepOrange,
+      ),
+      home: const HomePage(),
+      routes: {
+        loginRoute: (context) => const LoginView(),
+        registerRoute: (context) => const RegisterView(),
+        ticketOverviewRoute: (context) => const TicketOverview(),
+        verifyEmailRoute: (context) => const VerifyEmailView()
+      });
 }
 
 class HomePage extends StatelessWidget {
@@ -43,7 +38,7 @@ class HomePage extends StatelessWidget {
               developer.log(user.toString());
               if (user != null) {
                 if (user.isEmailVerified) {
-                  return const RenterTicketOverview();
+                  return const TicketOverview();
                 } else {
                   return const VerifyEmailView();
                 }

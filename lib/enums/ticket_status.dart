@@ -1,1 +1,1 @@
-enum TicketStatus { open, inProcess, done }
+enum TicketStatus { open, done }
