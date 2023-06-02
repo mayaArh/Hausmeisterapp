@@ -3,6 +3,7 @@ import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 
 import '../../constants/routes.dart';
 import '../../enums/menu_entries.dart';
+import '../../services/auth/auth_user.dart';
 import '../../services/firestore_crud/ticket_service.dart';
 import '../../utilities/show_error_dialog.dart';
 
@@ -14,18 +15,17 @@ class TicketOverview extends StatefulWidget {
 }
 
 class _TicketOverviewState extends State<TicketOverview> {
-  late final TicketService _ticketService;
-  String get userEmail => AuthService.firebase().currentUser!.email!;
+  late final FirestoreTicketService _ticketService;
+  AuthUser get user => AuthService.firebase().currentUser!;
 
   @override
   void initState() {
-    _ticketService = TicketService();
+    _ticketService = FirestoreTicketService();
     super.initState();
   }
 
   @override
   void dispose() {
-    _ticketService.close();
     super.dispose();
   }
 
@@ -57,12 +57,12 @@ class _TicketOverviewState extends State<TicketOverview> {
           ],
         ),
         body: FutureBuilder(
-            future: _ticketService.getOrCreateUser(email: userEmail),
+            future: _ticketService.fetchUserFirestoreDataAsStaff(user),
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.done:
                   return StreamBuilder(
-                      stream: _ticketService.allTickets,
+                      stream: _ticketService.,
                       builder: (context, snapshot) {
                         switch (snapshot.connectionState) {
                           case ConnectionState.waiting:
