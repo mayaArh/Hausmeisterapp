@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-/**import 'package:fluttertoast/fluttertoast.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 
 import '../../services/firestore_crud/registration_service.dart';
+import '../../services/firestore_crud/ticket_service.dart';
 
 class ImageCouldNotBeReadAsBytes implements Exception {}
 
@@ -18,10 +19,10 @@ class TicketCreationView extends StatefulWidget {
 }
 
 class _TicketCreationViewState extends State<TicketCreationView> {
-
   late final TextEditingController _topic;
   late final TextEditingController _description;
   late final ImagePicker _imagePicker;
+  final FirestoreTicketService _ticketService = FirestoreTicketService();
 
   XFile? _image;
   String _imageLocation = '';
@@ -42,16 +43,19 @@ class _TicketCreationViewState extends State<TicketCreationView> {
     }
   }
 
-  Future<DatabaseTicket> createNewTicket(
-      {required String topic,
+  Future<Ticket> createNewTicket(
+      {required House house,
+      required String firstName,
+      required String lastName, 
+      required DateTime dateTime,
       required String description,
       required String? image}) async {
     final currentUser = AuthService.firebase().currentUser!;
     final email = currentUser.email!;
     final owner = await _ticketService.getUser(email: email);
-    return await _ticketService.createTicket(
-        owner: owner, topic: topic, description: description, image: image);
+    return await _ticketService.addTicketToHouse(house, ticket)
   }
+
 
   @override
   void initState() {
@@ -132,4 +136,4 @@ class _TicketCreationViewState extends State<TicketCreationView> {
           ],
         ));
   }
-}*/
+}
