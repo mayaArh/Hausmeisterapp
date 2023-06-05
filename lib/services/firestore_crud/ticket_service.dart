@@ -7,7 +7,14 @@ import '../auth/auth_user.dart';
 import 'crud_exceptions.dart';
 
 class FirestoreTicketService {
-  FirestoreTicketService._sharedInstance();
+  FirestoreTicketService._sharedInstance() {
+    _ticketsStreamController =
+        StreamController<Map<String, Map<House, List<Ticket>>>>.broadcast(
+      onListen: () {
+        _ticketsStreamController.sink.add(_allTicketsByHouseInCity);
+      },
+    );
+  }
   static final FirestoreTicketService _shared =
       FirestoreTicketService._sharedInstance();
   factory FirestoreTicketService() => _shared;
@@ -16,8 +23,11 @@ class FirestoreTicketService {
   final _registrationService = RegistrationService();
   late DocumentReference<Map<String, dynamic>> userDoc;
   Map<String, Map<House, List<Ticket>>> _allTicketsByHouseInCity = {};
-  final _ticketsStreamController =
-      StreamController<Map<String, Map<House, List<Ticket>>>>.broadcast();
+  late final StreamController<Map<String, Map<House, List<Ticket>>>>
+      _ticketsStreamController;
+
+  Stream<Map<String, Map<House, List<Ticket>>>> get allTicketsByHouseInCity =>
+      _ticketsStreamController.stream;
 
   ///Fetches the in firestore stored data for the given user and
   ///stores it in a corresponding <Staff> member. Returns a Future of
