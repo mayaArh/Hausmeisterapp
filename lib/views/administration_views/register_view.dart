@@ -3,10 +3,8 @@ import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/registration_service.dart';
 import 'package:mein_digitaler_hausmeister/views/administration_views/login_view.dart';
-import 'package:provider/provider.dart';
 
 import '../../services/auth/auth_exceptions.dart';
-import '../../services/firestore_crud/user_provider.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({Key? key}) : super(key: key);

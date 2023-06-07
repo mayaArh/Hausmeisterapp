@@ -62,11 +62,23 @@ class _TicketOverviewState extends State<TicketOverview> {
               switch (snapshot.connectionState) {
                 case ConnectionState.done:
                   return StreamBuilder(
-                      stream: _ticketService.,
+                      stream: _ticketService.allTicketsByHouseInCity,
                       builder: (context, snapshot) {
                         switch (snapshot.connectionState) {
                           case ConnectionState.waiting:
-                            return const Text('Ticketansicht wird geladen...');
+                          case ConnectionState.active:
+                            if (snapshot.hasData) {
+                              final allTickets =
+                                  snapshot.data!.keys as List<String>;
+                              return ListView.builder(
+                                  itemCount: allTickets.length,
+                                  itemBuilder: (context, index) {
+                                    final ticket = allTickets[index];
+                                    return ListTile(title: Text(ticket));
+                                  });
+                            } else {
+                              return const CircularProgressIndicator();
+                            }
                           default:
                             return const CircularProgressIndicator();
                         }
