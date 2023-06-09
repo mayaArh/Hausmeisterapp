@@ -36,18 +36,17 @@ class HomePage extends StatelessWidget {
             case ConnectionState.done:
               final user = AuthService.firebase().currentUser;
               developer.log(user.toString());
-              if (user != null) {
+              /*if (user != null) {
                 if (user.isEmailVerified) {
                   return const TicketOverview();
                 } else {
                   return const VerifyEmailView();
                 }
-              } else {
-                return const LoginView();
-              }
-            default:
-              return const CircularProgressIndicator();
+              } else {*/
+              return const LoginView();
           }
+          //default:
+          return const CircularProgressIndicator();
         });
   }
 }
