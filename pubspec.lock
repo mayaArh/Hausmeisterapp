@@ -464,6 +464,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.7"
+    version: "0.6.7"
   lints:
     dependency: transitive
     description:
@@ -485,8 +486,10 @@ packages:
     description:
       name: matcher
       sha256: "6501fbd55da300384b768785b83e5ce66991266cec21af89ab9ae7f5ce1c4cbb"
+      sha256: "6501fbd55da300384b768785b83e5ce66991266cec21af89ab9ae7f5ce1c4cbb"
       url: "https://pub.dev"
     source: hosted
+    version: "0.12.15"
     version: "0.12.15"
   material_color_utilities:
     dependency: transitive
@@ -794,8 +797,10 @@ packages:
     description:
       name: test_core
       sha256: "5138dbffb77b2289ecb12b81c11ba46036590b72a64a7a90d6ffb880f1a29e93"
+      sha256: eb6ac1540b26de412b3403a163d919ba86f6a973fe6cc50ae3541b80092fdcfb
       url: "https://pub.dev"
     source: hosted
+    version: "0.5.1"
     version: "0.5.1"
   typed_data:
     dependency: transitive
@@ -880,3 +885,5 @@ packages:
 sdks:
   dart: ">=3.0.0-0 <4.0.0"
   flutter: ">=3.3.0"
+  dart: ">=3.0.0-0 <4.0.0"
+  flutter: ">=1.20.0"
