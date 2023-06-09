@@ -44,9 +44,11 @@ class HomePage extends StatelessWidget {
                 }
               } else {*/
               return const LoginView();
+            default:
+              return const CircularProgressIndicator();
           }
           //default:
-          return const CircularProgressIndicator();
+          //return const CircularProgressIndicator();
         });
   }
 }
