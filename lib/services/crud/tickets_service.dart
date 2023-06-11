@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mein_digitaler_hausmeister/services/firestore_crud/registration_service.dart';
 
 import '../auth/auth_user.dart';
-import 'crud_exceptions.dart';
+import '../firestore_crud/crud_exceptions.dart';
+import '../firestore_crud/registration_service.dart';
 
 class FirestoreTicketService {
   FirestoreTicketService._sharedInstance() {
@@ -26,8 +26,6 @@ class FirestoreTicketService {
   late final StreamController<Map<String, Map<House, List<Ticket>>>>
       _ticketsStreamController;
 
-  late final Stream<DocumentSnapshot<Map<String, dynamic>>> firestoreStream;
-
   Stream<Map<String, Map<House, List<Ticket>>>> get allTicketsByHouseInCity =>
       _ticketsStreamController.stream;
 
@@ -36,7 +34,6 @@ class FirestoreTicketService {
   ///the <Staff> member.
   Future<Staff> fetchUserFirestoreDataAsStaff(AuthUser user) async {
     userDoc = (await _registrationService.getFirestoreUserDoc(user.email!))!;
-    firestoreStream = userDoc.snapshots();
     late final Map<String, dynamic> userData;
     userDoc
         .get()
@@ -69,9 +66,10 @@ class FirestoreTicketService {
   }
 
   void _setAllTicketsForUser(Map<String, dynamic> userData) {
-    Map<String, Map<House, List<Ticket>>> allTicketsByHouse =
+    late final Map<String, Map<House, List<Ticket>>> allTicketsByHouse =
         <String, Map<House, List<Ticket>>>{};
-    final houseMap = userData['Gebäude'];
+    final Map<String, List<DocumentReference<Map<String, dynamic>>>> houseMap =
+        userData['Gebäude'];
     houseMap.forEach((city, houseDocs) async {
       for (DocumentReference<Map<String, dynamic>> houseDoc in houseDocs) {
         final data = await houseDoc.get().then((snapshot) => snapshot.data()!);
@@ -104,7 +102,8 @@ class FirestoreTicketService {
                 final Ticket ticket = Ticket(
                     firstName: ticketData['Vorname'],
                     lastName: ticketData['Nachname'],
-                    dateTime: DateTime.parse(ticketData['erstellt am']),
+                    dateTime:
+                        DateTime.parse(ticketData['erstellt am']).toLocal(),
                     description: ticketData['Problembeschreibung'],
                     image: ticketData['Bild']);
                 ticket.setTicketDoc(ticketDoc.reference);

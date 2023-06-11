@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 
@@ -61,19 +64,21 @@ class _TicketOverviewState extends State<TicketOverview> {
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.done:
-                  return StreamBuilder(
-                      stream: _ticketService.allTicketsByHouseInCity,
-                      builder: (context, snapshot) {
+                  return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                      stream: _ticketService.firestoreStream,
+                      builder: (BuildContext context,
+                          AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
+                              snapshot) {
                         switch (snapshot.connectionState) {
                           case ConnectionState.waiting:
                           case ConnectionState.active:
                             if (snapshot.hasData) {
-                              final allTickets =
-                                  snapshot.data!.keys as List<String>;
+                              List<String> list =
+                                  snapshot.data!.data()!.keys.toList();
                               return ListView.builder(
-                                  itemCount: allTickets.length,
+                                  itemCount: list.length,
                                   itemBuilder: (context, index) {
-                                    final ticket = allTickets[index];
+                                    final ticket = list[index];
                                     return ListTile(title: Text(ticket));
                                   });
                             } else {

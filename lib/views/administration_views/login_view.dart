@@ -4,7 +4,6 @@ import 'dart:developer' as developer;
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_exceptions.dart';
 import '../../services/auth/auth_service.dart';
-
 import '../../services/firestore_crud/registration_service.dart';
 
 class LoginView extends StatefulWidget {
