@@ -64,23 +64,30 @@ class _TicketOverviewState extends State<TicketOverview> {
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.done:
-                  return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                      stream: _ticketService.firestoreStream,
+                  return StreamBuilder<
+                          List<QuerySnapshot<Map<String, dynamic>>>>(
+                      stream: _ticketService.firestoreStreams,
                       builder: (BuildContext context,
-                          AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
+                          AsyncSnapshot<
+                                  List<QuerySnapshot<Map<String, dynamic>>>>
                               snapshot) {
                         switch (snapshot.connectionState) {
                           case ConnectionState.waiting:
                           case ConnectionState.active:
                             if (snapshot.hasData) {
-                              List<String> list =
-                                  snapshot.data!.data()!.keys.toList();
-                              return ListView.builder(
-                                  itemCount: list.length,
-                                  itemBuilder: (context, index) {
-                                    final ticket = list[index];
-                                    return ListTile(title: Text(ticket));
-                                  });
+                              List<QuerySnapshot<Map<String, dynamic>>>
+                                  querySnapshots = snapshot.data!.toList();
+                              List<String> streetnames = [];
+                              return ListView(
+                                  children: querySnapshots.first.docs.map(
+                                      (DocumentSnapshot<Map<String, dynamic>>
+                                          doc) {
+                                final data = doc.data()!;
+                                int city = data['Hausnummer'];
+                                return ListTile(
+                                  title: Text(city.toString()),
+                                );
+                              }).toList());
                             } else {
                               return const CircularProgressIndicator();
                             }

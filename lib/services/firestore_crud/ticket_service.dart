@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/registration_service.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../auth/auth_user.dart';
 import 'crud_exceptions.dart';
@@ -9,15 +11,14 @@ import 'crud_exceptions.dart';
 class FirestoreTicketService {
   FirestoreTicketService._sharedInstance() {
     _ticketsStreamController =
-        StreamController<Map<String, Map<House, List<Ticket>>>>.broadcast(
-      onListen: () {
-        _ticketsStreamController.sink.add(_allTicketsByHouseInCity);
-      },
-    );
+        StreamController<Map<String, Map<House, List<Ticket>>>>.broadcast();
   }
   static final FirestoreTicketService _shared =
       FirestoreTicketService._sharedInstance();
   factory FirestoreTicketService() => _shared;
+
+  late String houseDocId;
+  List<List<String>> houseDocIds = [];
 
   final db = FirebaseFirestore.instance;
   final _registrationService = RegistrationService();
@@ -26,24 +27,41 @@ class FirestoreTicketService {
   late final StreamController<Map<String, Map<House, List<Ticket>>>>
       _ticketsStreamController;
 
-  late final Stream<DocumentSnapshot<Map<String, dynamic>>> firestoreStream;
+  late final Stream<List<QuerySnapshot<Map<String, dynamic>>>> firestoreStreams;
 
   Stream<Map<String, Map<House, List<Ticket>>>> get allTicketsByHouseInCity =>
       _ticketsStreamController.stream;
+
+  void initializeFirestoreStreams() {
+    List<Stream<QuerySnapshot<Map<String, dynamic>>>> streams = [];
+    for (List<String> houseDocIdList in houseDocIds) {
+      final stream = db
+          .collection('Gebäude')
+          .where(
+            FieldPath.documentId,
+            whereIn: houseDocIdList,
+          )
+          .snapshots()
+          .asBroadcastStream();
+      streams.add(stream);
+      firestoreStreams =
+          ZipStream(streams, (values) => values).asBroadcastStream();
+    }
+  }
 
   ///Fetches the in firestore stored data for the given user and
   ///stores it in a corresponding <Staff> member. Returns a Future of
   ///the <Staff> member.
   Future<Staff> fetchUserFirestoreDataAsStaff(AuthUser user) async {
     userDoc = (await _registrationService.getFirestoreUserDoc(user.email!))!;
-    firestoreStream = userDoc.snapshots();
     late final Map<String, dynamic> userData;
-    userDoc
+    await userDoc
         .get()
         .then((DocumentSnapshot<Map<String, dynamic>> documentSnapshot) {
       userData = documentSnapshot.data()!;
       _setAllTicketsForUser(userData);
     });
+    initializeFirestoreStreams();
     final String firstName = userData['Vorname'];
     final String lastName = userData['Nachname'];
     final String email = userData['Email'];
@@ -72,8 +90,18 @@ class FirestoreTicketService {
     Map<String, Map<House, List<Ticket>>> allTicketsByHouse =
         <String, Map<House, List<Ticket>>>{};
     final houseMap = userData['Gebäude'];
+    int i = 0;
+    List<String> houseDocIDs = List.empty(growable: true);
     houseMap.forEach((city, houseDocs) async {
       for (DocumentReference<Map<String, dynamic>> houseDoc in houseDocs) {
+        if (i < 10) {
+          houseDocIDs.add(houseDoc.id);
+          i++;
+        } else {
+          i = 0;
+          houseDocIds.add(houseDocIDs);
+          houseDocIDs = List.empty(growable: true);
+        }
         final data = await houseDoc.get().then((snapshot) => snapshot.data()!);
         House house = House(
             street: data['Strasse'],
