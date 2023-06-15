@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/registration_service.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -9,30 +8,19 @@ import '../auth/auth_user.dart';
 import 'crud_exceptions.dart';
 
 class FirestoreTicketService {
-  FirestoreTicketService._sharedInstance() {
-    _ticketsStreamController =
-        StreamController<Map<String, Map<House, List<Ticket>>>>.broadcast();
-  }
+  FirestoreTicketService._sharedInstance();
   static final FirestoreTicketService _shared =
       FirestoreTicketService._sharedInstance();
   factory FirestoreTicketService() => _shared;
 
-  late String houseDocId;
-  List<List<String>> houseDocIds = [];
-
   final db = FirebaseFirestore.instance;
-  final _registrationService = RegistrationService();
+  List<List<String>> houseDocIds = [];
   late DocumentReference<Map<String, dynamic>> userDoc;
   Map<String, Map<House, List<Ticket>>> _allTicketsByHouseInCity = {};
-  late final StreamController<Map<String, Map<House, List<Ticket>>>>
-      _ticketsStreamController;
 
-  late final Stream<List<QuerySnapshot<Map<String, dynamic>>>> firestoreStreams;
+  final _registrationService = RegistrationService();
 
-  Stream<Map<String, Map<House, List<Ticket>>>> get allTicketsByHouseInCity =>
-      _ticketsStreamController.stream;
-
-  void initializeFirestoreStreams() {
+  Stream<List<QuerySnapshot<Map<String, dynamic>>>> get firestoreStreams {
     List<Stream<QuerySnapshot<Map<String, dynamic>>>> streams = [];
     for (List<String> houseDocIdList in houseDocIds) {
       final stream = db
@@ -41,12 +29,12 @@ class FirestoreTicketService {
             FieldPath.documentId,
             whereIn: houseDocIdList,
           )
-          .snapshots()
-          .asBroadcastStream();
+          .snapshots();
       streams.add(stream);
-      firestoreStreams =
-          ZipStream(streams, (values) => values).asBroadcastStream();
     }
+    Stream<List<QuerySnapshot<Map<String, dynamic>>>> zippedStreams =
+        ZipStream(streams, (values) => values);
+    return zippedStreams;
   }
 
   ///Fetches the in firestore stored data for the given user and
@@ -61,7 +49,6 @@ class FirestoreTicketService {
       userData = documentSnapshot.data()!;
       _setAllTicketsForUser(userData);
     });
-    initializeFirestoreStreams();
     final String firstName = userData['Vorname'];
     final String lastName = userData['Nachname'];
     final String email = userData['Email'];
@@ -86,12 +73,13 @@ class FirestoreTicketService {
     }
   }
 
-  void _setAllTicketsForUser(Map<String, dynamic> userData) {
+  void _setAllTicketsForUser(Map<String, dynamic> userData) async {
     Map<String, Map<House, List<Ticket>>> allTicketsByHouse =
         <String, Map<House, List<Ticket>>>{};
     final houseMap = userData['Gebäude'];
     int i = 0;
     List<String> houseDocIDs = List.empty(growable: true);
+    final fetchHouseDataTasks = <Future<void>>[];
     houseMap.forEach((city, houseDocs) async {
       for (DocumentReference<Map<String, dynamic>> houseDoc in houseDocs) {
         if (i < 10) {
@@ -102,21 +90,30 @@ class FirestoreTicketService {
           houseDocIds.add(houseDocIDs);
           houseDocIDs = List.empty(growable: true);
         }
-        final data = await houseDoc.get().then((snapshot) => snapshot.data()!);
-        House house = House(
-            street: data['Strasse'],
-            houseNumber: data['Hausnummer'],
-            postalCode: data['Postleitzahl'],
-            city: data['Ort'],
-            doc: houseDoc);
-        List<Ticket> allTicketsForHouse =
-            await _setAllTicketsForHouse(houseDoc);
-        Map<House, List<Ticket>> houseTicketMap = {house: allTicketsForHouse};
-        allTicketsByHouse.putIfAbsent(city, () => houseTicketMap);
+        fetchHouseDataTasks
+            .add(_fetchHouseData(houseDoc, city, allTicketsByHouse));
       }
     });
+    await Future.wait(fetchHouseDataTasks);
+    print("I'm here");
     _allTicketsByHouseInCity = allTicketsByHouse;
-    _ticketsStreamController.add(_allTicketsByHouseInCity);
+  }
+
+  Future<void> _fetchHouseData(
+      DocumentReference<Map<String, dynamic>> houseDoc,
+      String city,
+      Map<String, Map<House, List<Ticket>>> allTicketsByHouse) async {
+    final data = await houseDoc.get().then((snapshot) => snapshot.data()!);
+    House house = House(
+      street: data['Strasse'],
+      houseNumber: data['Hausnummer'],
+      postalCode: data['Postleitzahl'],
+      city: data['Ort'],
+      doc: houseDoc,
+    );
+    List<Ticket> allTicketsForHouse = await _setAllTicketsForHouse(houseDoc);
+    Map<House, List<Ticket>> houseTicketMap = {house: allTicketsForHouse};
+    allTicketsByHouse.putIfAbsent(city, () => houseTicketMap);
   }
 
   Future<List<Ticket>> _setAllTicketsForHouse(
@@ -161,33 +158,6 @@ class FirestoreTicketService {
       throw CouldNotFindGivenHouse();
     }
   }
-
-  /*List<String> getListOfCities() {
-    return allTicketsByHouseInCity.keys.toList();
-  }
-
-  List<House> getListOfHouses(String city) {
-    Map<House, List<Ticket>>? cities = allTicketsByHouseInCity[city];
-    if (cities != null) {
-      return cities.keys.toList();
-    } else {
-      throw GivenCityDoesntExist();
-    }
-  }
-
-  List<Ticket> getListOfTickets(String city, House house) {
-    Map<House, List<Ticket>>? cities = allTicketsByHouseInCity[city];
-    if (cities != null) {
-      List<Ticket>? tickets = cities[house];
-      if (tickets != null) {
-        return tickets;
-      } else {
-        throw GivenHouseDoesntExist();
-      }
-    } else {
-      throw GivenCityDoesntExist();
-    }
-  }*/
 }
 
 class Ticket {

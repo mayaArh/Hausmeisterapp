@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
@@ -9,6 +7,7 @@ import '../../enums/menu_entries.dart';
 import '../../services/auth/auth_user.dart';
 import '../../services/firestore_crud/ticket_service.dart';
 import '../../utilities/show_error_dialog.dart';
+import 'dart:developer' as developer;
 
 class TicketOverview extends StatefulWidget {
   const TicketOverview({super.key});
@@ -23,8 +22,8 @@ class _TicketOverviewState extends State<TicketOverview> {
 
   @override
   void initState() {
-    _ticketService = FirestoreTicketService();
     super.initState();
+    _ticketService = FirestoreTicketService();
   }
 
   @override
@@ -59,45 +58,43 @@ class _TicketOverviewState extends State<TicketOverview> {
             )
           ],
         ),
-        body: FutureBuilder(
-            future: _ticketService.fetchUserFirestoreDataAsStaff(user),
-            builder: (context, snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.done:
-                  return StreamBuilder<
-                          List<QuerySnapshot<Map<String, dynamic>>>>(
-                      stream: _ticketService.firestoreStreams,
-                      builder: (BuildContext context,
-                          AsyncSnapshot<
-                                  List<QuerySnapshot<Map<String, dynamic>>>>
-                              snapshot) {
-                        switch (snapshot.connectionState) {
-                          case ConnectionState.waiting:
-                          case ConnectionState.active:
-                            if (snapshot.hasData) {
-                              List<QuerySnapshot<Map<String, dynamic>>>
-                                  querySnapshots = snapshot.data!.toList();
-                              List<String> streetnames = [];
-                              return ListView(
-                                  children: querySnapshots.first.docs.map(
-                                      (DocumentSnapshot<Map<String, dynamic>>
-                                          doc) {
-                                final data = doc.data()!;
-                                int city = data['Hausnummer'];
-                                return ListTile(
-                                  title: Text(city.toString()),
-                                );
-                              }).toList());
-                            } else {
-                              return const CircularProgressIndicator();
-                            }
-                          default:
-                            return const CircularProgressIndicator();
-                        }
-                      });
-                default:
+        body: FutureBuilder<Staff>(
+          future: _ticketService.fetchUserFirestoreDataAsStaff(user),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text("Error: ${snapshot.error}");
+            }
+
+            return StreamBuilder<List<QuerySnapshot<Map<String, dynamic>>>>(
+              stream: _ticketService.firestoreStreams,
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<QuerySnapshot<Map<String, dynamic>>>>
+                      snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator();
-              }
-            }));
+                } else if (snapshot.hasError) {
+                  return Text("Error: ${snapshot.error}");
+                } else if (snapshot.hasData) {
+                  List<QuerySnapshot<Map<String, dynamic>>> querySnapshots =
+                      snapshot.data!;
+                  return ListView(
+                    children: querySnapshots.first.docs
+                        .map((DocumentSnapshot<Map<String, dynamic>> doc) {
+                      final data = doc.data()!;
+                      int city = data['Hausnummer'];
+                      return ListTile(
+                        title: Text(city.toString()),
+                      );
+                    }).toList(),
+                  );
+                } else {
+                  return const Text('Snapshot has no Data');
+                }
+              },
+            );
+          },
+        ));
   }
 }
