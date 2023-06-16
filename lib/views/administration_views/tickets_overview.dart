@@ -7,7 +7,6 @@ import '../../enums/menu_entries.dart';
 import '../../services/auth/auth_user.dart';
 import '../../services/firestore_crud/ticket_service.dart';
 import '../../utilities/show_error_dialog.dart';
-import 'dart:developer' as developer;
 
 class TicketOverview extends StatefulWidget {
   const TicketOverview({super.key});
