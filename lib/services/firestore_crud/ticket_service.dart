@@ -77,25 +77,26 @@ class FirestoreTicketService {
     Map<String, Map<House, List<Ticket>>> allTicketsByHouse =
         <String, Map<House, List<Ticket>>>{};
     final houseMap = userData['Gebäude'];
+    final fetchHouseDataTasks = <Future<void>>[];
     int i = 0;
     List<String> houseDocIDs = List.empty(growable: true);
-    final fetchHouseDataTasks = <Future<void>>[];
     houseMap.forEach((city, houseDocs) async {
       for (DocumentReference<Map<String, dynamic>> houseDoc in houseDocs) {
-        if (i < 10) {
-          houseDocIDs.add(houseDoc.id);
-          i++;
-        } else {
+        houseDocIDs.add(houseDoc.id);
+        i++;
+        if (i == 10 || houseDocs.last == houseDoc) {
+          houseDocIds.add(List<String>.from(houseDocIDs));
+          houseDocIDs.clear();
           i = 0;
-          houseDocIds.add(houseDocIDs);
-          houseDocIDs = List.empty(growable: true);
         }
         fetchHouseDataTasks
             .add(_fetchHouseData(houseDoc, city, allTicketsByHouse));
       }
     });
+    if (houseDocIDs.isNotEmpty) {
+      houseDocIds.add(List<String>.from(houseDocIDs));
+    }
     await Future.wait(fetchHouseDataTasks);
-    print("I'm here");
     _allTicketsByHouseInCity = allTicketsByHouse;
   }
 

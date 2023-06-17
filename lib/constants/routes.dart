@@ -1,4 +1,6 @@
 const loginRoute = '/login/';
 const registerRoute = '/register/';
-const ticketOverviewRoute = '/tickets_overview/';
 const verifyEmailRoute = '/verify-email/';
+const citiesOverviewRoute = '/cities-overview/';
+const housesOverviewRoute = '/houses-overview/';
+const ticketsOverviewRoute = '/tickets_overview/';

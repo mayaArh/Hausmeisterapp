@@ -73,7 +73,7 @@ class _LoginViewState extends State<LoginView> {
                 if (user?.isEmailVerified ?? false) {
                   _registrationService.changeDocIdtoUID(user!);
                   Navigator.of(context).pushNamedAndRemoveUntil(
-                    ticketOverviewRoute,
+                    citiesOverviewRoute,
                     (route) => false,
                   );
                 } else {

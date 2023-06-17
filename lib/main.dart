@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_provider.dart';
+import 'package:mein_digitaler_hausmeister/views/administration_views/houses_overview.dart';
 import 'package:mein_digitaler_hausmeister/views/administration_views/login_view.dart';
 import 'package:mein_digitaler_hausmeister/views/administration_views/register_view.dart';
-import 'package:mein_digitaler_hausmeister/views/administration_views/tickets_overview.dart';
+import 'package:mein_digitaler_hausmeister/views/administration_views/cities_overview.dart';
+import 'package:mein_digitaler_hausmeister/views/administration_views/ticket_overview.dart';
+import 'package:provider/provider.dart';
 import 'constants/routes.dart';
 import 'views/administration_views/verify_email_view.dart';
 import 'dart:developer' as developer;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(
-    MaterialApp(
+  runApp(ChangeNotifierProvider(
+    create: (_) => FirestoreDataProvider(),
+    child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
           primarySwatch: Colors.deepOrange,
@@ -20,9 +25,11 @@ void main() {
           loginRoute: (context) => const LoginView(),
           registerRoute: (context) => const RegisterView(),
           verifyEmailRoute: (context) => const VerifyEmailView(),
-          ticketOverviewRoute: (context) => const TicketOverview()
+          citiesOverviewRoute: (context) => const CitiesOverview(),
+          housesOverviewRoute: (context) => const HousesOverview(),
+          ticketsOverviewRoute: (context) => const TicketOverview(),
         }),
-  );
+  ));
 }
 
 class HomePage extends StatelessWidget {
