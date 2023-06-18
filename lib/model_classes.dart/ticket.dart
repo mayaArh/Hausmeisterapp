@@ -1,7 +1,8 @@
 class TicketA {
   final String firstName;
   final String lastName;
-  final DateTime dateTime;
+  final String dateTime;
+  final String topic;
   final String description;
   final String? image;
 
@@ -9,6 +10,7 @@ class TicketA {
     required this.firstName,
     required this.lastName,
     required this.dateTime,
+    required this.topic,
     required this.description,
     required this.image,
   });
@@ -17,7 +19,8 @@ class TicketA {
     return TicketA(
       firstName: json['Vorname'],
       lastName: json['Nachname'],
-      dateTime: DateTime.parse(json['erstellt am']),
+      dateTime: json['erstellt am'],
+      topic: json['Thema'],
       description: json['Problembeschreibung'],
       image: json['Bild'],
     );
@@ -27,8 +30,9 @@ class TicketA {
     return {
       'Vorname': firstName,
       'Nachname': lastName,
-      'erstellt am': dateTime.toIso8601String(),
+      'erstellt am': dateTime,
       'Problembeschreibung': description,
+      'Thema': topic,
       'Bild': image,
     };
   }

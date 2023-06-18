@@ -112,9 +112,6 @@ class FirestoreTicketService {
       city: data['Ort'],
       doc: houseDoc,
     );
-    List<Ticket> allTicketsForHouse = await _setAllTicketsForHouse(houseDoc);
-    Map<House, List<Ticket>> houseTicketMap = {house: allTicketsForHouse};
-    allTicketsByHouse.putIfAbsent(city, () => houseTicketMap);
   }
 
   Future<List<Ticket>> _setAllTicketsForHouse(

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/model_classes.dart/house.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
 
-import '../../model_classes.dart/ticket.dart';
 import '../auth/auth_service.dart';
 import '../auth/auth_user.dart';
 

@@ -1,13 +1,9 @@
-/**import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
-import '../../services/firestore_crud/registration_service.dart';
-import '../../services/firestore_crud/ticket_service.dart';
+import '../../model_classes.dart/house.dart';
+import '../../model_classes.dart/ticket.dart';
+//import 'package:image_picker/image_picker.dart';
 
 class ImageCouldNotBeReadAsBytes implements Exception {}
 
@@ -19,18 +15,18 @@ class TicketCreationView extends StatefulWidget {
 }
 
 class _TicketCreationViewState extends State<TicketCreationView> {
-  DatabaseTicket? _ticket;
-  late final TicketService _ticketService;
+  //DatabaseTicket? _ticket;
+  //late final TicketService _ticketService;
 
   late final TextEditingController _topic;
   late final TextEditingController _description;
-  late final ImagePicker _imagePicker;
-  final FirestoreTicketService _ticketService = FirestoreTicketService();
+  //late final ImagePicker _imagePicker;
+  //final FirestoreTicketService _ticketService = FirestoreTicketService();
 
-  XFile? _image;
-  String _imageLocation = '';
+  //XFile? _image;
+  //String _imageLocation = '';
 
-  void _getImage(BuildContext context) async {
+  /*void _getImage(BuildContext context) async {
     XFile? image = await _imagePicker.pickImage(source: ImageSource.camera);
     if (image != null) {
       try {
@@ -44,13 +40,13 @@ class _TicketCreationViewState extends State<TicketCreationView> {
         throw ImageCouldNotBeReadAsBytes();
       }
     }
-  }
+  }*/
 
   @override
   void initState() {
     _topic = TextEditingController();
     _description = TextEditingController();
-    _imagePicker = ImagePicker();
+    //_imagePicker = ImagePicker();
     super.initState();
   }
 
@@ -63,6 +59,8 @@ class _TicketCreationViewState extends State<TicketCreationView> {
 
   @override
   Widget build(BuildContext context) {
+    final HouseA house = ModalRoute.of(context)!.settings.arguments as HouseA;
+
     return Scaffold(
         appBar: AppBar(title: const Text('Neues Ticket')),
         body: Column(
@@ -80,16 +78,25 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                   hintText: 'Problembeschreibung',
                 )),
             SizedBox(
-              height: 200,
+              height: 100,
               child: ElevatedButton.icon(
                   onPressed: () {
-                    _getImage(context);
-                    Image.file(File(_image!.path), height: 200);
+                    //_getImage(context);
+                    //Image.file(File(_image!.path), height: 200);
                   },
                   icon: const Icon(Icons.add_a_photo_outlined),
                   label: const Text('Bild hinzufügen')),
             ),
+            TextButton(
+                onPressed: () {
+                  final topic = _topic.text;
+                  final description = _description.text;
+                  final dateTime =
+                      DateFormat('dd.MM.yyyy, HH:mm').format(DateTime.now());
+                  house.addTicket(topic, description, dateTime, '');
+                },
+                child: const Text('Ticket abschicken'))
           ],
         ));
   }
-}*/
+}

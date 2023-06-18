@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/model_classes.dart/ticket.dart';
-import 'dart:ui';
+import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
 
+import '../services/auth/auth_user.dart';
 import '../services/firestore_crud/firestore_data_provider.dart';
 
 class HouseA {
@@ -12,6 +13,8 @@ class HouseA {
   final String city;
 
   final FirestoreDataProvider dataProvider = FirestoreDataProvider();
+  final FirestoreTicketService _ticketService = FirestoreTicketService();
+  final AuthUser user = AuthService.firebase().currentUser!;
 
   HouseA({
     required this.street,
@@ -62,6 +65,32 @@ class HouseA {
     result = prime * result + postalCode.hashCode;
     result = prime * result + city.hashCode;
     return result;
+  }
+
+  void addTicket(
+      String topic, String description, String dateTime, String image) async {
+    if (dataProvider.snapshots != null) {
+      for (final QuerySnapshot<Map<String, dynamic>> snapshot
+          in dataProvider.snapshots!) {
+        for (final QueryDocumentSnapshot<Map<String, dynamic>> houseDoc
+            in snapshot.docs) {
+          final HouseA house = HouseA.fromJson(houseDoc.data());
+          Staff staffUser =
+              await _ticketService.fetchUserFirestoreDataAsStaff(user);
+
+          if (house == this) {
+            TicketA ticket = TicketA(
+                firstName: staffUser.firstName,
+                lastName: staffUser.lastName,
+                dateTime: dateTime,
+                topic: topic,
+                description: description,
+                image: image);
+            houseDoc.reference.collection('Tickets').add(ticket.toJson());
+          }
+        }
+      }
+    }
   }
 
   Future<List<TicketA>> get allTickets async {

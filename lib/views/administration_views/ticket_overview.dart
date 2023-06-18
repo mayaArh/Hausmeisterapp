@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 
 import '../../model_classes.dart/house.dart';
 import '../../model_classes.dart/ticket.dart';
@@ -18,6 +19,15 @@ class _TicketOverviewState extends State<TicketOverview> {
     return Scaffold(
         appBar: AppBar(
           title: Text(house.longAddress),
+          actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pushNamed(ticketCreationRoute, arguments: house);
+              },
+              icon: const Icon(Icons.add),
+            ),
+          ],
         ),
         body: FutureBuilder<List<TicketA>>(
             future: house.allTickets,
@@ -30,9 +40,27 @@ class _TicketOverviewState extends State<TicketOverview> {
                       itemCount: tickets.length,
                       itemBuilder: (context, index) {
                         final ticket = tickets[index];
-                        return ListTile(
-                          title: Text(ticket.description),
-                        );
+                        return Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.black87),
+                                  ),
+                                  padding: const EdgeInsets.all(10),
+                                  child: Column(
+                                    children: [
+                                      Center(
+                                          child: Text(
+                                              'erstellt am: ${ticket.dateTime}')),
+                                      Center(
+                                        child: Text(
+                                            'Ticketersteller: ${ticket.firstName} ${ticket.lastName}'),
+                                      ),
+                                      Center(child: Text(ticket.description)),
+                                    ],
+                                  )),
+                            ]);
                       },
                     );
                   } else {

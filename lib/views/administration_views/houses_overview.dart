@@ -18,9 +18,7 @@ class _HousesOverviewState extends State<HousesOverview> {
     final String city = ModalRoute.of(context)!.settings.arguments as String;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(city),
-      ),
+      appBar: AppBar(title: Text(city)),
       body: Consumer<FirestoreDataProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading) {
