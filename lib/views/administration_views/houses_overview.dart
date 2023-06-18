@@ -3,6 +3,8 @@ import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_provider.dart';
 import 'package:provider/provider.dart';
 
+import '../../model_classes.dart/house.dart';
+
 class HousesOverview extends StatefulWidget {
   const HousesOverview({super.key});
 
@@ -27,18 +29,17 @@ class _HousesOverviewState extends State<HousesOverview> {
             final houses = provider.getAllHousesForCity(city);
             return ListView(
                 children: houses
-                    .map((String street) => OutlinedButton(
+                    .map((HouseA house) => OutlinedButton(
                         onPressed: () {
-                          final address = '$street $city';
                           Navigator.of(context).pushNamed(ticketsOverviewRoute,
-                              arguments: address.split(' '));
+                              arguments: house);
                         },
                         style: ButtonStyle(
                             shape: MaterialStateProperty.all(
                                 RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(100.0),
                         ))),
-                        child: Text(city)))
+                        child: Text(house.shortAddress)))
                     .toList());
           } else {
             return const Text('Es sind noch keine Daten vorhanden');

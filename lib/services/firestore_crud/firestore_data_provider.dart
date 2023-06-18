@@ -2,8 +2,10 @@ import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:mein_digitaler_hausmeister/model_classes.dart/house.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
 
+import '../../model_classes.dart/ticket.dart';
 import '../auth/auth_service.dart';
 import '../auth/auth_user.dart';
 
@@ -53,32 +55,35 @@ class FirestoreDataProvider extends ChangeNotifier {
     return cities;
   }
 
-  List<String> getAllHousesForCity(String city) {
-    final List<String> houses = [];
+  List<HouseA> getAllHousesForCity(String city) {
+    final List<HouseA> houses = [];
     if (_snapshots != null) {
       for (final snapshot in _snapshots!) {
         for (final doc in snapshot.docs) {
           final data = doc.data();
           final String houseCity = data['Ort'];
+          final String houseStreet = data['Strasse'];
+          final int houseNumber = data['Hausnummer'];
+          final int postalCode = data['Postleitzahl'];
           if (houseCity == city) {
-            final String houseStreet = data['Strasse'];
-            final int houseNumber = data['Hausnummer'];
-            houses.add('$houseStreet ${houseNumber.toString()}');
+            HouseA house = HouseA(
+                street: houseStreet,
+                houseNumber: houseNumber,
+                postalCode: postalCode,
+                city: houseCity);
+            houses.add(house);
           }
         }
       }
     }
-    houses.sort((a, b) {
-      final int streetComparison = a
-          .substring(0, a.indexOf(' '))
-          .compareTo(b.substring(0, b.indexOf(' ')));
+
+    houses.sort((houseA, houseB) {
+      int streetComparison = houseA.street.compareTo(houseB.street);
       if (streetComparison != 0) {
         return streetComparison;
+      } else {
+        return houseA.houseNumber.compareTo(houseB.houseNumber);
       }
-
-      final int numberA = int.parse(a.substring(a.indexOf(' ') + 1));
-      final int numberB = int.parse(b.substring(b.indexOf(' ') + 1));
-      return numberA.compareTo(numberB);
     });
 
     return houses;
