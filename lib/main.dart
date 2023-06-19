@@ -29,7 +29,6 @@ void main() {
           citiesOverviewRoute: (context) => const CitiesOverview(),
           housesOverviewRoute: (context) => const HousesOverview(),
           ticketsOverviewRoute: (context) => const TicketOverview(),
-          ticketCreationRoute: (context) => const TicketCreationView(),
         }),
   ));
 }

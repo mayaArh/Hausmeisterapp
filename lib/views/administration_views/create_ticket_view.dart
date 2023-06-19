@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mein_digitaler_hausmeister/utilities/show_error_dialog.dart';
 
 import '../../model_classes.dart/house.dart';
-import '../../model_classes.dart/ticket.dart';
 //import 'package:image_picker/image_picker.dart';
 
 class ImageCouldNotBeReadAsBytes implements Exception {}
 
 class TicketCreationView extends StatefulWidget {
-  const TicketCreationView({super.key});
+  final HouseA house;
+
+  const TicketCreationView({super.key, required this.house});
 
   @override
   State<TicketCreationView> createState() => _TicketCreationViewState();
@@ -59,8 +61,6 @@ class _TicketCreationViewState extends State<TicketCreationView> {
 
   @override
   Widget build(BuildContext context) {
-    final HouseA house = ModalRoute.of(context)!.settings.arguments as HouseA;
-
     return Scaffold(
         appBar: AppBar(title: const Text('Neues Ticket')),
         body: Column(
@@ -88,12 +88,21 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                   label: const Text('Bild hinzufügen')),
             ),
             TextButton(
-                onPressed: () {
+                onPressed: () async {
                   final topic = _topic.text;
                   final description = _description.text;
                   final dateTime =
                       DateFormat('dd.MM.yyyy, HH:mm').format(DateTime.now());
-                  house.addTicket(topic, description, dateTime, '');
+                  if (topic.isEmpty) {
+                    ErrorDialog.showErrorDialog(
+                        context, 'Bitte geben Sie das Thema des Problems an.');
+                  } else {
+                    final newTicket = await widget.house
+                        .addTicket(topic, description, dateTime, '');
+                    if (newTicket != null) {
+                      Navigator.pop(context, newTicket);
+                    }
+                  }
                 },
                 child: const Text('Ticket abschicken'))
           ],

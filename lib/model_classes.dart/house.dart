@@ -67,7 +67,7 @@ class HouseA {
     return result;
   }
 
-  void addTicket(
+  Future<TicketA?> addTicket(
       String topic, String description, String dateTime, String image) async {
     if (dataProvider.snapshots != null) {
       for (final QuerySnapshot<Map<String, dynamic>> snapshot
@@ -87,10 +87,12 @@ class HouseA {
                 description: description,
                 image: image);
             houseDoc.reference.collection('Tickets').add(ticket.toJson());
+            return ticket;
           }
         }
       }
     }
+    return null;
   }
 
   Future<List<TicketA>> get allTickets async {

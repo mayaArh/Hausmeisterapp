@@ -104,14 +104,7 @@ class FirestoreTicketService {
       DocumentReference<Map<String, dynamic>> houseDoc,
       String city,
       Map<String, Map<House, List<Ticket>>> allTicketsByHouse) async {
-    final data = await houseDoc.get().then((snapshot) => snapshot.data()!);
-    House house = House(
-      street: data['Strasse'],
-      houseNumber: data['Hausnummer'],
-      postalCode: data['Postleitzahl'],
-      city: data['Ort'],
-      doc: houseDoc,
-    );
+    await houseDoc.get().then((snapshot) => snapshot.data()!);
   }
 
   Future<List<Ticket>> _setAllTicketsForHouse(

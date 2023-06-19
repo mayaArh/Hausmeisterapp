@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/registration_service.dart';
-import 'package:mein_digitaler_hausmeister/views/administration_views/login_view.dart';
 
 import '../../services/auth/auth_exceptions.dart';
+import '../../utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({Key? key}) : super(key: key);
@@ -73,19 +73,20 @@ class RegisterViewState extends State<RegisterView> {
                     await AuthService.firebase().sendEmailVerification();
                     Navigator.of(context).pushNamed(verifyEmailRoute);
                   } else {
-                    showErrorDialog(context,
+                    ErrorDialog.showErrorDialog(context,
                         'Leider sind Sie nicht in unserem System registriert. Bitte überprüfen Sie noch einmal Ihre E-Mail Adresse.');
                   }
                 } on WeakPasswordAuthException {
-                  await showErrorDialog(context, 'Password zu schwach');
+                  await ErrorDialog.showErrorDialog(
+                      context, 'Password zu schwach');
                 } on EmailAlreadyInUseAuthException {
-                  await showErrorDialog(context,
+                  await ErrorDialog.showErrorDialog(context,
                       'Es existiert bereits ein verifizierter Nutzer mit dieser E-Mail Adresse.');
                 } on InvalidEmailAuthException {
-                  await showErrorDialog(
+                  await ErrorDialog.showErrorDialog(
                       context, 'Keine valide E-Mail Adresse.');
                 } on GenericAuthException {
-                  await showErrorDialog(
+                  await ErrorDialog.showErrorDialog(
                       context, 'Es gab einen Fehler bei der Registrierung.');
                 }
               },

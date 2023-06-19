@@ -5,6 +5,7 @@ import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_exceptions.dart';
 import '../../services/auth/auth_service.dart';
 import '../../services/firestore_crud/registration_service.dart';
+import '../../utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -83,11 +84,12 @@ class _LoginViewState extends State<LoginView> {
                   );
                 }
               } on UserNotFoundAuthException {
-                await showErrorDialog(context, 'User not found');
+                await ErrorDialog.showErrorDialog(context, 'User not found');
               } on WrongPasswordAuthException {
-                await showErrorDialog(context, 'Wrong password');
+                await ErrorDialog.showErrorDialog(context, 'Wrong password');
               } on GenericAuthException {
-                await showErrorDialog(context, 'Authentication Error');
+                await ErrorDialog.showErrorDialog(
+                    context, 'Authentication Error');
               }
             },
             child: const Text(
@@ -103,22 +105,4 @@ class _LoginViewState extends State<LoginView> {
       ),
     );
   }
-}
-
-Future<void> showErrorDialog(BuildContext context, String text) {
-  return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('An error occurred'),
-          content: Text(text),
-          actions: [
-            TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Ok'))
-          ],
-        );
-      });
 }
