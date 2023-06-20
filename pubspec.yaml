@@ -42,7 +42,7 @@ dependencies:
   rxdart: ^0.27.7
   provider: ^6.0.5
   meta: ^1.9.1
-  intl: ^0.18.1
+  intl: ^0.17.0
   image_picker: ^0.8.2
   image_cropper: ^1.4.1
   flutter_image_compress: ^1.0.0
