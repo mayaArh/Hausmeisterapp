@@ -20,6 +20,9 @@ class UserImage extends StatefulWidget {
 class _UserImageState extends State<UserImage> {
   final ImagePicker _picker = ImagePicker();
   final ImageCropper _imageCropper = ImageCropper();
+  final storageRef = FirebaseStorage.instance.ref();
+  static const janitorPath = 'janitorImages';
+  static const propertyManagementPath = 'propertyManagementImages';
 
   String? imageUrl;
 
@@ -112,6 +115,7 @@ class _UserImageState extends State<UserImage> {
   }
 
   Future uploadFile(String path) async {
-    final ref = 
+    final ref = storageRef
+    .child('images')
   }
 }
