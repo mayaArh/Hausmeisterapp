@@ -8,6 +8,7 @@ import 'package:mein_digitaler_hausmeister/utilities/show_error_dialog.dart';
 import '../../model_classes.dart/house.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../model_classes.dart/image.dart';
 import '../../services/firestore_crud/ticket_service.dart';
 
 class ImageCouldNotBeReadAsBytes implements Exception {}
@@ -82,16 +83,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                 decoration: const InputDecoration(
                   hintText: 'Problembeschreibung',
                 )),
-            SizedBox(
-              height: 100,
-              child: ElevatedButton.icon(
-                  onPressed: () {
-                    _getImage(context);
-                    Image.file(File(_image!.path), height: 200);
-                  },
-                  icon: const Icon(Icons.add_a_photo_outlined),
-                  label: const Text('Bild hinzufügen')),
-            ),
+            UserImage(),
             TextButton(
                 onPressed: () async {
                   final topic = _topic.text;

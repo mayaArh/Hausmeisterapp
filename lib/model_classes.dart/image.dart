@@ -1,5 +1,12 @@
+import 'dart:html';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 class UserImage extends StatefulWidget {
   final Function(String imageUrl) onFileChanged;
@@ -12,6 +19,7 @@ class UserImage extends StatefulWidget {
 
 class _UserImageState extends State<UserImage> {
   final ImagePicker _picker = ImagePicker();
+  final ImageCropper _imageCropper = ImageCropper();
 
   String? imageUrl;
 
@@ -48,20 +56,62 @@ class _UserImageState extends State<UserImage> {
 
   Future _selectPhoto() async {
     await showModalBottomSheet(
-        context: context,
-        builder: (context) => BottomSheet(
-            builder: (context) => Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      leading: Icon(Icons.camera),
-                      title: Text('Kamera'),
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        _pickImage(ImageSource.camera);
-                      },
-                    )
-                  ],
-                )));
+      context: context,
+      builder: (context) => BottomSheet(
+        builder: (context) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.camera),
+              title: Text('Kamera'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.filter),
+              title: Text('Galerie'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pickImage(ImageSource.camera);
+              },
+            )
+          ],
+        ),
+        onClosing: () {},
+      ),
+    );
+  }
+
+  Future<XFile?> _pickImage(ImageSource source) async {
+    final pickedFile =
+        await _picker.pickImage(source: source, imageQuality: 50);
+    if (pickedFile == null) {
+      return null;
+    }
+    final croppedFile = await _imageCropper.cropImage(
+        sourcePath: pickedFile.path,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1));
+    if (croppedFile == null) {
+      return null;
+    }
+    return await compressImage(croppedFile.path, 35);
+  }
+
+  Future<XFile> compressImage(String path, int quality) async {
+    final newPath = p.join((await getTemporaryDirectory()).path,
+        '${DateTime.now()}.${p.extension(path)}');
+    final result = await FlutterImageCompress.compressAndGetFile(
+      path,
+      newPath,
+      quality: quality,
+    );
+
+    return result!;
+  }
+
+  Future uploadFile(String path) async {
+    final ref = 
   }
 }
