@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_provider.dart';
-import 'package:mein_digitaler_hausmeister/views/administration_views/create_ticket_view.dart';
 import 'package:mein_digitaler_hausmeister/views/administration_views/houses_overview.dart';
 import 'package:mein_digitaler_hausmeister/views/administration_views/login_view.dart';
 import 'package:mein_digitaler_hausmeister/views/administration_views/register_view.dart';

@@ -92,15 +92,15 @@ class _LoginViewState extends State<LoginView> {
                     context, 'Authentication Error');
               }
             },
-            child: const Text(
-                'Bitte melden Sie sich mit ihrer Arbeits-Mailadresse an.'),
+            child: const Text('Anmelden.'),
           ),
           TextButton(
               onPressed: () {
                 Navigator.of(context)
                     .pushNamedAndRemoveUntil(registerRoute, (route) => false);
               },
-              child: const Text('Not registered yet? Register here!'))
+              child: const Text(
+                  "Noch nicht registriert? Hier geht's zur Registrierung!"))
         ],
       ),
     );

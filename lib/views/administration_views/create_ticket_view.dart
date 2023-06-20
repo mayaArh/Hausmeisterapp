@@ -1,9 +1,14 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mein_digitaler_hausmeister/utilities/show_error_dialog.dart';
 
 import '../../model_classes.dart/house.dart';
-//import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../services/firestore_crud/ticket_service.dart';
 
 class ImageCouldNotBeReadAsBytes implements Exception {}
 
@@ -22,13 +27,13 @@ class _TicketCreationViewState extends State<TicketCreationView> {
 
   late final TextEditingController _topic;
   late final TextEditingController _description;
-  //late final ImagePicker _imagePicker;
-  //final FirestoreTicketService _ticketService = FirestoreTicketService();
+  late final ImagePicker _imagePicker;
+  final FirestoreTicketService _ticketService = FirestoreTicketService();
 
-  //XFile? _image;
-  //String _imageLocation = '';
+  XFile? _image;
+  String _imageLocation = '';
 
-  /*void _getImage(BuildContext context) async {
+  void _getImage(BuildContext context) async {
     XFile? image = await _imagePicker.pickImage(source: ImageSource.camera);
     if (image != null) {
       try {
@@ -42,13 +47,13 @@ class _TicketCreationViewState extends State<TicketCreationView> {
         throw ImageCouldNotBeReadAsBytes();
       }
     }
-  }*/
+  }
 
   @override
   void initState() {
     _topic = TextEditingController();
     _description = TextEditingController();
-    //_imagePicker = ImagePicker();
+    _imagePicker = ImagePicker();
     super.initState();
   }
 
@@ -81,8 +86,8 @@ class _TicketCreationViewState extends State<TicketCreationView> {
               height: 100,
               child: ElevatedButton.icon(
                   onPressed: () {
-                    //_getImage(context);
-                    //Image.file(File(_image!.path), height: 200);
+                    _getImage(context);
+                    Image.file(File(_image!.path), height: 200);
                   },
                   icon: const Icon(Icons.add_a_photo_outlined),
                   label: const Text('Bild hinzufügen')),
