@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 class UserImage extends StatefulWidget {
   final Function(String imageUrl) onFileChanged;
@@ -16,11 +18,12 @@ class UserImage extends StatefulWidget {
 }
 
 class _UserImageState extends State<UserImage> {
+  final FirestoreDataProvider _dataProvider = FirestoreDataProvider();
   final ImagePicker _picker = ImagePicker();
   final ImageCropper _imageCropper = ImageCropper();
   final storageRef = FirebaseStorage.instance.ref();
   static const janitorPath = 'janitorImages';
-  static const propertyManagementPath = 'propertyManagementImages';
+  static const buildingManagementPath = 'propertyManagementImages';
 
   String? imageUrl;
 
@@ -75,7 +78,7 @@ class _UserImageState extends State<UserImage> {
               title: Text('Galerie'),
               onTap: () {
                 Navigator.of(context).pop();
-                _pickImage(ImageSource.camera);
+                _pickImage(ImageSource.gallery);
               },
             )
           ],
@@ -85,19 +88,21 @@ class _UserImageState extends State<UserImage> {
     );
   }
 
-  Future<XFile?> _pickImage(ImageSource source) async {
+  Future<void> _pickImage(ImageSource source) async {
     final pickedFile =
         await _picker.pickImage(source: source, imageQuality: 50);
     if (pickedFile == null) {
-      return null;
+      return;
     }
     final croppedFile = await _imageCropper.cropImage(
         sourcePath: pickedFile.path,
         aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1));
     if (croppedFile == null) {
-      return null;
+      return;
     }
-    return await compressImage(croppedFile.path, 35);
+    XFile file = await compressImage(croppedFile.path, 35);
+
+    await _uploadFile(file.path);
   }
 
   Future<XFile> compressImage(String path, int quality) async {
@@ -112,7 +117,14 @@ class _UserImageState extends State<UserImage> {
     return result!;
   }
 
-  Future uploadFile(String path) async {
+  Future _uploadFile(String path) async {
+    String userPath = janitorPath;
+    /*if (_dataProvider.staffUser is Janitor) {
+      userPath = janitorPath;
+    }
+    if (_dataProvider.staffUser is BuildingManagement) {
+      userPath = buildingManagementPath;
+    }*/
     final ref = storageRef
         .child(janitorPath)
         .child(DateTime.now().toIso8601String() + p.basename(path));
@@ -122,5 +134,7 @@ class _UserImageState extends State<UserImage> {
     setState(() {
       imageUrl = fileUrl;
     });
+
+    widget.onFileChanged(fileUrl);
   }
 }

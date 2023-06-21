@@ -9,16 +9,14 @@ import '../auth/auth_service.dart';
 import '../auth/auth_user.dart';
 
 class FirestoreDataProvider extends ChangeNotifier {
-  FirestoreDataProvider._sharedInstance() {
-    _user = AuthService.firebase().currentUser!;
-    initializeData(_user);
-  }
+  FirestoreDataProvider._sharedInstance();
   static final FirestoreDataProvider _shared =
       FirestoreDataProvider._sharedInstance();
   factory FirestoreDataProvider() => _shared;
 
-  late AuthUser _user;
   final FirestoreTicketService _ticketService = FirestoreTicketService();
+  late Staff _staffUser;
+  get staffUser => _staffUser;
   bool _isLoading = false;
   bool get isLoading => _isLoading;
   List<QuerySnapshot<Map<String, dynamic>>>? _snapshots;
@@ -27,16 +25,18 @@ class FirestoreDataProvider extends ChangeNotifier {
 
   void initializeData(AuthUser authUser) async {
     _isLoading = true;
-    await _ticketService.fetchUserFirestoreDataAsStaff(authUser).then((value) {
-      notifyListeners();
-      _ticketService.firestoreStreams.listen((snapshots) {
-        _snapshots = snapshots;
-        notifyListeners();
-      });
-    }).whenComplete(() {
-      _isLoading = false;
+    Staff user = await _ticketService.fetchUserFirestoreDataAsStaff(authUser);
+
+    notifyListeners();
+
+    _ticketService.firestoreStreams.listen((snapshots) {
+      _snapshots = snapshots;
       notifyListeners();
     });
+
+    _staffUser = user;
+    _isLoading = false;
+    notifyListeners();
   }
 
   SplayTreeSet<String> getAllCities() {

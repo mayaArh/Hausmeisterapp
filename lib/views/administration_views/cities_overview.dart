@@ -18,6 +18,8 @@ class _CitiesOverviewState extends State<CitiesOverview> {
   @override
   void initState() {
     super.initState();
+    Provider.of<FirestoreDataProvider>(context, listen: false)
+        .initializeData(AuthService.firebase().currentUser!);
   }
 
   @override
