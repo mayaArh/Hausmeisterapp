@@ -1,15 +1,10 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mein_digitaler_hausmeister/utilities/show_error_dialog.dart';
 
 import '../../model_classes.dart/house.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../model_classes.dart/image.dart';
-import '../../services/firestore_crud/ticket_service.dart';
 
 class ImageCouldNotBeReadAsBytes implements Exception {}
 
@@ -28,33 +23,12 @@ class _TicketCreationViewState extends State<TicketCreationView> {
 
   late final TextEditingController _topic;
   late final TextEditingController _description;
-  late final ImagePicker _imagePicker;
-  final FirestoreTicketService _ticketService = FirestoreTicketService();
-
-  XFile? _image;
-  String _imageLocation = '';
-
-  void _getImage(BuildContext context) async {
-    XFile? image = await _imagePicker.pickImage(source: ImageSource.camera);
-    if (image != null) {
-      try {
-        final bytes = await image.readAsBytes();
-        final imageLocation = base64Encode(bytes);
-        setState(() {
-          _image = image;
-          _imageLocation = imageLocation;
-        });
-      } catch (_) {
-        throw ImageCouldNotBeReadAsBytes();
-      }
-    }
-  }
+  String imageUrl = '';
 
   @override
   void initState() {
     _topic = TextEditingController();
     _description = TextEditingController();
-    _imagePicker = ImagePicker();
     super.initState();
   }
 
@@ -83,7 +57,13 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                 decoration: const InputDecoration(
                   hintText: 'Problembeschreibung',
                 )),
-            UserImage(),
+            UserImage(
+              onFileChanged: (imageUrl) {
+                setState(() {
+                  this.imageUrl = imageUrl;
+                });
+              },
+            ),
             TextButton(
                 onPressed: () async {
                   final topic = _topic.text;

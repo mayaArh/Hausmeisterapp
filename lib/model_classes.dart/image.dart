@@ -1,4 +1,3 @@
-import 'dart:html';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -116,6 +115,13 @@ class _UserImageState extends State<UserImage> {
 
   Future uploadFile(String path) async {
     final ref = storageRef
-    .child('images')
+        .child(janitorPath)
+        .child(DateTime.now().toIso8601String() + p.basename(path));
+    final result = await ref.putFile(File(path));
+    final fileUrl = await result.ref.getDownloadURL();
+
+    setState(() {
+      imageUrl = fileUrl;
+    });
   }
 }
