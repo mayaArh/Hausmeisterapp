@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mein_digitaler_hausmeister/model_classes.dart/staff.dart';
 import 'package:mein_digitaler_hausmeister/model_classes.dart/ticket.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
-import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
 
 import '../services/auth/auth_user.dart';
 import '../services/firestore_crud/firestore_data_provider.dart';
@@ -12,9 +10,9 @@ class House {
   final int houseNumber;
   final int postalCode;
   final String city;
+  late final DocumentReference docRef;
 
   final FirestoreDataProvider dataProvider = FirestoreDataProvider();
-  final FirestoreTicketService _ticketService = FirestoreTicketService();
   final AuthUser user = AuthService.firebase().currentUser!;
 
   House({
@@ -84,7 +82,8 @@ class House {
             for (final QueryDocumentSnapshot<
                 Map<String, dynamic>> ticketSnapshot in ticketDocs.docs) {
               final Map<String, dynamic> ticketData = ticketSnapshot.data();
-              final Ticket ticket = Ticket.fromJson(ticketData);
+              final Ticket ticket =
+                  Ticket.fromJson(ticketData, ticketSnapshot.reference);
               tickets.add(ticket);
             }
           }

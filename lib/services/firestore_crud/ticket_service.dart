@@ -9,7 +9,6 @@ import '../../model_classes.dart/staff.dart';
 import '../../model_classes.dart/ticket.dart';
 import '../auth/auth_user.dart';
 import 'crud_exceptions.dart';
-import 'firestore_data_provider.dart';
 
 class FirestoreTicketService {
   FirestoreTicketService._sharedInstance();
@@ -23,7 +22,6 @@ class FirestoreTicketService {
   late DocumentReference<Map<String, dynamic>> userDoc;
 
   final _registrationService = RegistrationService();
-  final _dataProvider = FirestoreDataProvider();
 
   Stream<List<QuerySnapshot<Map<String, dynamic>>>> get firestoreStreams {
     List<Stream<QuerySnapshot<Map<String, dynamic>>>> streams = [];
@@ -80,8 +78,6 @@ class FirestoreTicketService {
   }
 
   void _setAllTicketsForUser(Map<String, dynamic> userData) async {
-    Map<String, Map<House, List<Ticket>>> allTicketsByHouse =
-        <String, Map<House, List<Ticket>>>{};
     final houseMap = userData['Gebäude'];
     final fetchHouseDataTasks = <Future<void>>[];
     int i = 0;
@@ -95,8 +91,7 @@ class FirestoreTicketService {
           houseDocIDs.clear();
           i = 0;
         }
-        fetchHouseDataTasks
-            .add(_fetchHouseData(houseDoc, city, allTicketsByHouse));
+        fetchHouseDataTasks.add(_fetchHouseData(houseDoc, city));
       }
     });
     if (houseDocIDs.isNotEmpty) {
@@ -106,39 +101,52 @@ class FirestoreTicketService {
   }
 
   Future<void> _fetchHouseData(
-      DocumentReference<Map<String, dynamic>> houseDoc,
-      String city,
-      Map<String, Map<House, List<Ticket>>> allTicketsByHouse) async {
+      DocumentReference<Map<String, dynamic>> houseDoc, String city) async {
     await houseDoc.get().then((snapshot) => snapshot.data()!);
   }
 
-  Future<Ticket?> addTicketToHouse(
+  Future<Ticket> addTicketToHouse(
       {required House house,
       required String topic,
       required String description,
       required String dateTime,
       required String image}) async {
-    if (_dataProvider.snapshots != null) {
-      for (final QuerySnapshot<Map<String, dynamic>> snapshot
-          in _dataProvider.snapshots!) {
-        for (final QueryDocumentSnapshot<Map<String, dynamic>> houseDoc
-            in snapshot.docs) {
-          final House queryHouse = House.fromJson(houseDoc.data());
+    DocumentReference ticketRef = await house.docRef.collection('Tickets').add({
+      'Vorname': _staffUser.firstName,
+      'Nachname': _staffUser.lastName,
+      'erstellt am': dateTime,
+      'Problembeschreibung': description,
+      'Thema': topic,
+      'Bild': image,
+    });
+    Ticket ticket = Ticket(
+        firstName: _staffUser.firstName,
+        lastName: _staffUser.lastName,
+        dateTime: dateTime,
+        topic: topic,
+        description: description,
+        imageRef: image,
+        docRef: ticketRef);
 
-          if (queryHouse == house) {
-            Ticket ticket = Ticket(
-                firstName: _staffUser.firstName,
-                lastName: _staffUser.lastName,
-                dateTime: dateTime,
-                topic: topic,
-                description: description,
-                image: image);
-            houseDoc.reference.collection('Tickets').add(ticket.toJson());
-            return ticket;
-          }
-        }
-      }
-    }
-    return null;
+    ticket.docRef = ticketRef;
+    return ticket;
+  }
+
+  Future<void> deleteTicket(Ticket ticket) async {
+    await Future.wait([ticket.docRef.delete()]);
+  }
+
+  Future<void> changeTicketTopic(Ticket ticket, String newTopic) async {
+    await ticket.docRef.update({'Thema': newTopic});
+  }
+
+  Future<void> changeTicketDescription(
+      Ticket ticket, String newDescription) async {
+    await ticket.docRef.update({'Problembeschreibung': newDescription});
+  }
+
+  Future<void> changeTicketImage(Ticket ticket, String newImageUrl) async {
+    await ticket.docRef.update({'Bild': newImageUrl});
+    //TODO: delete old image
   }
 }

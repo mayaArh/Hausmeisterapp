@@ -1,10 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Ticket {
   final String firstName;
   final String lastName;
   final String dateTime;
   final String topic;
   final String description;
-  final String? image;
+  final String? imageRef;
+  DocumentReference docRef;
 
   Ticket({
     required this.firstName,
@@ -12,17 +15,24 @@ class Ticket {
     required this.dateTime,
     required this.topic,
     required this.description,
-    required this.image,
+    required this.imageRef,
+    required this.docRef,
   });
 
-  factory Ticket.fromJson(Map<String, dynamic> json) {
+  @override
+  String toString() {
+    return 'Vorname: $firstName, Nachname: $lastName, Thema: $topic, Beschreibung: $description, Referenz: ${docRef.toString()}';
+  }
+
+  factory Ticket.fromJson(Map<String, dynamic> json, DocumentReference docRef) {
     return Ticket(
       firstName: json['Vorname'],
       lastName: json['Nachname'],
       dateTime: json['erstellt am'],
       topic: json['Thema'],
       description: json['Problembeschreibung'],
-      image: json['Bild'],
+      imageRef: json['Bild'],
+      docRef: docRef,
     );
   }
 
@@ -33,7 +43,7 @@ class Ticket {
       'erstellt am': dateTime,
       'Problembeschreibung': description,
       'Thema': topic,
-      'Bild': image,
+      'Bild': imageRef,
     };
   }
 }

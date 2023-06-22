@@ -79,9 +79,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                         description: description,
                         dateTime: dateTime,
                         image: imageUrl);
-                    if (newTicket != null) {
-                      Navigator.pop(context, newTicket);
-                    }
+                    Navigator.pop(context, newTicket);
                   }
                 },
                 child: const Text('Ticket abschicken'))

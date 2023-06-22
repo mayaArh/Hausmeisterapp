@@ -65,10 +65,12 @@ class FirestoreDataProvider extends ChangeNotifier {
           final int postalCode = data['Postleitzahl'];
           if (houseCity == city) {
             House house = House(
-                street: houseStreet,
-                houseNumber: houseNumber,
-                postalCode: postalCode,
-                city: houseCity);
+              street: houseStreet,
+              houseNumber: houseNumber,
+              postalCode: postalCode,
+              city: houseCity,
+            );
+            house.docRef = doc.reference;
             houses.add(house);
           }
         }

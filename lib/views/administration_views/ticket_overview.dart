@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
 
 import '../../model_classes.dart/house.dart';
 import '../../model_classes.dart/ticket.dart';
@@ -12,6 +13,8 @@ class TicketOverview extends StatefulWidget {
 }
 
 class _TicketOverviewState extends State<TicketOverview> {
+  FirestoreTicketService _ticketService = FirestoreTicketService();
+
   @override
   Widget build(BuildContext context) {
     final House house = ModalRoute.of(context)!.settings.arguments as House;
@@ -67,7 +70,10 @@ class _TicketOverviewState extends State<TicketOverview> {
                                   Align(
                                       alignment: Alignment.centerRight,
                                       child: IconButton(
-                                          onPressed: () {},
+                                          onPressed: () async {
+                                            _ticketService.deleteTicket(ticket);
+                                            await getTickets(house, newTicket);
+                                          },
                                           icon: const Icon(
                                               Icons.delete_outlined)))
                                 ]),
