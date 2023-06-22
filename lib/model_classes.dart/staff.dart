@@ -1,7 +1,5 @@
 import 'package:mein_digitaler_hausmeister/model_classes.dart/ticket.dart';
 
-import '../services/firestore_crud/ticket_service.dart';
-
 abstract class Staff {
   final String firstName;
   final String lastName;

@@ -2,10 +2,9 @@ import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:mein_digitaler_hausmeister/model_classes.dart/house.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
-
-import '../auth/auth_service.dart';
+import '../../model_classes.dart/house.dart';
+import '../../model_classes.dart/staff.dart';
 import '../auth/auth_user.dart';
 
 class FirestoreDataProvider extends ChangeNotifier {
@@ -54,8 +53,8 @@ class FirestoreDataProvider extends ChangeNotifier {
     return cities;
   }
 
-  List<HouseA> getAllHousesForCity(String city) {
-    final List<HouseA> houses = [];
+  List<House> getAllHousesForCity(String city) {
+    final List<House> houses = [];
     if (_snapshots != null) {
       for (final snapshot in _snapshots!) {
         for (final doc in snapshot.docs) {
@@ -65,7 +64,7 @@ class FirestoreDataProvider extends ChangeNotifier {
           final int houseNumber = data['Hausnummer'];
           final int postalCode = data['Postleitzahl'];
           if (houseCity == city) {
-            HouseA house = HouseA(
+            House house = House(
                 street: houseStreet,
                 houseNumber: houseNumber,
                 postalCode: postalCode,

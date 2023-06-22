@@ -1,4 +1,4 @@
-class TicketA {
+class Ticket {
   final String firstName;
   final String lastName;
   final String dateTime;
@@ -6,7 +6,7 @@ class TicketA {
   final String description;
   final String? image;
 
-  TicketA({
+  Ticket({
     required this.firstName,
     required this.lastName,
     required this.dateTime,
@@ -15,8 +15,8 @@ class TicketA {
     required this.image,
   });
 
-  factory TicketA.fromJson(Map<String, dynamic> json) {
-    return TicketA(
+  factory Ticket.fromJson(Map<String, dynamic> json) {
+    return Ticket(
       firstName: json['Vorname'],
       lastName: json['Nachname'],
       dateTime: json['erstellt am'],

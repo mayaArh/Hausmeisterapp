@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
 import 'package:mein_digitaler_hausmeister/utilities/show_error_dialog.dart';
 
 import '../../model_classes.dart/house.dart';
@@ -9,7 +10,7 @@ import '../../model_classes.dart/image.dart';
 class ImageCouldNotBeReadAsBytes implements Exception {}
 
 class TicketCreationView extends StatefulWidget {
-  final HouseA house;
+  final House house;
 
   const TicketCreationView({super.key, required this.house});
 
@@ -18,9 +19,7 @@ class TicketCreationView extends StatefulWidget {
 }
 
 class _TicketCreationViewState extends State<TicketCreationView> {
-  //DatabaseTicket? _ticket;
-  //late final TicketService _ticketService;
-
+  final FirestoreTicketService _ticketService = FirestoreTicketService();
   late final TextEditingController _topic;
   late final TextEditingController _description;
   String imageUrl = '';
@@ -74,8 +73,12 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                     ErrorDialog.showErrorDialog(
                         context, 'Bitte geben Sie das Thema des Problems an.');
                   } else {
-                    final newTicket = await widget.house
-                        .addTicket(topic, description, dateTime, '');
+                    final newTicket = await _ticketService.addTicketToHouse(
+                        house: widget.house,
+                        topic: topic,
+                        description: description,
+                        dateTime: dateTime,
+                        image: imageUrl);
                     if (newTicket != null) {
                       Navigator.pop(context, newTicket);
                     }

@@ -4,8 +4,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/registration_service.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../model_classes.dart/house.dart';
+import '../../model_classes.dart/staff.dart';
+import '../../model_classes.dart/ticket.dart';
 import '../auth/auth_user.dart';
 import 'crud_exceptions.dart';
+import 'firestore_data_provider.dart';
 
 class FirestoreTicketService {
   FirestoreTicketService._sharedInstance();
@@ -14,11 +18,12 @@ class FirestoreTicketService {
   factory FirestoreTicketService() => _shared;
 
   final db = FirebaseFirestore.instance;
+  late final Staff _staffUser;
   List<List<String>> houseDocIds = [];
   late DocumentReference<Map<String, dynamic>> userDoc;
-  Map<String, Map<House, List<Ticket>>> _allTicketsByHouseInCity = {};
 
   final _registrationService = RegistrationService();
+  final _dataProvider = FirestoreDataProvider();
 
   Stream<List<QuerySnapshot<Map<String, dynamic>>>> get firestoreStreams {
     List<Stream<QuerySnapshot<Map<String, dynamic>>>> streams = [];
@@ -54,7 +59,7 @@ class FirestoreTicketService {
     final String email = userData['Email'];
     final String phoneNumber = userData['Vorname'];
     if (userDoc.parent.id == 'Hausverwaltung') {
-      return BuildingManagement(
+      _staffUser = BuildingManagement(
         firstName: firstName,
         lastName: lastName,
         email: email,
@@ -62,7 +67,7 @@ class FirestoreTicketService {
       );
     }
     if (userDoc.parent.id == 'Hausmeister') {
-      return Janitor(
+      _staffUser = Janitor(
         firstName: firstName,
         lastName: lastName,
         email: email,
@@ -71,6 +76,7 @@ class FirestoreTicketService {
     } else {
       throw CouldNotFindUser();
     }
+    return _staffUser;
   }
 
   void _setAllTicketsForUser(Map<String, dynamic> userData) async {
@@ -97,7 +103,6 @@ class FirestoreTicketService {
       houseDocIds.add(List<String>.from(houseDocIDs));
     }
     await Future.wait(fetchHouseDataTasks);
-    _allTicketsByHouseInCity = allTicketsByHouse;
   }
 
   Future<void> _fetchHouseData(
@@ -107,124 +112,33 @@ class FirestoreTicketService {
     await houseDoc.get().then((snapshot) => snapshot.data()!);
   }
 
-  Future<List<Ticket>> _setAllTicketsForHouse(
-      DocumentReference<Map<String, dynamic>> houseDoc) async {
-    List<Ticket> allHouseTickets = List<Ticket>.empty(growable: true);
-    CollectionReference<Map<String, dynamic>> ticketCollection =
-        houseDoc.collection('Tickets');
-    await ticketCollection.get().then((querySnapshot) => {
-          if (querySnapshot.size > 0)
-            {
-              querySnapshot.docs.forEach((ticketDoc) {
-                final ticketData = ticketDoc.data();
-                final Ticket ticket = Ticket(
-                    firstName: ticketData['Vorname'],
-                    lastName: ticketData['Nachname'],
-                    dateTime: DateTime.parse(ticketData['erstellt am']),
-                    description: ticketData['Problembeschreibung'],
-                    image: ticketData['Bild']);
-                ticket.setTicketDoc(ticketDoc.reference);
-                allHouseTickets.add(ticket);
-              })
-            }
-        });
-    return allHouseTickets;
-  }
+  Future<Ticket?> addTicketToHouse(
+      {required House house,
+      required String topic,
+      required String description,
+      required String dateTime,
+      required String image}) async {
+    if (_dataProvider.snapshots != null) {
+      for (final QuerySnapshot<Map<String, dynamic>> snapshot
+          in _dataProvider.snapshots!) {
+        for (final QueryDocumentSnapshot<Map<String, dynamic>> houseDoc
+            in snapshot.docs) {
+          final House queryHouse = House.fromJson(houseDoc.data());
 
-  void addTicketToHouse(House house, Ticket ticket) async {
-    //add to database
-    DocumentReference<Map<String, dynamic>> ticketDoc =
-        await house.doc.collection('Tickets').add(ticket.toJson());
-    ticket.setTicketDoc(ticketDoc);
-    //add to StreamController
-    Map<House, List<Ticket>>? houseMap = _allTicketsByHouseInCity[house.city];
-    if (houseMap != null) {
-      List<Ticket>? houseTickets = houseMap[house];
-      if (houseTickets != null) {
-        houseTickets.add(ticket);
-      } else {
-        throw CouldNotFindGivenHouse();
+          if (queryHouse == house) {
+            Ticket ticket = Ticket(
+                firstName: _staffUser.firstName,
+                lastName: _staffUser.lastName,
+                dateTime: dateTime,
+                topic: topic,
+                description: description,
+                image: image);
+            houseDoc.reference.collection('Tickets').add(ticket.toJson());
+            return ticket;
+          }
+        }
       }
-    } else {
-      throw CouldNotFindGivenHouse();
     }
+    return null;
   }
-}
-
-class Ticket {
-  final String firstName;
-  final String lastName;
-  final DateTime dateTime;
-  final String description;
-  final String? image;
-  late final DocumentReference<Map<String, dynamic>> ticketDoc;
-
-  Ticket({
-    required this.firstName,
-    required this.lastName,
-    required this.dateTime,
-    required this.description,
-    required this.image,
-  });
-
-  void setTicketDoc(DocumentReference<Map<String, dynamic>> doc) {
-    ticketDoc = doc;
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'Vorname': firstName,
-      'Nachname': lastName,
-      'erstellt am': dateTime.toIso8601String(),
-      'Problembeschreibung': description,
-      'Bild': image,
-    };
-  }
-}
-
-class House {
-  final String street;
-  final int houseNumber;
-  final int postalCode;
-  final String city;
-  final DocumentReference<Map<String, dynamic>> doc;
-
-  House(
-      {required this.street,
-      required this.houseNumber,
-      required this.postalCode,
-      required this.city,
-      required this.doc});
-}
-
-abstract class Staff {
-  final String firstName;
-  final String lastName;
-  String email;
-  String phoneNumber;
-
-  Staff({
-    required this.firstName,
-    required this.lastName,
-    required this.email,
-    required this.phoneNumber,
-  });
-}
-
-class Janitor extends Staff {
-  Janitor({
-    required super.firstName,
-    required super.lastName,
-    required super.email,
-    required super.phoneNumber,
-  });
-}
-
-class BuildingManagement extends Staff {
-  BuildingManagement({
-    required super.firstName,
-    required super.lastName,
-    required super.email,
-    required super.phoneNumber,
-  });
 }

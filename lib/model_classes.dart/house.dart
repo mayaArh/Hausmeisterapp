@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mein_digitaler_hausmeister/model_classes.dart/staff.dart';
 import 'package:mein_digitaler_hausmeister/model_classes.dart/ticket.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
@@ -6,7 +7,7 @@ import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_servic
 import '../services/auth/auth_user.dart';
 import '../services/firestore_crud/firestore_data_provider.dart';
 
-class HouseA {
+class House {
   final String street;
   final int houseNumber;
   final int postalCode;
@@ -16,15 +17,15 @@ class HouseA {
   final FirestoreTicketService _ticketService = FirestoreTicketService();
   final AuthUser user = AuthService.firebase().currentUser!;
 
-  HouseA({
+  House({
     required this.street,
     required this.houseNumber,
     required this.postalCode,
     required this.city,
   });
 
-  factory HouseA.fromJson(Map<String, dynamic> json) {
-    return HouseA(
+  factory House.fromJson(Map<String, dynamic> json) {
+    return House(
       street: json['Strasse'],
       houseNumber: json['Hausnummer'],
       postalCode: json['Postleitzahl'],
@@ -50,7 +51,7 @@ class HouseA {
   }
 
   @override
-  bool operator ==(covariant HouseA other) =>
+  bool operator ==(covariant House other) =>
       other.street == street &&
       other.houseNumber == houseNumber &&
       other.postalCode == postalCode &&
@@ -67,42 +68,14 @@ class HouseA {
     return result;
   }
 
-  Future<TicketA?> addTicket(
-      String topic, String description, String dateTime, String image) async {
+  Future<List<Ticket>> get allTickets async {
+    List<Ticket> tickets = [];
     if (dataProvider.snapshots != null) {
       for (final QuerySnapshot<Map<String, dynamic>> snapshot
           in dataProvider.snapshots!) {
         for (final QueryDocumentSnapshot<Map<String, dynamic>> houseDoc
             in snapshot.docs) {
-          final HouseA house = HouseA.fromJson(houseDoc.data());
-          Staff staffUser =
-              await _ticketService.fetchUserFirestoreDataAsStaff(user);
-
-          if (house == this) {
-            TicketA ticket = TicketA(
-                firstName: staffUser.firstName,
-                lastName: staffUser.lastName,
-                dateTime: dateTime,
-                topic: topic,
-                description: description,
-                image: image);
-            houseDoc.reference.collection('Tickets').add(ticket.toJson());
-            return ticket;
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-  Future<List<TicketA>> get allTickets async {
-    List<TicketA> tickets = [];
-    if (dataProvider.snapshots != null) {
-      for (final QuerySnapshot<Map<String, dynamic>> snapshot
-          in dataProvider.snapshots!) {
-        for (final QueryDocumentSnapshot<Map<String, dynamic>> houseDoc
-            in snapshot.docs) {
-          final HouseA house = HouseA.fromJson(houseDoc.data());
+          final House house = House.fromJson(houseDoc.data());
 
           if (house == this) {
             final QuerySnapshot<Map<String, dynamic>> ticketDocs =
@@ -111,7 +84,7 @@ class HouseA {
             for (final QueryDocumentSnapshot<
                 Map<String, dynamic>> ticketSnapshot in ticketDocs.docs) {
               final Map<String, dynamic> ticketData = ticketSnapshot.data();
-              final TicketA ticket = TicketA.fromJson(ticketData);
+              final Ticket ticket = Ticket.fromJson(ticketData);
               tickets.add(ticket);
             }
           }

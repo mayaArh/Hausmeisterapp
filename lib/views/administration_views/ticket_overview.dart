@@ -14,8 +14,8 @@ class TicketOverview extends StatefulWidget {
 class _TicketOverviewState extends State<TicketOverview> {
   @override
   Widget build(BuildContext context) {
-    final HouseA house = ModalRoute.of(context)!.settings.arguments as HouseA;
-    TicketA? newTicket;
+    final House house = ModalRoute.of(context)!.settings.arguments as House;
+    Ticket? newTicket;
     return Scaffold(
         appBar: AppBar(
           title: Text(house.longAddress),
@@ -33,7 +33,7 @@ class _TicketOverviewState extends State<TicketOverview> {
             ),
           ],
         ),
-        body: FutureBuilder<List<TicketA>>(
+        body: FutureBuilder<List<Ticket>>(
             future: getTickets(house, newTicket),
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
@@ -48,22 +48,30 @@ class _TicketOverviewState extends State<TicketOverview> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
                               Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.black87),
-                                  ),
-                                  padding: const EdgeInsets.all(10),
-                                  child: Column(
-                                    children: [
-                                      Center(
-                                          child: Text(
-                                              'erstellt am: ${ticket.dateTime}')),
-                                      Center(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.black87),
+                                ),
+                                padding: const EdgeInsets.all(10),
+                                child: Row(children: [
+                                  Expanded(
+                                      child: Column(children: [
+                                    Center(
                                         child: Text(
-                                            'Ticketersteller: ${ticket.firstName} ${ticket.lastName}'),
-                                      ),
-                                      Center(child: Text(ticket.description)),
-                                    ],
-                                  )),
+                                            'erstellt am: ${ticket.dateTime}')),
+                                    Center(
+                                      child: Text(
+                                          'Ticketersteller: ${ticket.firstName} ${ticket.lastName}'),
+                                    ),
+                                    Center(child: Text(ticket.description)),
+                                  ])),
+                                  Align(
+                                      alignment: Alignment.centerRight,
+                                      child: IconButton(
+                                          onPressed: () {},
+                                          icon: const Icon(
+                                              Icons.delete_outlined)))
+                                ]),
+                              ),
                             ]);
                       },
                     );
@@ -76,8 +84,8 @@ class _TicketOverviewState extends State<TicketOverview> {
             }));
   }
 
-  Future<List<TicketA>> getTickets(HouseA house, TicketA? newTicket) async {
-    final List<TicketA> allTickets = await house.allTickets;
+  Future<List<Ticket>> getTickets(House house, Ticket? newTicket) async {
+    final List<Ticket> allTickets = await house.allTickets;
     if (newTicket != null) {
       allTickets.add(newTicket);
     }

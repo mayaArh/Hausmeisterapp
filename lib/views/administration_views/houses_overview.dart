@@ -27,7 +27,7 @@ class _HousesOverviewState extends State<HousesOverview> {
             final houses = provider.getAllHousesForCity(city);
             return ListView(
                 children: houses
-                    .map((HouseA house) => OutlinedButton(
+                    .map((House house) => OutlinedButton(
                         onPressed: () {
                           Navigator.of(context).pushNamed(ticketsOverviewRoute,
                               arguments: house);

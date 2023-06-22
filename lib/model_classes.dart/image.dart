@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mein_digitaler_hausmeister/model_classes.dart/staff.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -66,16 +67,16 @@ class _UserImageState extends State<UserImage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.camera),
-              title: Text('Kamera'),
+              leading: const Icon(Icons.camera),
+              title: const Text('Kamera'),
               onTap: () {
                 Navigator.of(context).pop();
                 _pickImage(ImageSource.camera);
               },
             ),
             ListTile(
-              leading: Icon(Icons.filter),
-              title: Text('Galerie'),
+              leading: const Icon(Icons.filter),
+              title: const Text('Galerie'),
               onTap: () {
                 Navigator.of(context).pop();
                 _pickImage(ImageSource.gallery);
@@ -118,15 +119,15 @@ class _UserImageState extends State<UserImage> {
   }
 
   Future _uploadFile(String path) async {
-    String userPath = janitorPath;
-    /*if (_dataProvider.staffUser is Janitor) {
+    String userPath = '';
+    if (_dataProvider.staffUser is Janitor) {
       userPath = janitorPath;
     }
     if (_dataProvider.staffUser is BuildingManagement) {
       userPath = buildingManagementPath;
-    }*/
+    }
     final ref = storageRef
-        .child(janitorPath)
+        .child(userPath)
         .child(DateTime.now().toIso8601String() + p.basename(path));
     final result = await ref.putFile(File(path));
     final fileUrl = await result.ref.getDownloadURL();
