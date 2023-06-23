@@ -1,13 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../enums/ticket_status.dart';
+
 class Ticket {
   final String firstName;
   final String lastName;
   final String dateTime;
-  final String topic;
-  final String description;
-  final String? imageRef;
+  String topic;
+  String description;
+  String? imageUrl;
   DocumentReference docRef;
+  late TicketStatus status;
 
   Ticket({
     required this.firstName,
@@ -15,13 +18,13 @@ class Ticket {
     required this.dateTime,
     required this.topic,
     required this.description,
-    required this.imageRef,
+    required this.imageUrl,
     required this.docRef,
   });
 
   @override
   String toString() {
-    return 'Vorname: $firstName, Nachname: $lastName, Thema: $topic, Beschreibung: $description, Referenz: ${docRef.toString()}';
+    return 'Ersteller: $firstName $lastName, Thema: $topic, Problembeschreibung: $description}';
   }
 
   factory Ticket.fromJson(Map<String, dynamic> json, DocumentReference docRef) {
@@ -31,7 +34,7 @@ class Ticket {
       dateTime: json['erstellt am'],
       topic: json['Thema'],
       description: json['Problembeschreibung'],
-      imageRef: json['Bild'],
+      imageUrl: json['Bild'],
       docRef: docRef,
     );
   }
@@ -43,7 +46,7 @@ class Ticket {
       'erstellt am': dateTime,
       'Problembeschreibung': description,
       'Thema': topic,
-      'Bild': imageRef,
+      'Bild': imageUrl,
     };
   }
 }

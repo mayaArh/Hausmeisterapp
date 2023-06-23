@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/registration_service.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -120,13 +122,14 @@ class FirestoreTicketService {
       'Bild': image,
     });
     Ticket ticket = Ticket(
-        firstName: _staffUser.firstName,
-        lastName: _staffUser.lastName,
-        dateTime: dateTime,
-        topic: topic,
-        description: description,
-        imageRef: image,
-        docRef: ticketRef);
+      firstName: _staffUser.firstName,
+      lastName: _staffUser.lastName,
+      dateTime: dateTime,
+      topic: topic,
+      description: description,
+      imageUrl: image,
+      docRef: ticketRef,
+    );
 
     ticket.docRef = ticketRef;
     return ticket;
@@ -137,16 +140,28 @@ class FirestoreTicketService {
   }
 
   Future<void> changeTicketTopic(Ticket ticket, String newTopic) async {
+    ticket.topic = newTopic;
     await ticket.docRef.update({'Thema': newTopic});
   }
 
   Future<void> changeTicketDescription(
       Ticket ticket, String newDescription) async {
+    ticket.description = newDescription;
     await ticket.docRef.update({'Problembeschreibung': newDescription});
   }
 
+  Future<void> updateTicketStatus(Ticket ticket, TicketStatus newStatus) async {
+    await ticket.docRef.update({'Status': newStatus.toString()});
+  }
+
+  /// changes the ticket image and deletes the image stored previously
+  /// for the image
   Future<void> changeTicketImage(Ticket ticket, String newImageUrl) async {
+    ticket.imageUrl = newImageUrl;
+    if (ticket.imageUrl != null) {
+      final imageRef = FirebaseStorage.instance.refFromURL(ticket.imageUrl!);
+      await imageRef.delete();
+    }
     await ticket.docRef.update({'Bild': newImageUrl});
-    //TODO: delete old image
   }
 }

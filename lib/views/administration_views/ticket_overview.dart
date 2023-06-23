@@ -60,12 +60,13 @@ class _TicketOverviewState extends State<TicketOverview> {
                                       child: Column(children: [
                                     Center(
                                         child: Text(
-                                            'erstellt am: ${ticket.dateTime}')),
+                                      ticket.topic,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    )),
                                     Center(
-                                      child: Text(
-                                          'Ticketersteller: ${ticket.firstName} ${ticket.lastName}'),
-                                    ),
-                                    Center(child: Text(ticket.description)),
+                                        child: Text(
+                                            'erstellt am: ${ticket.dateTime}')),
                                   ])),
                                   Align(
                                       alignment: Alignment.centerRight,

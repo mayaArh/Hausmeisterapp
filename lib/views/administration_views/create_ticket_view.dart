@@ -74,11 +74,12 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                         context, 'Bitte geben Sie das Thema des Problems an.');
                   } else {
                     final newTicket = await _ticketService.addTicketToHouse(
-                        house: widget.house,
-                        topic: topic,
-                        description: description,
-                        dateTime: dateTime,
-                        image: imageUrl);
+                      house: widget.house,
+                      topic: topic,
+                      description: description,
+                      dateTime: dateTime,
+                      image: imageUrl,
+                    );
                     Navigator.pop(context, newTicket);
                   }
                 },
