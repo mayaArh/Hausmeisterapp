@@ -10,17 +10,17 @@ class Ticket {
   String description;
   String? imageUrl;
   DocumentReference docRef;
-  late TicketStatus status;
+  TicketStatus status;
 
-  Ticket({
-    required this.firstName,
-    required this.lastName,
-    required this.dateTime,
-    required this.topic,
-    required this.description,
-    required this.imageUrl,
-    required this.docRef,
-  });
+  Ticket(
+      {required this.firstName,
+      required this.lastName,
+      required this.dateTime,
+      required this.topic,
+      required this.description,
+      required this.imageUrl,
+      required this.docRef,
+      required this.status});
 
   @override
   String toString() {
@@ -36,6 +36,7 @@ class Ticket {
       description: json['Problembeschreibung'],
       imageUrl: json['Bild'],
       docRef: docRef,
+      status: TicketStatus.values.byName(json['Status']),
     );
   }
 
@@ -47,6 +48,7 @@ class Ticket {
       'Problembeschreibung': description,
       'Thema': topic,
       'Bild': imageUrl,
+      'Status': status.name,
     };
   }
 }

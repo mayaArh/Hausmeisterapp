@@ -19,7 +19,7 @@ class FirestoreTicketService {
   factory FirestoreTicketService() => _shared;
 
   final db = FirebaseFirestore.instance;
-  late final Staff _staffUser;
+  late Staff _staffUser;
   List<List<String>> houseDocIds = [];
   late DocumentReference<Map<String, dynamic>> userDoc;
 
@@ -107,12 +107,14 @@ class FirestoreTicketService {
     await houseDoc.get().then((snapshot) => snapshot.data()!);
   }
 
-  Future<Ticket> addTicketToHouse(
-      {required House house,
-      required String topic,
-      required String description,
-      required String dateTime,
-      required String image}) async {
+  Future<Ticket> addTicketToHouse({
+    required House house,
+    required String topic,
+    required String description,
+    required String dateTime,
+    required String image,
+    required TicketStatus status,
+  }) async {
     DocumentReference ticketRef = await house.docRef.collection('Tickets').add({
       'Vorname': _staffUser.firstName,
       'Nachname': _staffUser.lastName,
@@ -120,16 +122,17 @@ class FirestoreTicketService {
       'Problembeschreibung': description,
       'Thema': topic,
       'Bild': image,
+      'Status': status.name,
     });
     Ticket ticket = Ticket(
-      firstName: _staffUser.firstName,
-      lastName: _staffUser.lastName,
-      dateTime: dateTime,
-      topic: topic,
-      description: description,
-      imageUrl: image,
-      docRef: ticketRef,
-    );
+        firstName: _staffUser.firstName,
+        lastName: _staffUser.lastName,
+        dateTime: dateTime,
+        topic: topic,
+        description: description,
+        imageUrl: image,
+        docRef: ticketRef,
+        status: status);
 
     ticket.docRef = ticketRef;
     return ticket;
@@ -151,7 +154,8 @@ class FirestoreTicketService {
   }
 
   Future<void> updateTicketStatus(Ticket ticket, TicketStatus newStatus) async {
-    await ticket.docRef.update({'Status': newStatus.toString()});
+    ticket.status = newStatus;
+    await ticket.docRef.update({'Status': newStatus.name});
   }
 
   /// changes the ticket image and deletes the image stored previously

@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
 import 'package:mein_digitaler_hausmeister/utilities/show_error_dialog.dart';
 
 import '../../model_classes.dart/house.dart';
 
 import '../../model_classes.dart/image.dart';
+import '../../model_classes.dart/ticket.dart';
 
 class ImageCouldNotBeReadAsBytes implements Exception {}
 
 class TicketCreationView extends StatefulWidget {
   final House house;
+  final Function(Ticket) onTicketAdded;
 
-  const TicketCreationView({super.key, required this.house});
+  const TicketCreationView(
+      {super.key, required this.house, required this.onTicketAdded});
 
   @override
   State<TicketCreationView> createState() => _TicketCreationViewState();
@@ -79,8 +83,10 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                       description: description,
                       dateTime: dateTime,
                       image: imageUrl,
+                      status: TicketStatus.open,
                     );
-                    Navigator.pop(context, newTicket);
+                    widget.onTicketAdded(newTicket);
+                    Navigator.pop(context);
                   }
                 },
                 child: const Text('Ticket abschicken'))
