@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
 
 import '../../model_classes.dart/house.dart';
 import '../../model_classes.dart/ticket.dart';
-import 'create_ticket_view.dart';
 
 class OpenTicketsOverview extends StatefulWidget {
   final Function(Ticket) onTicketAdded;
@@ -16,7 +14,7 @@ class OpenTicketsOverview extends StatefulWidget {
 }
 
 class _OpenTicketsOverviewState extends State<OpenTicketsOverview> {
-  FirestoreTicketService _ticketService = FirestoreTicketService();
+  final FirestoreTicketService _ticketService = FirestoreTicketService();
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +22,7 @@ class _OpenTicketsOverviewState extends State<OpenTicketsOverview> {
     Ticket? newTicket;
     return Scaffold(
         body: FutureBuilder<List<Ticket>>(
-            future: getOpenTickets(house, newTicket),
+            future: _ticketService.getOpenTickets(house, newTicket),
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.done:
@@ -73,21 +71,8 @@ class _OpenTicketsOverviewState extends State<OpenTicketsOverview> {
                     return const Text('Es sind noch keine Tickets vorhanden');
                   }
                 default:
-                  return const CircularProgressIndicator();
+                  return const Scaffold();
               }
             }));
-  }
-
-  Future<List<Ticket>> getOpenTickets(House house, Ticket? newTicket) async {
-    final List<Ticket> allTickets = await house.allTickets;
-    for (Ticket ticket in allTickets) {
-      if (ticket.status != TicketStatus.open) {
-        allTickets.remove(ticket);
-      }
-    }
-    if (newTicket != null) {
-      allTickets.add(newTicket);
-    }
-    return allTickets;
   }
 }

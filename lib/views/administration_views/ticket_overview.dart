@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/views/administration_views/closed_tickets_overview.dart';
 
-import '../../enums/ticket_status.dart';
 import '../../model_classes.dart/house.dart';
 import '../../model_classes.dart/ticket.dart';
 import 'create_ticket_view.dart';
@@ -15,18 +14,8 @@ class TicketOverview extends StatefulWidget {
 }
 
 class TicketOverviewState extends State<TicketOverview> {
-  final _bottomNavigationBarItems = const [
-    BottomNavigationBarItem(
-        icon: Icon(Icons.check_box_outline_blank_sharp),
-        label: 'Offen',
-        backgroundColor: Colors.deepOrange),
-    BottomNavigationBarItem(
-        icon: Icon(Icons.check_box_outlined),
-        label: 'Fertiggestellt',
-        backgroundColor: Colors.green)
-  ];
   int _currentIndex = 0;
-  PageController _pageController = PageController(initialPage: 0);
+  final PageController _pageController = PageController(initialPage: 0);
 
   @override
   Widget build(BuildContext context) {
@@ -67,8 +56,22 @@ class TicketOverviewState extends State<TicketOverview> {
           ]),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        items: _bottomNavigationBarItems,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.check_box_outline_blank_sharp,
+              color: Colors.deepOrange,
+            ),
+            label: 'Offen',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.check_box_outlined, color: Colors.green),
+            label: 'Fertiggestellt',
+          )
+        ],
         type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.grey,
         onTap: (index) {
           setState(() {
             _pageController.animateToPage(index,

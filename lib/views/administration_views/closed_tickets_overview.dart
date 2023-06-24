@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
 
 import '../../model_classes.dart/house.dart';
@@ -20,7 +19,7 @@ class _ClosedTicketsOverviewState extends State<ClosedTicketsOverview> {
     final House house = ModalRoute.of(context)!.settings.arguments as House;
     return Scaffold(
         body: FutureBuilder<List<Ticket>>(
-            future: getClosedTickets(house),
+            future: _ticketService.getClosedTickets(house),
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.done:
@@ -69,18 +68,8 @@ class _ClosedTicketsOverviewState extends State<ClosedTicketsOverview> {
                     return const Text('Es sind noch keine Tickets vorhanden');
                   }
                 default:
-                  return const CircularProgressIndicator();
+                  return const Scaffold();
               }
             }));
-  }
-
-  Future<List<Ticket>> getClosedTickets(House house) async {
-    final List<Ticket> allTickets = await house.allTickets;
-    for (Ticket ticket in allTickets) {
-      if (ticket.status == TicketStatus.open) {
-        allTickets.remove(ticket);
-      }
-    }
-    return allTickets;
   }
 }

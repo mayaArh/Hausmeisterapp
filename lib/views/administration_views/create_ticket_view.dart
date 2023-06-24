@@ -45,7 +45,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('Neues Ticket')),
+        appBar: AppBar(title: const Text('Neues Ticket erstellen')),
         body: Column(
           children: [
             TextField(
@@ -67,7 +67,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                 });
               },
             ),
-            TextButton(
+            OutlinedButton(
                 onPressed: () async {
                   final topic = _topic.text;
                   final description = _description.text;

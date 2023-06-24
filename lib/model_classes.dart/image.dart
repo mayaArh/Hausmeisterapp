@@ -35,7 +35,7 @@ class _UserImageState extends State<UserImage> {
         if (imageUrl == null)
           Icon(
             Icons.image,
-            size: 60,
+            size: 50,
             color: Theme.of(context).primaryColor,
           )
         else
@@ -48,7 +48,7 @@ class _UserImageState extends State<UserImage> {
         InkWell(
             onTap: () => _selectPhoto(),
             child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(30.0),
                 child: Text(
                   imageUrl == null ? 'Foto auswählen' : 'Foto ändern',
                   style: TextStyle(

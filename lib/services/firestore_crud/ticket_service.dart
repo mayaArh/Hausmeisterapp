@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:intl/intl.dart';
 import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/registration_service.dart';
 import 'package:rxdart/rxdart.dart';
@@ -136,6 +137,40 @@ class FirestoreTicketService {
 
     ticket.docRef = ticketRef;
     return ticket;
+  }
+
+  Future<List<Ticket>> getOpenTickets(House house, Ticket? newTicket) async {
+    final List<Ticket> allTickets = await house.allTickets;
+    _sortTicketsByDateTime(allTickets);
+    for (Ticket ticket in allTickets) {
+      if (ticket.status != TicketStatus.open) {
+        allTickets.remove(ticket);
+      }
+    }
+    if (newTicket != null) {
+      allTickets.add(newTicket);
+    }
+
+    return allTickets;
+  }
+
+  Future<List<Ticket>> getClosedTickets(House house) async {
+    final List<Ticket> allTickets = await house.allTickets;
+    _sortTicketsByDateTime(allTickets);
+    for (Ticket ticket in allTickets) {
+      if (ticket.status == TicketStatus.open) {
+        allTickets.remove(ticket);
+      }
+    }
+    return allTickets;
+  }
+
+  void _sortTicketsByDateTime(List<Ticket> tickets) {
+    tickets.sort((ticketA, ticketB) {
+      final dateTimeA = DateFormat('dd.MM.yyyy, HH:mm').parse(ticketA.dateTime);
+      final dateTimeB = DateFormat('dd.MM.yyyy, HH:mm').parse(ticketB.dateTime);
+      return dateTimeA.compareTo(dateTimeB);
+    });
   }
 
   Future<void> deleteTicket(Ticket ticket) async {
