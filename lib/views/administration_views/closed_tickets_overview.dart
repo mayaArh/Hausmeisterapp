@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
+import 'package:mein_digitaler_hausmeister/views/administration_views/single_ticket_view.dart';
 
 import '../../model_classes.dart/house.dart';
 import '../../model_classes.dart/ticket.dart';
@@ -29,39 +30,46 @@ class _ClosedTicketsOverviewState extends State<ClosedTicketsOverview> {
                       itemCount: tickets.length,
                       itemBuilder: (context, index) {
                         final ticket = tickets[index];
-                        return Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: <Widget>[
-                              Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.black87),
-                                ),
-                                padding: const EdgeInsets.all(10),
-                                child: Row(children: [
-                                  Expanded(
-                                      child: Column(children: [
-                                    Center(
-                                        child: Text(
-                                      ticket.topic,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    )),
-                                    Center(
-                                        child: Text(
-                                            'erstellt am: ${ticket.dateTime}')),
-                                  ])),
-                                  Align(
-                                      alignment: Alignment.centerRight,
-                                      child: IconButton(
-                                          onPressed: () async {
-                                            _ticketService.deleteTicket(ticket);
-                                            setState(() {});
-                                          },
-                                          icon: const Icon(
-                                              Icons.delete_outlined)))
-                                ]),
-                              ),
-                            ]);
+                        return GestureDetector(
+                          onTap: () {
+                            print('tapped');
+                            showModalBottomSheet<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return SingleTicketView(
+                                    selectedTicketIndex: index);
+                              },
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.black87),
+                            ),
+                            padding: const EdgeInsets.all(10),
+                            child: Row(children: [
+                              Expanded(
+                                  child: Column(children: [
+                                Center(
+                                    child: Text(
+                                  ticket.topic,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                )),
+                                Center(
+                                    child: Text(
+                                        'erstellt am: ${ticket.dateTime}')),
+                              ])),
+                              Align(
+                                  alignment: Alignment.centerRight,
+                                  child: IconButton(
+                                      onPressed: () async {
+                                        _ticketService.deleteTicket(ticket);
+                                        setState(() {});
+                                      },
+                                      icon: const Icon(Icons.delete_outlined)))
+                            ]),
+                          ),
+                        );
                       },
                     );
                   } else {
