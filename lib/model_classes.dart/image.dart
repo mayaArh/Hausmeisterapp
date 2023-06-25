@@ -43,12 +43,16 @@ class _UserImageState extends State<UserImage> {
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
             onTap: () => _selectPhoto(),
-            child: Image(image: NetworkImage(imageUrl!)),
+            child: Image(
+              image: NetworkImage(imageUrl!),
+              width: 300,
+              height: 300,
+            ),
           ),
         InkWell(
             onTap: () => _selectPhoto(),
             child: Padding(
-                padding: const EdgeInsets.all(30.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Text(
                   imageUrl == null ? 'Foto auswählen' : 'Foto ändern',
                   style: TextStyle(
@@ -97,16 +101,16 @@ class _UserImageState extends State<UserImage> {
     }
     final croppedFile = await _imageCropper.cropImage(
         sourcePath: pickedFile.path,
-        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1));
+        aspectRatio: const CropAspectRatio(ratioX: 1.3, ratioY: 1));
     if (croppedFile == null) {
       return;
     }
-    XFile file = await compressImage(croppedFile.path, 35);
+    XFile file = await _compressImage(croppedFile.path, 35);
 
     await _uploadFile(file.path);
   }
 
-  Future<XFile> compressImage(String path, int quality) async {
+  Future<XFile> _compressImage(String path, int quality) async {
     final newPath = p.join((await getTemporaryDirectory()).path,
         '${DateTime.now()}.${p.extension(path)}');
     final result = await FlutterImageCompress.compressAndGetFile(

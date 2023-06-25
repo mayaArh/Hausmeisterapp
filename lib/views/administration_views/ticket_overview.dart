@@ -3,7 +3,7 @@ import 'package:mein_digitaler_hausmeister/views/administration_views/closed_tic
 
 import '../../model_classes.dart/house.dart';
 import '../../model_classes.dart/ticket.dart';
-import 'create_ticket_view.dart';
+import 'ticket_creation_view.dart';
 import 'open_tickets_overview.dart';
 
 class TicketOverview extends StatefulWidget {

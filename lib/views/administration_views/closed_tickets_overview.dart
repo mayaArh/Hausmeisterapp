@@ -32,12 +32,12 @@ class _ClosedTicketsOverviewState extends State<ClosedTicketsOverview> {
                         final ticket = tickets[index];
                         return GestureDetector(
                           onTap: () {
-                            print('tapped');
                             showModalBottomSheet<void>(
                               context: context,
                               builder: (BuildContext context) {
                                 return SingleTicketView(
-                                    selectedTicketIndex: index);
+                                  selectedTicket: ticket,
+                                );
                               },
                             );
                           },

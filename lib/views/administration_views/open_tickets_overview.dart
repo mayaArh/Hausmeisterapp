@@ -40,11 +40,12 @@ class _OpenTicketsOverviewState extends State<OpenTicketsOverview> {
                                 builder: (BuildContext context) {
                                   return Dialog(
                                     insetPadding: const EdgeInsets.symmetric(
-                                        horizontal: 0, vertical: 80),
+                                        horizontal: 25, vertical: 80),
                                     child: Padding(
                                       padding: const EdgeInsets.all(16),
                                       child: SingleTicketView(
-                                          selectedTicketIndex: index),
+                                        selectedTicket: ticket,
+                                      ),
                                     ),
                                   );
                                 },

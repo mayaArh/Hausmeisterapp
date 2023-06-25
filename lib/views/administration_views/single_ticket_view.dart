@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
+
+import '../../model_classes.dart/image.dart';
+import '../../model_classes.dart/ticket.dart';
 
 class SingleTicketView extends StatefulWidget {
-  final int selectedTicketIndex;
+  final Ticket selectedTicket;
+  final FirestoreTicketService _ticketService = FirestoreTicketService();
 
-  const SingleTicketView({super.key, required this.selectedTicketIndex});
+  SingleTicketView({super.key, required this.selectedTicket});
 
   @override
   State<SingleTicketView> createState() => _SingleTicketViewState();
 }
 
 class _SingleTicketViewState extends State<SingleTicketView> {
-  bool _isExpanded = false;
+  String? imageUrl;
+
+  @override
+  void initState() {
+    if (widget.selectedTicket.imageUrl != '') {
+      imageUrl = widget.selectedTicket.imageUrl!;
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,24 +34,40 @@ class _SingleTicketViewState extends State<SingleTicketView> {
       child: Column(
         children: [
           Text(
-            'Detail View for item ${widget.selectedTicketIndex}',
+            textAlign: TextAlign.left,
+            widget.selectedTicket.topic,
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
+          if (imageUrl != null)
+            Image.network(imageUrl!)
+          else
+            UserImage(
+              onFileChanged: (imageUrl) {
+                setState(() {
+                  this.imageUrl = imageUrl;
+                });
+              },
+            ),
+          Text(widget.selectedTicket.description,
+              style: const TextStyle(
+                fontSize: 24,
+              )),
           ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _isExpanded = !_isExpanded;
-              });
-            },
-            child: Text(_isExpanded ? 'Collapse' : 'Expand'),
-          ),
-          if (_isExpanded) ...[
-            // Additional content to show when expanded
-            const Text('Additional content'),
-          ],
+              onPressed: () {
+                if (widget.selectedTicket.status == TicketStatus.open) {
+                  widget._ticketService.updateTicketStatus(
+                      widget.selectedTicket, TicketStatus.done);
+                } else {
+                  widget._ticketService.updateTicketStatus(
+                      widget.selectedTicket, TicketStatus.open);
+                }
+              },
+              child: widget.selectedTicket.status == TicketStatus.open
+                  ? const Text('als fertiggestellt markieren')
+                  : const Text('Als offen markieren'))
         ],
       ),
     );
