@@ -7,9 +7,11 @@ import '../../model_classes.dart/ticket.dart';
 
 class SingleTicketView extends StatefulWidget {
   final Ticket selectedTicket;
+  final Function(Ticket) onTicketChanged;
   final FirestoreTicketService _ticketService = FirestoreTicketService();
 
-  SingleTicketView({super.key, required this.selectedTicket});
+  SingleTicketView(
+      {super.key, required this.selectedTicket, required this.onTicketChanged});
 
   @override
   State<SingleTicketView> createState() => _SingleTicketViewState();
@@ -17,6 +19,7 @@ class SingleTicketView extends StatefulWidget {
 
 class _SingleTicketViewState extends State<SingleTicketView> {
   String? imageUrl;
+  bool imageIsChanged = false;
 
   @override
   void initState() {
@@ -41,29 +44,33 @@ class _SingleTicketViewState extends State<SingleTicketView> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          if (imageUrl != null)
-            Image.network(imageUrl!)
-          else
-            UserImage(
-              onFileChanged: (imageUrl) {
-                setState(() {
-                  this.imageUrl = imageUrl;
-                });
-              },
-            ),
+          displayUserImage(imageUrl),
           Text(widget.selectedTicket.description,
               style: const TextStyle(
                 fontSize: 24,
               )),
           ElevatedButton(
               onPressed: () {
+                setState(() {
+                  if (imageUrl != null) {
+                    widget._ticketService
+                        .changeTicketImage(widget.selectedTicket, imageUrl!);
+                  }
+                });
+              },
+              child: const Text('Ticket bearbeiten')),
+          ElevatedButton(
+              onPressed: () async {
+                Ticket ticket;
                 if (widget.selectedTicket.status == TicketStatus.open) {
-                  widget._ticketService.updateTicketStatus(
+                  ticket = await widget._ticketService.updateTicketStatus(
                       widget.selectedTicket, TicketStatus.done);
                 } else {
-                  widget._ticketService.updateTicketStatus(
+                  ticket = await widget._ticketService.updateTicketStatus(
                       widget.selectedTicket, TicketStatus.open);
                 }
+                widget.onTicketChanged(ticket);
+                Navigator.pop(context);
               },
               child: widget.selectedTicket.status == TicketStatus.open
                   ? const Text('als fertiggestellt markieren')
@@ -71,5 +78,19 @@ class _SingleTicketViewState extends State<SingleTicketView> {
         ],
       ),
     );
+  }
+
+  Widget displayUserImage(String? imgUrl) {
+    if (imgUrl != null) {
+      return Image.network(imageUrl!);
+    } else {
+      return UserImage(
+        onFileChanged: (imageUrl) {
+          setState(() {
+            this.imageUrl = imageUrl;
+          });
+        },
+      );
+    }
   }
 }

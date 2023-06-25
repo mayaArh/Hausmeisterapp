@@ -6,7 +6,9 @@ import '../../model_classes.dart/house.dart';
 import '../../model_classes.dart/ticket.dart';
 
 class ClosedTicketsOverview extends StatefulWidget {
-  const ClosedTicketsOverview({super.key});
+  final Function(Ticket) onTicketChanged;
+
+  const ClosedTicketsOverview({super.key, required this.onTicketChanged});
 
   @override
   State<ClosedTicketsOverview> createState() => _ClosedTicketsOverviewState();
@@ -32,11 +34,19 @@ class _ClosedTicketsOverviewState extends State<ClosedTicketsOverview> {
                         final ticket = tickets[index];
                         return GestureDetector(
                           onTap: () {
-                            showModalBottomSheet<void>(
+                            showDialog<void>(
                               context: context,
                               builder: (BuildContext context) {
-                                return SingleTicketView(
-                                  selectedTicket: ticket,
+                                return Dialog(
+                                  insetPadding: const EdgeInsets.symmetric(
+                                      horizontal: 25, vertical: 80),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: SingleTicketView(
+                                      selectedTicket: ticket,
+                                      onTicketChanged: widget.onTicketChanged,
+                                    ),
+                                  ),
                                 );
                               },
                             );

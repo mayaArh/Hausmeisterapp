@@ -49,10 +49,17 @@ class TicketOverviewState extends State<TicketOverview> {
             });
           },
           children: [
-            OpenTicketsOverview(onTicketAdded: (Ticket newTicket) {
+            OpenTicketsOverview(
+              onTicketAdded: (Ticket newTicket) {
+                setState(() {});
+              },
+              onTicketChanged: (Ticket changedTicket) {
+                setState(() {});
+              },
+            ),
+            ClosedTicketsOverview(onTicketChanged: (Ticket changedTicket) {
               setState(() {});
             }),
-            const ClosedTicketsOverview(),
           ]),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

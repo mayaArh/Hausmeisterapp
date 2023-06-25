@@ -7,8 +7,10 @@ import '../../model_classes.dart/ticket.dart';
 
 class OpenTicketsOverview extends StatefulWidget {
   final Function(Ticket) onTicketAdded;
+  final Function(Ticket) onTicketChanged;
 
-  const OpenTicketsOverview({super.key, required this.onTicketAdded});
+  const OpenTicketsOverview(
+      {super.key, required this.onTicketAdded, required this.onTicketChanged});
 
   @override
   State<OpenTicketsOverview> createState() => _OpenTicketsOverviewState();
@@ -45,6 +47,7 @@ class _OpenTicketsOverviewState extends State<OpenTicketsOverview> {
                                       padding: const EdgeInsets.all(16),
                                       child: SingleTicketView(
                                         selectedTicket: ticket,
+                                        onTicketChanged: widget.onTicketChanged,
                                       ),
                                     ),
                                   );

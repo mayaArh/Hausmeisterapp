@@ -188,9 +188,11 @@ class FirestoreTicketService {
     await ticket.docRef.update({'Problembeschreibung': newDescription});
   }
 
-  Future<void> updateTicketStatus(Ticket ticket, TicketStatus newStatus) async {
+  Future<Ticket> updateTicketStatus(
+      Ticket ticket, TicketStatus newStatus) async {
     ticket.status = newStatus;
     await ticket.docRef.update({'Status': newStatus.name});
+    return ticket;
   }
 
   /// changes the ticket image and deletes the image stored previously
