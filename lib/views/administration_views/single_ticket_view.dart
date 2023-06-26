@@ -18,47 +18,87 @@ class SingleTicketView extends StatefulWidget {
 }
 
 class _SingleTicketViewState extends State<SingleTicketView> {
-  String? imageUrl;
-  bool imageIsChanged = false;
+  String? _imageUrl;
+  bool _inChangeMode = false;
+  TextEditingController? _topicController;
+  TextEditingController? _descriptionController;
 
   @override
   void initState() {
-    if (widget.selectedTicket.imageUrl != '') {
-      imageUrl = widget.selectedTicket.imageUrl!;
+    if (widget.selectedTicket.imageUrl != null) {
+      _imageUrl = widget.selectedTicket.imageUrl!;
     }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SingleChildScrollView(
+        child: Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
       child: Column(
         children: [
-          Text(
-            textAlign: TextAlign.left,
-            widget.selectedTicket.topic,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(children: [
+            _displayTopic(),
+            Align(
+                child: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _inChangeMode = true;
+                      });
+                    },
+                    icon: const Icon(Icons.mode_edit_outlined))),
+          ]),
+          _displayUserImage(widget.selectedTicket.imageUrl),
+          Row(
+            children: [
+              _displayDescription(),
+              if (widget.selectedTicket.description != '')
+                Align(
+                  child: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _inChangeMode = true;
+                        });
+                      },
+                      icon: const Icon(Icons.mode_edit_outlined)),
+                )
+            ],
           ),
-          displayUserImage(imageUrl),
-          Text(widget.selectedTicket.description,
-              style: const TextStyle(
-                fontSize: 24,
-              )),
           ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  if (imageUrl != null) {
-                    widget._ticketService
-                        .changeTicketImage(widget.selectedTicket, imageUrl!);
+              onPressed: () async {
+                Ticket? ticket;
+                if (_inChangeMode) {
+                  if (_imageUrl != widget.selectedTicket.imageUrl) {
+                    print(_imageUrl);
+                    ticket = await widget._ticketService
+                        .changeTicketImage(widget.selectedTicket, _imageUrl!);
+                    _inChangeMode = false;
                   }
-                });
+                  if (_topicController!.text != widget.selectedTicket.topic) {
+                    ticket = await widget._ticketService.changeTicketTopic(
+                        widget.selectedTicket, _topicController!.text);
+                    _inChangeMode = false;
+                  }
+                  if (_descriptionController!.text !=
+                      widget.selectedTicket.description) {
+                    ticket = await widget._ticketService
+                        .changeTicketDescription(widget.selectedTicket,
+                            _descriptionController!.text);
+                    _inChangeMode = false;
+                  }
+                  if (ticket != null) {
+                    widget.onTicketChanged(ticket);
+                    Navigator.pop(context);
+                  }
+                }
               },
-              child: const Text('Ticket bearbeiten')),
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    !_inChangeMode ? Colors.blueGrey.shade200 : Colors.blueGrey,
+              ),
+              child: const Text('Ticket speichern')),
           ElevatedButton(
               onPressed: () async {
                 Ticket ticket;
@@ -77,20 +117,61 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                   : const Text('Als offen markieren'))
         ],
       ),
+    ));
+  }
+
+  Widget _displayTopic() {
+    if (!_inChangeMode) {
+      return Text(widget.selectedTicket.topic,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ));
+    } else {
+      _topicController =
+          TextEditingController(text: widget.selectedTicket.topic);
+      return Expanded(
+          child: TextField(
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+        controller: _topicController,
+        keyboardType: TextInputType.text,
+      ));
+    }
+  }
+
+  Widget _displayUserImage(String? imgUrl) {
+    return UserImage(
+      onFileChanged: (imageUrl) {
+        _inChangeMode = true;
+        setState(() {
+          _imageUrl = imageUrl;
+        });
+      },
+      imageUrl: imgUrl,
     );
   }
 
-  Widget displayUserImage(String? imgUrl) {
-    if (imgUrl != null) {
-      return Image.network(imageUrl!);
-    } else {
-      return UserImage(
-        onFileChanged: (imageUrl) {
-          setState(() {
-            this.imageUrl = imageUrl;
-          });
-        },
+  Widget _displayDescription() {
+    if (!_inChangeMode) {
+      return Text(
+        widget.selectedTicket.description,
+        textAlign: TextAlign.left,
       );
+    } else {
+      _descriptionController =
+          TextEditingController(text: widget.selectedTicket.description);
+
+      return Expanded(
+          child: TextField(
+        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        controller: _descriptionController,
+        keyboardType: TextInputType.text,
+      ));
     }
   }
 }

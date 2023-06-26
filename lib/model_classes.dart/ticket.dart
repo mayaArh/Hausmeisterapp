@@ -34,7 +34,7 @@ class Ticket {
       dateTime: json['erstellt am'],
       topic: json['Thema'],
       description: json['Problembeschreibung'],
-      imageUrl: json['Bild'],
+      imageUrl: json['Bild'] == '' ? null : json['Bild'],
       docRef: docRef,
       status: TicketStatus.values.byName(json['Status']),
     );
@@ -47,7 +47,7 @@ class Ticket {
       'erstellt am': dateTime,
       'Problembeschreibung': description,
       'Thema': topic,
-      'Bild': imageUrl,
+      'Bild': imageUrl ?? '',
       'Status': status.name,
     };
   }

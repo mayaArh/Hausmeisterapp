@@ -26,7 +26,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
   final FirestoreTicketService _ticketService = FirestoreTicketService();
   late final TextEditingController _topic;
   late final TextEditingController _description;
-  String imageUrl = '';
+  String? imageUrl;
 
   @override
   void initState() {
@@ -63,6 +63,9 @@ class _TicketCreationViewState extends State<TicketCreationView> {
             UserImage(
               onFileChanged: (imageUrl) {
                 setState(() {
+                  if (this.imageUrl != null) {
+                    _ticketService.deleteStorageImage(this.imageUrl!);
+                  }
                   this.imageUrl = imageUrl;
                 });
               },

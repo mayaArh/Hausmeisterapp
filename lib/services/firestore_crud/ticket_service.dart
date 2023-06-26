@@ -20,6 +20,7 @@ class FirestoreTicketService {
   factory FirestoreTicketService() => _shared;
 
   final db = FirebaseFirestore.instance;
+  final storage = FirebaseStorage.instance;
   late Staff _staffUser;
   List<List<String>> houseDocIds = [];
   late DocumentReference<Map<String, dynamic>> userDoc;
@@ -113,7 +114,7 @@ class FirestoreTicketService {
     required String topic,
     required String description,
     required String dateTime,
-    required String image,
+    required String? image,
     required TicketStatus status,
   }) async {
     DocumentReference ticketRef = await house.docRef.collection('Tickets').add({
@@ -122,7 +123,7 @@ class FirestoreTicketService {
       'erstellt am': dateTime,
       'Problembeschreibung': description,
       'Thema': topic,
-      'Bild': image,
+      'Bild': image ?? '',
       'Status': status.name,
     });
     Ticket ticket = Ticket(
@@ -177,15 +178,17 @@ class FirestoreTicketService {
     await Future.wait([ticket.docRef.delete()]);
   }
 
-  Future<void> changeTicketTopic(Ticket ticket, String newTopic) async {
+  Future<Ticket> changeTicketTopic(Ticket ticket, String newTopic) async {
     ticket.topic = newTopic;
     await ticket.docRef.update({'Thema': newTopic});
+    return ticket;
   }
 
-  Future<void> changeTicketDescription(
+  Future<Ticket> changeTicketDescription(
       Ticket ticket, String newDescription) async {
     ticket.description = newDescription;
     await ticket.docRef.update({'Problembeschreibung': newDescription});
+    return ticket;
   }
 
   Future<Ticket> updateTicketStatus(
@@ -195,14 +198,19 @@ class FirestoreTicketService {
     return ticket;
   }
 
-  /// changes the ticket image and deletes the image stored previously
-  /// for the image
-  Future<void> changeTicketImage(Ticket ticket, String newImageUrl) async {
-    ticket.imageUrl = newImageUrl;
+  /// deletes the image stored for the ticket
+  /// and adds the given new image to the ticket
+  Future<Ticket> changeTicketImage(Ticket ticket, String newImageUrl) async {
     if (ticket.imageUrl != null) {
-      final imageRef = FirebaseStorage.instance.refFromURL(ticket.imageUrl!);
-      await imageRef.delete();
+      deleteStorageImage(ticket.imageUrl!);
     }
+    ticket.imageUrl = newImageUrl;
     await ticket.docRef.update({'Bild': newImageUrl});
+    return ticket;
+  }
+
+  Future<void> deleteStorageImage(String imageUrl) async {
+    final imageRef = storage.refFromURL(imageUrl);
+    await imageRef.delete();
   }
 }

@@ -11,8 +11,9 @@ import 'package:path_provider/path_provider.dart';
 
 class UserImage extends StatefulWidget {
   final Function(String imageUrl) onFileChanged;
+  final String? imageUrl;
 
-  const UserImage({super.key, required this.onFileChanged});
+  const UserImage({super.key, required this.onFileChanged, this.imageUrl});
 
   @override
   State<UserImage> createState() => _UserImageState();
@@ -25,11 +26,15 @@ class _UserImageState extends State<UserImage> {
   final storageRef = FirebaseStorage.instance.ref();
   static const janitorPath = 'janitorImages';
   static const buildingManagementPath = 'propertyManagementImages';
-
   String? imageUrl;
+  int index = 0;
 
   @override
   Widget build(BuildContext context) {
+    if (index == 0) {
+      imageUrl = widget.imageUrl;
+      index++;
+    }
     return Column(
       children: [
         if (imageUrl == null)
@@ -45,8 +50,8 @@ class _UserImageState extends State<UserImage> {
             onTap: () => _selectPhoto(),
             child: Image(
               image: NetworkImage(imageUrl!),
-              width: 300,
-              height: 300,
+              width: 230,
+              height: 230,
             ),
           ),
         InkWell(
