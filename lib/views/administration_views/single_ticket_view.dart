@@ -100,6 +100,11 @@ class _SingleTicketViewState extends State<SingleTicketView> {
               ),
               child: const Text('Ticket speichern')),
           ElevatedButton(
+              style: ButtonStyle(
+                  backgroundColor: widget.selectedTicket.status ==
+                          TicketStatus.open
+                      ? MaterialStateProperty.all(Colors.green.shade400)
+                      : MaterialStateProperty.all(Colors.deepOrange.shade400)),
               onPressed: () async {
                 Ticket ticket;
                 if (widget.selectedTicket.status == TicketStatus.open) {
@@ -113,8 +118,14 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                 Navigator.pop(context);
               },
               child: widget.selectedTicket.status == TicketStatus.open
-                  ? const Text('als fertiggestellt markieren')
-                  : const Text('Als offen markieren'))
+                  ? const Text(
+                      'als fertiggestellt markieren',
+                      selectionColor: Colors.green,
+                    )
+                  : const Text(
+                      'Als offen markieren',
+                      selectionColor: Colors.deepOrange,
+                    ))
         ],
       ),
     ));

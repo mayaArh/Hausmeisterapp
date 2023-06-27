@@ -89,7 +89,7 @@ class _LoginViewState extends State<LoginView> {
                 await ErrorDialog.showErrorDialog(context, 'Wrong password');
               } on GenericAuthException {
                 await ErrorDialog.showErrorDialog(
-                    context, 'Authentication Error');
+                    context, 'Bitte verbinden Sie sich mit dem Internet.');
               }
             },
             child: const Text('Anmelden.'),

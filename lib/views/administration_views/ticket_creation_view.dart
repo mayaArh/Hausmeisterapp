@@ -48,29 +48,64 @@ class _TicketCreationViewState extends State<TicketCreationView> {
         appBar: AppBar(title: const Text('Neues Ticket erstellen')),
         body: Column(
           children: [
-            TextField(
-                controller: _topic,
-                keyboardType: TextInputType.text,
-                decoration: const InputDecoration(
-                  hintText: 'Thema',
-                )),
-            TextField(
-                controller: _description,
-                keyboardType: TextInputType.text,
-                decoration: const InputDecoration(
-                  hintText: 'Problembeschreibung',
-                )),
-            UserImage(
-              onFileChanged: (imageUrl) {
-                setState(() {
-                  if (this.imageUrl != null) {
-                    _ticketService.deleteStorageImage(this.imageUrl!);
-                  }
-                  this.imageUrl = imageUrl;
-                });
-              },
+            Container(
+              padding: const EdgeInsets.all(3.5),
+              child: TextField(
+                  controller: _topic,
+                  keyboardType: TextInputType.text,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  decoration: const InputDecoration(
+                      hintText: 'Thema', border: InputBorder.none)),
+            ),
+            Container(
+              padding: const EdgeInsets.all(3.5),
+              decoration: BoxDecoration(
+                border: Border.all(
+                    color: Colors.grey), // Add border properties here
+                borderRadius:
+                    BorderRadius.circular(4.0), // Add border radius if desired
+              ),
+              child: SizedBox(
+                  height: 200,
+                  child: SingleChildScrollView(
+                    child: TextField(
+                        controller: _description,
+                        keyboardType: TextInputType.multiline,
+                        maxLines: null,
+                        decoration: const InputDecoration(
+                            hintText: 'Problembeschreibung',
+                            border: InputBorder.none)),
+                  )),
+            ),
+            Container(
+              width: 300,
+              height: 250,
+              padding: const EdgeInsets.all(71),
+              decoration: BoxDecoration(
+                border: Border.all(
+                    color: Colors.grey,
+                    style: BorderStyle.none), // Add border properties here
+                borderRadius:
+                    BorderRadius.circular(4.0), // Add border radius if desired
+              ),
+              child: UserImage(
+                onFileChanged: (imageUrl) {
+                  setState(() {
+                    if (this.imageUrl != null) {
+                      _ticketService.deleteStorageImage(this.imageUrl!);
+                    }
+                    this.imageUrl = imageUrl;
+                  });
+                },
+              ),
             ),
             OutlinedButton(
+                style: ButtonStyle(
+                    elevation: const MaterialStatePropertyAll(1.0),
+                    foregroundColor:
+                        const MaterialStatePropertyAll(Colors.black54),
+                    backgroundColor:
+                        MaterialStatePropertyAll(Colors.green.shade300)),
                 onPressed: () async {
                   final topic = _topic.text;
                   final description = _description.text;
