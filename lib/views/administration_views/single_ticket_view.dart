@@ -71,7 +71,6 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                 Ticket? ticket;
                 if (_inChangeMode) {
                   if (_imageUrl != widget.selectedTicket.imageUrl) {
-                    print(_imageUrl);
                     ticket = await widget._ticketService
                         .changeTicketImage(widget.selectedTicket, _imageUrl!);
                     _inChangeMode = false;

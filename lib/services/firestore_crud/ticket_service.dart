@@ -67,8 +67,7 @@ class FirestoreTicketService {
         email: email,
         phoneNumber: phoneNumber,
       );
-    }
-    if (userDoc.parent.id == 'Hausmeister') {
+    } else if (userDoc.parent.id == 'Hausmeister') {
       _staffUser = Janitor(
         firstName: firstName,
         lastName: lastName,
@@ -83,6 +82,7 @@ class FirestoreTicketService {
 
   void _setAllTicketsForUser(Map<String, dynamic> userData) async {
     final houseMap = userData['Gebäude'];
+    print(houseMap.toString());
     final fetchHouseDataTasks = <Future<void>>[];
     int i = 0;
     List<String> houseDocIDs = List.empty(growable: true);
@@ -95,6 +95,8 @@ class FirestoreTicketService {
           houseDocIDs.clear();
           i = 0;
         }
+        print(
+            'houseDoc: ' + houseDoc.toString() + ', city: ' + city.toString());
         fetchHouseDataTasks.add(_fetchHouseData(houseDoc, city));
       }
     });
@@ -106,7 +108,9 @@ class FirestoreTicketService {
 
   Future<void> _fetchHouseData(
       DocumentReference<Map<String, dynamic>> houseDoc, String city) async {
-    await houseDoc.get().then((snapshot) => snapshot.data()!);
+    await houseDoc.get().then((snapshot) {
+      snapshot.data()!;
+    });
   }
 
   Future<Ticket> addTicketToHouse({

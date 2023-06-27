@@ -84,9 +84,10 @@ class _LoginViewState extends State<LoginView> {
                   );
                 }
               } on UserNotFoundAuthException {
-                await ErrorDialog.showErrorDialog(context, 'User not found');
+                await ErrorDialog.showErrorDialog(
+                    context, 'Benutzer existiert nicht');
               } on WrongPasswordAuthException {
-                await ErrorDialog.showErrorDialog(context, 'Wrong password');
+                await ErrorDialog.showErrorDialog(context, 'Falsches Passwort');
               } on GenericAuthException {
                 await ErrorDialog.showErrorDialog(
                     context, 'Bitte verbinden Sie sich mit dem Internet.');
