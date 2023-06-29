@@ -113,6 +113,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                   ticket = await widget._ticketService.updateTicketStatus(
                       widget.selectedTicket, TicketStatus.open);
                 }
+
                 widget.onTicketChanged(ticket);
                 Navigator.pop(context);
               },

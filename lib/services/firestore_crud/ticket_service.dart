@@ -82,7 +82,6 @@ class FirestoreTicketService {
 
   void _setAllTicketsForUser(Map<String, dynamic> userData) async {
     final houseMap = userData['Gebäude'];
-    print(houseMap.toString());
     final fetchHouseDataTasks = <Future<void>>[];
     int i = 0;
     List<String> houseDocIDs = List.empty(growable: true);
@@ -95,8 +94,6 @@ class FirestoreTicketService {
           houseDocIDs.clear();
           i = 0;
         }
-        print(
-            'houseDoc: ' + houseDoc.toString() + ', city: ' + city.toString());
         fetchHouseDataTasks.add(_fetchHouseData(houseDoc, city));
       }
     });

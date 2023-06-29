@@ -74,7 +74,7 @@ class _ClosedTicketsOverviewState extends State<ClosedTicketsOverview> {
                                   child: IconButton(
                                       onPressed: () async {
                                         _ticketService.deleteTicket(ticket);
-                                        setState(() {});
+                                        widget.onTicketChanged(ticket);
                                       },
                                       icon: const Icon(Icons.delete_outlined)))
                             ]),
