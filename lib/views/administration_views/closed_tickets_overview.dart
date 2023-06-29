@@ -20,9 +20,10 @@ class _ClosedTicketsOverviewState extends State<ClosedTicketsOverview> {
   @override
   Widget build(BuildContext context) {
     final House house = ModalRoute.of(context)!.settings.arguments as House;
+    Ticket? newTicket;
     return Scaffold(
         body: FutureBuilder<List<Ticket>>(
-            future: _ticketService.getClosedTickets(house),
+            future: _ticketService.getClosedTickets(house, newTicket),
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.done:

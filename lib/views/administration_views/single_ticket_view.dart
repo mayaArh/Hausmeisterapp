@@ -20,15 +20,25 @@ class SingleTicketView extends StatefulWidget {
 class _SingleTicketViewState extends State<SingleTicketView> {
   String? _imageUrl;
   bool _inChangeMode = false;
-  TextEditingController? _topicController;
-  TextEditingController? _descriptionController;
+  late final TextEditingController _topic;
+  late final TextEditingController _description;
 
   @override
   void initState() {
+    _topic = TextEditingController(text: widget.selectedTicket.topic);
+    _description =
+        TextEditingController(text: widget.selectedTicket.description);
     if (widget.selectedTicket.imageUrl != null) {
       _imageUrl = widget.selectedTicket.imageUrl!;
     }
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _topic.dispose();
+    _description.dispose();
+    super.dispose();
   }
 
   @override
@@ -68,29 +78,26 @@ class _SingleTicketViewState extends State<SingleTicketView> {
           ),
           ElevatedButton(
               onPressed: () async {
-                Ticket? ticket;
                 if (_inChangeMode) {
+                  Ticket changedTicket = widget.selectedTicket;
                   if (_imageUrl != widget.selectedTicket.imageUrl) {
-                    ticket = await widget._ticketService
-                        .changeTicketImage(widget.selectedTicket, _imageUrl!);
+                    changedTicket = await widget._ticketService
+                        .changeTicketImage(changedTicket, _imageUrl!);
                     _inChangeMode = false;
                   }
-                  if (_topicController!.text != widget.selectedTicket.topic) {
-                    ticket = await widget._ticketService.changeTicketTopic(
-                        widget.selectedTicket, _topicController!.text);
+                  if (_topic.text != widget.selectedTicket.topic) {
+                    changedTicket = await widget._ticketService
+                        .changeTicketTopic(changedTicket, _topic.text);
                     _inChangeMode = false;
                   }
-                  if (_descriptionController!.text !=
-                      widget.selectedTicket.description) {
-                    ticket = await widget._ticketService
-                        .changeTicketDescription(widget.selectedTicket,
-                            _descriptionController!.text);
+                  if (_description.text != widget.selectedTicket.description) {
+                    changedTicket = await widget._ticketService
+                        .changeTicketDescription(
+                            changedTicket, _description.text);
                     _inChangeMode = false;
                   }
-                  if (ticket != null) {
-                    widget.onTicketChanged(ticket);
-                    Navigator.pop(context);
-                  }
+                  widget.onTicketChanged(changedTicket);
+                  Navigator.pop(context);
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -140,8 +147,6 @@ class _SingleTicketViewState extends State<SingleTicketView> {
             fontWeight: FontWeight.bold,
           ));
     } else {
-      _topicController =
-          TextEditingController(text: widget.selectedTicket.topic);
       return Expanded(
           child: TextField(
         textAlign: TextAlign.center,
@@ -149,7 +154,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
           fontSize: 24,
           fontWeight: FontWeight.bold,
         ),
-        controller: _topicController,
+        controller: _topic,
         keyboardType: TextInputType.text,
       ));
     }
@@ -174,13 +179,10 @@ class _SingleTicketViewState extends State<SingleTicketView> {
         textAlign: TextAlign.left,
       );
     } else {
-      _descriptionController =
-          TextEditingController(text: widget.selectedTicket.description);
-
       return Expanded(
           child: TextField(
         style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        controller: _descriptionController,
+        controller: _description,
         keyboardType: TextInputType.text,
       ));
     }

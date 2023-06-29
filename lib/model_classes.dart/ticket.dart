@@ -24,7 +24,7 @@ class Ticket {
 
   @override
   String toString() {
-    return 'Ersteller: $firstName $lastName, Thema: $topic, Problembeschreibung: $description}';
+    return 'Ersteller: $firstName $lastName, Thema: $topic, Problembeschreibung: $description, Status: ${status.name}';
   }
 
   factory Ticket.fromJson(Map<String, dynamic> json, DocumentReference docRef) {

@@ -50,9 +50,6 @@ class TicketOverviewState extends State<TicketOverview> {
           },
           children: [
             OpenTicketsOverview(
-              onTicketAdded: (Ticket newTicket) {
-                setState(() {});
-              },
               onTicketChanged: (Ticket changedTicket) {
                 setState(() {});
               },

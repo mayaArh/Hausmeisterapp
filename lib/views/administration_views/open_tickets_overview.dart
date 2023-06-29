@@ -6,11 +6,9 @@ import '../../model_classes.dart/house.dart';
 import '../../model_classes.dart/ticket.dart';
 
 class OpenTicketsOverview extends StatefulWidget {
-  final Function(Ticket) onTicketAdded;
   final Function(Ticket) onTicketChanged;
 
-  const OpenTicketsOverview(
-      {super.key, required this.onTicketAdded, required this.onTicketChanged});
+  const OpenTicketsOverview({super.key, required this.onTicketChanged});
 
   @override
   State<OpenTicketsOverview> createState() => _OpenTicketsOverviewState();
@@ -77,7 +75,7 @@ class _OpenTicketsOverviewState extends State<OpenTicketsOverview> {
                                     child: IconButton(
                                         onPressed: () async {
                                           _ticketService.deleteTicket(ticket);
-                                          widget.onTicketAdded(ticket);
+                                          widget.onTicketChanged(ticket);
                                         },
                                         icon:
                                             const Icon(Icons.delete_outlined)))

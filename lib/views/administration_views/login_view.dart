@@ -88,9 +88,12 @@ class _LoginViewState extends State<LoginView> {
                     context, 'Benutzer existiert nicht');
               } on WrongPasswordAuthException {
                 await ErrorDialog.showErrorDialog(context, 'Falsches Passwort');
-              } on GenericAuthException {
+              } on NoInternetAuthException {
                 await ErrorDialog.showErrorDialog(
                     context, 'Bitte verbinden Sie sich mit dem Internet.');
+              } on GenericAuthException {
+                await ErrorDialog.showErrorDialog(
+                    context, 'Bei der Anmeldung ist ein Fehler aufgetreten.');
               }
             },
             child: const Text('Anmelden.'),

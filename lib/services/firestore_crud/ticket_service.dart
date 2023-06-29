@@ -142,28 +142,44 @@ class FirestoreTicketService {
   }
 
   Future<List<Ticket>> getOpenTickets(House house, Ticket? newTicket) async {
-    final List<Ticket> allTickets = await house.allTickets;
-    _sortTicketsByDateTime(allTickets);
+    List<Ticket> allTickets = await house.allTickets;
+
+    List<Ticket> ticketsToRemove = [];
     for (Ticket ticket in allTickets) {
       if (ticket.status != TicketStatus.open) {
-        allTickets.remove(ticket);
+        ticketsToRemove.add(ticket);
       }
     }
+
+    allTickets.removeWhere((ticket) => ticketsToRemove.contains(ticket));
+
     if (newTicket != null) {
       allTickets.add(newTicket);
     }
 
+    _sortTicketsByDateTime(allTickets);
+
     return allTickets;
   }
 
-  Future<List<Ticket>> getClosedTickets(House house) async {
-    final List<Ticket> allTickets = await house.allTickets;
-    _sortTicketsByDateTime(allTickets);
+  Future<List<Ticket>> getClosedTickets(House house, Ticket? newTicket) async {
+    List<Ticket> allTickets = await house.allTickets;
+
+    List<Ticket> ticketsToRemove = [];
     for (Ticket ticket in allTickets) {
       if (ticket.status == TicketStatus.open) {
-        allTickets.remove(ticket);
+        ticketsToRemove.add(ticket);
       }
     }
+
+    allTickets.removeWhere((ticket) => ticketsToRemove.contains(ticket));
+
+    if (newTicket != null) {
+      allTickets.add(newTicket);
+    }
+
+    _sortTicketsByDateTime(allTickets);
+
     return allTickets;
   }
 
@@ -176,6 +192,9 @@ class FirestoreTicketService {
   }
 
   Future<void> deleteTicket(Ticket ticket) async {
+    if (ticket.imageUrl != null) {
+      deleteStorageImage(ticket.imageUrl!);
+    }
     await Future.wait([ticket.docRef.delete()]);
   }
 

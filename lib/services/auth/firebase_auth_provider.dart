@@ -67,6 +67,8 @@ class FirebaseAuthProvider extends AuthProvider {
         throw UserNotFoundAuthException();
       } else if (e.code == 'wrong-password') {
         throw WrongPasswordAuthException();
+      } else if (e.code == 'network-request-failed') {
+        throw NoInternetAuthException();
       } else {
         throw GenericAuthException();
       }
