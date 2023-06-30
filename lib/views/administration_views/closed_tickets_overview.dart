@@ -23,7 +23,8 @@ class _ClosedTicketsOverviewState extends State<ClosedTicketsOverview> {
     Ticket? newTicket;
     return Scaffold(
         body: FutureBuilder<List<Ticket>>(
-            future: _ticketService.getClosedTickets(house, newTicket),
+            future: _ticketService.getFilteredTickets(house, newTicket,
+                filterOpenTickets: false),
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.done:
@@ -57,28 +58,18 @@ class _ClosedTicketsOverviewState extends State<ClosedTicketsOverview> {
                               border: Border.all(color: Colors.black87),
                             ),
                             padding: const EdgeInsets.all(10),
-                            child: Row(children: [
-                              Expanded(
-                                  child: Column(children: [
-                                Center(
-                                    child: Text(
-                                  ticket.topic,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                )),
-                                Center(
-                                    child: Text(
-                                        'erstellt am: ${ticket.dateTime}')),
-                              ])),
-                              Align(
-                                  alignment: Alignment.centerRight,
-                                  child: IconButton(
-                                      onPressed: () async {
-                                        _ticketService.deleteTicket(ticket);
-                                        widget.onTicketChanged(ticket);
-                                      },
-                                      icon: const Icon(Icons.delete_outlined)))
-                            ]),
+                            child: Expanded(
+                                child: Column(children: [
+                              Center(
+                                  child: Text(
+                                ticket.topic,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              )),
+                              Center(
+                                  child:
+                                      Text('erstellt am: ${ticket.dateTime}')),
+                            ])),
                           ),
                         );
                       },

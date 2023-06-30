@@ -8,9 +8,8 @@ import '../../model_classes.dart/ticket.dart';
 class SingleTicketView extends StatefulWidget {
   final Ticket selectedTicket;
   final Function(Ticket) onTicketChanged;
-  final FirestoreTicketService _ticketService = FirestoreTicketService();
 
-  SingleTicketView(
+  const SingleTicketView(
       {super.key, required this.selectedTicket, required this.onTicketChanged});
 
   @override
@@ -18,10 +17,11 @@ class SingleTicketView extends StatefulWidget {
 }
 
 class _SingleTicketViewState extends State<SingleTicketView> {
-  String? _imageUrl;
   bool _inChangeMode = false;
   late final TextEditingController _topic;
   late final TextEditingController _description;
+  String? _imageUrl;
+  final FirestoreTicketService _ticketService = FirestoreTicketService();
 
   @override
   void initState() {
@@ -81,18 +81,18 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                 if (_inChangeMode) {
                   Ticket changedTicket = widget.selectedTicket;
                   if (_imageUrl != widget.selectedTicket.imageUrl) {
-                    changedTicket = await widget._ticketService
-                        .changeTicketImage(changedTicket, _imageUrl!);
+                    changedTicket = await _ticketService.changeTicketImage(
+                        changedTicket, _imageUrl);
                     _inChangeMode = false;
                   }
                   if (_topic.text != widget.selectedTicket.topic) {
-                    changedTicket = await widget._ticketService
-                        .changeTicketTopic(changedTicket, _topic.text);
+                    changedTicket = await _ticketService.changeTicketTopic(
+                        changedTicket, _topic.text);
                     _inChangeMode = false;
                   }
                   if (_description.text != widget.selectedTicket.description) {
-                    changedTicket = await widget._ticketService
-                        .changeTicketDescription(
+                    changedTicket =
+                        await _ticketService.changeTicketDescription(
                             changedTicket, _description.text);
                     _inChangeMode = false;
                   }
@@ -114,10 +114,10 @@ class _SingleTicketViewState extends State<SingleTicketView> {
               onPressed: () async {
                 Ticket ticket;
                 if (widget.selectedTicket.status == TicketStatus.open) {
-                  ticket = await widget._ticketService.updateTicketStatus(
+                  ticket = await _ticketService.updateTicketStatus(
                       widget.selectedTicket, TicketStatus.done);
                 } else {
-                  ticket = await widget._ticketService.updateTicketStatus(
+                  ticket = await _ticketService.updateTicketStatus(
                       widget.selectedTicket, TicketStatus.open);
                 }
 
@@ -165,10 +165,11 @@ class _SingleTicketViewState extends State<SingleTicketView> {
       onFileChanged: (imageUrl) {
         _inChangeMode = true;
         setState(() {
+          _ticketService.deleteStorageImage(_imageUrl);
           _imageUrl = imageUrl;
         });
       },
-      imageUrl: imgUrl,
+      initialImageUrl: imgUrl,
     );
   }
 

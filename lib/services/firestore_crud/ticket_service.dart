@@ -141,33 +141,15 @@ class FirestoreTicketService {
     return ticket;
   }
 
-  Future<List<Ticket>> getOpenTickets(House house, Ticket? newTicket) async {
+  Future<List<Ticket>> getFilteredTickets(House house, Ticket? newTicket,
+      {required bool filterOpenTickets}) async {
     List<Ticket> allTickets = await house.allTickets;
 
     List<Ticket> ticketsToRemove = [];
     for (Ticket ticket in allTickets) {
-      if (ticket.status != TicketStatus.open) {
+      if (filterOpenTickets && ticket.status != TicketStatus.open) {
         ticketsToRemove.add(ticket);
-      }
-    }
-
-    allTickets.removeWhere((ticket) => ticketsToRemove.contains(ticket));
-
-    if (newTicket != null) {
-      allTickets.add(newTicket);
-    }
-
-    _sortTicketsByDateTime(allTickets);
-
-    return allTickets;
-  }
-
-  Future<List<Ticket>> getClosedTickets(House house, Ticket? newTicket) async {
-    List<Ticket> allTickets = await house.allTickets;
-
-    List<Ticket> ticketsToRemove = [];
-    for (Ticket ticket in allTickets) {
-      if (ticket.status == TicketStatus.open) {
+      } else if (!filterOpenTickets && ticket.status == TicketStatus.open) {
         ticketsToRemove.add(ticket);
       }
     }
@@ -192,9 +174,7 @@ class FirestoreTicketService {
   }
 
   Future<void> deleteTicket(Ticket ticket) async {
-    if (ticket.imageUrl != null) {
-      deleteStorageImage(ticket.imageUrl!);
-    }
+    deleteStorageImage(ticket.imageUrl!);
     await Future.wait([ticket.docRef.delete()]);
   }
 
@@ -220,17 +200,17 @@ class FirestoreTicketService {
 
   /// deletes the image stored for the ticket
   /// and adds the given new image to the ticket
-  Future<Ticket> changeTicketImage(Ticket ticket, String newImageUrl) async {
-    if (ticket.imageUrl != null) {
-      deleteStorageImage(ticket.imageUrl!);
-    }
+  Future<Ticket> changeTicketImage(Ticket ticket, String? newImageUrl) async {
+    deleteStorageImage(ticket.imageUrl!);
     ticket.imageUrl = newImageUrl;
     await ticket.docRef.update({'Bild': newImageUrl});
     return ticket;
   }
 
-  Future<void> deleteStorageImage(String imageUrl) async {
-    final imageRef = storage.refFromURL(imageUrl);
-    await imageRef.delete();
+  Future<void> deleteStorageImage(String? imageUrl) async {
+    if (imageUrl != null) {
+      final imageRef = storage.refFromURL(imageUrl);
+      await imageRef.delete();
+    }
   }
 }

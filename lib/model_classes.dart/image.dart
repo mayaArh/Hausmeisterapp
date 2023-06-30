@@ -10,10 +10,11 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 class UserImage extends StatefulWidget {
-  final Function(String imageUrl) onFileChanged;
-  final String? imageUrl;
+  final Function(String? imageUrl) onFileChanged;
+  final String? initialImageUrl;
 
-  const UserImage({super.key, required this.onFileChanged, this.imageUrl});
+  const UserImage(
+      {super.key, required this.onFileChanged, required this.initialImageUrl});
 
   @override
   State<UserImage> createState() => _UserImageState();
@@ -32,38 +33,47 @@ class _UserImageState extends State<UserImage> {
   @override
   Widget build(BuildContext context) {
     if (index == 0) {
-      imageUrl = widget.imageUrl;
+      imageUrl = widget.initialImageUrl;
       index++;
     }
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (imageUrl == null)
-          Icon(
-            Icons.image,
-            size: 50,
-            color: Theme.of(context).primaryColor,
-          )
-        else
-          InkWell(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            onTap: () => _selectPhoto(),
-            child: Image(
-              image: NetworkImage(imageUrl!),
-              width: 230,
-              height: 230,
-            ),
-          ),
-        InkWell(
-            onTap: () => _selectPhoto(),
-            child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Text(
-                  imageUrl == null ? 'Foto auswählen' : 'Foto ändern',
-                  style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold),
-                )))
+        Align(
+            alignment: Alignment.center,
+            child: Container(
+                width: 364,
+                height: 280,
+                padding: const EdgeInsets.all(8),
+                child: GestureDetector(
+                  onTap: () => _selectPhoto(),
+                  child: Stack(
+                    children: [
+                      _showImageContainer(imageUrl, context),
+                      Positioned(
+                          width: 70,
+                          height: 70,
+                          top: 0,
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                imageUrl = null;
+                              });
+                              widget.onFileChanged(null);
+                              _showImageContainer(imageUrl, context);
+                            },
+                            child: imageUrl != null
+                                ? const Icon(
+                                    Icons.delete_outline_outlined,
+                                    size: 25,
+                                    color: Colors.blueGrey,
+                                  )
+                                : null,
+                          )),
+                    ],
+                  ),
+                ))),
       ],
     );
   }
@@ -147,4 +157,25 @@ class _UserImageState extends State<UserImage> {
 
     widget.onFileChanged(fileUrl);
   }
+}
+
+Container _showImageContainer(String? imageUrl, BuildContext context) {
+  return Container(
+      padding: const EdgeInsets.all(16),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: imageUrl == null
+            ? Align(
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.add_a_photo_outlined,
+                  size: 50,
+                  color: Theme.of(context).primaryColor,
+                ))
+            : Image(
+                width: 364,
+                height: 280,
+                image: NetworkImage(imageUrl),
+              ),
+      ));
 }

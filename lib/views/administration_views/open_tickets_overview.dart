@@ -23,7 +23,8 @@ class _OpenTicketsOverviewState extends State<OpenTicketsOverview> {
     Ticket? newTicket;
     return Scaffold(
         body: FutureBuilder<List<Ticket>>(
-            future: _ticketService.getOpenTickets(house, newTicket),
+            future: _ticketService.getFilteredTickets(house, newTicket,
+                filterOpenTickets: true),
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.done:

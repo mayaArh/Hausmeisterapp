@@ -26,7 +26,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
   final FirestoreTicketService _ticketService = FirestoreTicketService();
   late final TextEditingController _topic;
   late final TextEditingController _description;
-  String? imageUrl;
+  String? _imageUrl;
 
   @override
   void initState() {
@@ -58,6 +58,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                       hintText: 'Thema', border: InputBorder.none)),
             ),
             Container(
+              height: 200,
               padding: const EdgeInsets.all(3.5),
               decoration: BoxDecoration(
                 border: Border.all(
@@ -66,24 +67,20 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                     BorderRadius.circular(4.0), // Add border radius if desired
               ),
               child: SizedBox(
-                  height: 200,
                   child: SingleChildScrollView(
-                    child: TextField(
-                        controller: _description,
-                        keyboardType: TextInputType.multiline,
-                        maxLines: null,
-                        decoration: const InputDecoration(
-                            hintText: 'Problembeschreibung',
-                            border: InputBorder.none)),
-                  )),
+                child: TextField(
+                    controller: _description,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    decoration: const InputDecoration(
+                        hintText: 'Problembeschreibung',
+                        border: InputBorder.none)),
+              )),
             ),
             Container(
-              width: 300,
-              height: 250,
-              padding: const EdgeInsets.all(71),
+              padding: const EdgeInsets.all(0),
               decoration: BoxDecoration(
                 border: Border.all(
-                    color: Colors.grey,
                     style: BorderStyle.none), // Add border properties here
                 borderRadius:
                     BorderRadius.circular(4.0), // Add border radius if desired
@@ -91,21 +88,23 @@ class _TicketCreationViewState extends State<TicketCreationView> {
               child: UserImage(
                 onFileChanged: (imageUrl) {
                   setState(() {
-                    if (this.imageUrl != null) {
-                      _ticketService.deleteStorageImage(this.imageUrl!);
-                    }
-                    this.imageUrl = imageUrl;
+                    _ticketService.deleteStorageImage(_imageUrl);
+
+                    _imageUrl = imageUrl;
                   });
                 },
+                initialImageUrl: null,
               ),
             ),
+            const SizedBox(
+              height: 25,
+            ),
             OutlinedButton(
-                style: ButtonStyle(
-                    elevation: const MaterialStatePropertyAll(1.0),
-                    foregroundColor:
-                        const MaterialStatePropertyAll(Colors.black54),
-                    backgroundColor:
-                        MaterialStatePropertyAll(Colors.green.shade300)),
+                style: const ButtonStyle(
+                    elevation: MaterialStatePropertyAll(1.0),
+                    foregroundColor: MaterialStatePropertyAll(Colors.black54),
+                    backgroundColor: MaterialStatePropertyAll(
+                        Color.fromARGB(255, 126, 216, 130))),
                 onPressed: () async {
                   final topic = _topic.text;
                   final description = _description.text;
@@ -120,7 +119,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                       topic: topic,
                       description: description,
                       dateTime: dateTime,
-                      image: imageUrl,
+                      image: _imageUrl,
                       status: TicketStatus.open,
                     );
                     widget.onTicketAdded(newTicket);
