@@ -42,11 +42,19 @@ class _OpenTicketsOverviewState extends State<OpenTicketsOverview> {
                                   return Dialog(
                                     insetPadding: const EdgeInsets.symmetric(
                                         horizontal: 25, vertical: 80),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: SingleTicketView(
-                                        selectedTicket: ticket,
-                                        onTicketChanged: widget.onTicketChanged,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                        color: Colors.black,
+                                        width: 2.0,
+                                      )),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(0),
+                                        child: SingleTicketView(
+                                          selectedTicket: ticket,
+                                          onTicketChanged:
+                                              widget.onTicketChanged,
+                                        ),
                                       ),
                                     ),
                                   );

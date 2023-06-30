@@ -40,16 +40,24 @@ class _ClosedTicketsOverviewState extends State<ClosedTicketsOverview> {
                               context: context,
                               builder: (BuildContext context) {
                                 return Dialog(
-                                  insetPadding: const EdgeInsets.symmetric(
-                                      horizontal: 25, vertical: 80),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: SingleTicketView(
-                                      selectedTicket: ticket,
-                                      onTicketChanged: widget.onTicketChanged,
-                                    ),
-                                  ),
-                                );
+                                    insetPadding: const EdgeInsets.symmetric(
+                                        horizontal: 25, vertical: 80),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Colors.black87,
+                                          width: 2.0,
+                                        ),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16),
+                                        child: SingleTicketView(
+                                          selectedTicket: ticket,
+                                          onTicketChanged:
+                                              widget.onTicketChanged,
+                                        ),
+                                      ),
+                                    ));
                               },
                             );
                           },

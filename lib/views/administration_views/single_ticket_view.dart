@@ -44,38 +44,18 @@ class _SingleTicketViewState extends State<SingleTicketView> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-        child: Container(
-      padding: const EdgeInsets.all(16),
-      color: Colors.white,
       child: Column(
         children: [
-          Row(children: [
-            _displayTopic(),
-            Align(
-                child: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _inChangeMode = true;
-                      });
-                    },
-                    icon: const Icon(Icons.mode_edit_outlined))),
+          Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+            Expanded(child: _displayTopic()),
           ]),
-          _displayUserImage(widget.selectedTicket.imageUrl),
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _displayDescription(),
-              if (widget.selectedTicket.description != '')
-                Align(
-                  child: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _inChangeMode = true;
-                        });
-                      },
-                      icon: const Icon(Icons.mode_edit_outlined)),
-                )
+              Expanded(child: _displayDescription()),
             ],
           ),
+          _displayUserImage(widget.selectedTicket.imageUrl),
           ElevatedButton(
               onPressed: () async {
                 if (_inChangeMode) {
@@ -135,29 +115,54 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                     ))
         ],
       ),
-    ));
+    );
   }
 
   Widget _displayTopic() {
-    if (!_inChangeMode) {
-      return Text(widget.selectedTicket.topic,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ));
-    } else {
-      return Expanded(
-          child: TextField(
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-        ),
-        controller: _topic,
-        keyboardType: TextInputType.text,
-      ));
-    }
+    return GestureDetector(
+        onTap: () {
+          setState(() {
+            _inChangeMode = true;
+          });
+        },
+        child: Container(
+            padding: const EdgeInsets.all(3.5),
+            child: TextField(
+              controller: _topic,
+              keyboardType: TextInputType.text,
+              textAlign: TextAlign.left,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              decoration: const InputDecoration(border: InputBorder.none),
+            )));
+  }
+
+  Widget _displayDescription() {
+    return GestureDetector(
+        onTap: () {
+          setState(() {
+            _inChangeMode = true;
+          });
+        },
+        child: Container(
+            height: 150,
+            padding: const EdgeInsets.all(3.5),
+            decoration: BoxDecoration(
+              border:
+                  Border.all(color: Colors.grey), // Add border properties here
+              borderRadius:
+                  BorderRadius.circular(4.0), // Add border radius if desired
+            ),
+            child: SizedBox(
+                child: SingleChildScrollView(
+                    child: TextField(
+                        controller: _description,
+                        keyboardType: TextInputType.multiline,
+                        maxLines: null,
+                        decoration: _description.text == ''
+                            ? const InputDecoration(
+                                hintText: 'Problembeschreibung',
+                                border: InputBorder.none)
+                            : null)))));
   }
 
   Widget _displayUserImage(String? imgUrl) {
@@ -171,21 +176,5 @@ class _SingleTicketViewState extends State<SingleTicketView> {
       },
       initialImageUrl: imgUrl,
     );
-  }
-
-  Widget _displayDescription() {
-    if (!_inChangeMode) {
-      return Text(
-        widget.selectedTicket.description,
-        textAlign: TextAlign.left,
-      );
-    } else {
-      return Expanded(
-          child: TextField(
-        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        controller: _description,
-        keyboardType: TextInputType.text,
-      ));
-    }
   }
 }
