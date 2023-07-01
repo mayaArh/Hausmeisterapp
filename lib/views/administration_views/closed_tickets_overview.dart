@@ -50,7 +50,7 @@ class _ClosedTicketsOverviewState extends State<ClosedTicketsOverview> {
                                         ),
                                       ),
                                       child: Padding(
-                                        padding: const EdgeInsets.all(16),
+                                        padding: const EdgeInsets.all(0),
                                         child: SingleTicketView(
                                           selectedTicket: ticket,
                                           onTicketChanged:
@@ -62,23 +62,22 @@ class _ClosedTicketsOverviewState extends State<ClosedTicketsOverview> {
                             );
                           },
                           child: Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black87),
-                            ),
-                            padding: const EdgeInsets.all(10),
-                            child: Expanded(
-                                child: Column(children: [
-                              Center(
-                                  child: Text(
-                                ticket.topic,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
-                              )),
-                              Center(
-                                  child:
-                                      Text('erstellt am: ${ticket.dateTime}')),
-                            ])),
-                          ),
+                              height: 70,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.black87),
+                              ),
+                              padding: const EdgeInsets.all(18),
+                              child: Column(children: [
+                                Center(
+                                    child: Text(
+                                  ticket.topic,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                )),
+                                Center(
+                                    child: Text(
+                                        'erstellt am: ${ticket.dateTime}')),
+                              ])),
                         );
                       },
                     );
