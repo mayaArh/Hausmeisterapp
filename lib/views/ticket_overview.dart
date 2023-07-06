@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:mein_digitaler_hausmeister/views/administration_views/closed_tickets_overview.dart';
+import 'package:mein_digitaler_hausmeister/views/closed_tickets_overview.dart';
+import 'package:mein_digitaler_hausmeister/views/ticket_list.dart';
 
-import '../../model_classes.dart/house.dart';
-import '../../model_classes.dart/ticket.dart';
+import '../model_classes.dart/house.dart';
+import '../model_classes.dart/ticket.dart';
 import 'ticket_creation_view.dart';
 import 'open_tickets_overview.dart';
 
-class TicketOverview extends StatefulWidget {
-  const TicketOverview({super.key});
+class TicketViewChanger extends StatefulWidget {
+  const TicketViewChanger({super.key});
 
   @override
-  State<TicketOverview> createState() => TicketOverviewState();
+  State<TicketViewChanger> createState() => TicketViewChangerState();
 }
 
-class TicketOverviewState extends State<TicketOverview> {
+class TicketViewChangerState extends State<TicketViewChanger> {
   int _currentIndex = 0;
   final PageController _pageController = PageController(initialPage: 0);
 
@@ -54,9 +55,11 @@ class TicketOverviewState extends State<TicketOverview> {
                 setState(() {});
               },
             ),
-            ClosedTicketsOverview(onTicketChanged: (Ticket changedTicket) {
-              setState(() {});
-            }),
+            ClosedTicketsOverview(
+              onTicketChanged: (Ticket changedTicket) {
+                setState(() {});
+              },
+            ),
           ]),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -82,6 +85,42 @@ class TicketOverviewState extends State<TicketOverview> {
                 duration: const Duration(milliseconds: 550),
                 curve: Curves.fastEaseInToSlowEaseOut);
           });
+        },
+      ),
+    );
+  }
+}
+
+abstract class TicketsOverview extends StatefulWidget {
+  final Function(Ticket) onTicketChanged;
+
+  const TicketsOverview({Key? key, required this.onTicketChanged})
+      : super(key: key);
+
+  Future<List<Ticket>> fetchTickets(House house, bool filterOpenTickets);
+
+  @override
+  State<TicketsOverview> createState() => _TicketsOverviewState();
+}
+
+class _TicketsOverviewState<T extends TicketsOverview> extends State<T> {
+  @override
+  Widget build(BuildContext context) {
+    final House house = ModalRoute.of(context)!.settings.arguments as House;
+    return Scaffold(
+      body: FutureBuilder<List<Ticket>>(
+        future: widget.fetchTickets(house, true),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              final tickets = snapshot.data;
+              return TicketList(
+                tickets: tickets ?? [],
+                onTicketChanged: widget.onTicketChanged,
+              );
+            default:
+              return const Scaffold();
+          }
         },
       ),
     );

@@ -1,43 +1,43 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mein_digitaler_hausmeister/model_classes.dart/ticket.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/crud_exceptions.dart';
 
 import '../services/auth/auth_user.dart';
 import '../services/firestore_crud/firestore_data_provider.dart';
 
 class House {
+  final DocumentReference firestoreRef;
   final String street;
   final int houseNumber;
   final int postalCode;
   final String city;
-  late final DocumentReference docRef;
+  late List<Ticket> tickets;
 
   final FirestoreDataProvider dataProvider = FirestoreDataProvider();
   final AuthUser user = AuthService.firebase().currentUser!;
 
   House({
+    required this.firestoreRef,
     required this.street,
     required this.houseNumber,
     required this.postalCode,
     required this.city,
   });
 
-  factory House.fromJson(Map<String, dynamic> json) {
-    return House(
-      street: json['Strasse'],
-      houseNumber: json['Hausnummer'],
-      postalCode: json['Postleitzahl'],
-      city: json['Ort'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'Strasse': street,
-      'Hausnummer': houseNumber,
-      'Postleitzahl': postalCode,
-      'Ort': city,
-    };
+  factory House.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+    try {
+      Map<String, dynamic> data = doc.data()!;
+      return House(
+        firestoreRef: doc.reference,
+        street: data['Strasse'],
+        houseNumber: data['Hausnummer'],
+        postalCode: data['Postleitzahl'],
+        city: data['Ort'],
+      );
+    } catch (_) {
+      throw HouseDoesntHaveAllFields();
+    }
   }
 
   String get shortAddress {
@@ -73,17 +73,15 @@ class House {
           in dataProvider.snapshots!) {
         for (final QueryDocumentSnapshot<Map<String, dynamic>> houseDoc
             in snapshot.docs) {
-          final House house = House.fromJson(houseDoc.data());
+          final House house = House.fromFirestore(houseDoc);
 
           if (house == this) {
             final QuerySnapshot<Map<String, dynamic>> ticketDocs =
-                await houseDoc.reference.collection('Tickets').get();
+                await house.firestoreRef.collection('Tickets').get();
 
             for (final QueryDocumentSnapshot<
                 Map<String, dynamic>> ticketSnapshot in ticketDocs.docs) {
-              final Map<String, dynamic> ticketData = ticketSnapshot.data();
-              final Ticket ticket =
-                  Ticket.fromJson(ticketData, ticketSnapshot.reference);
+              final Ticket ticket = Ticket.fromFirestore(ticketSnapshot);
               tickets.add(ticket);
             }
           }

@@ -1,1 +1,0 @@
-enum TicketVisibility { private, public }

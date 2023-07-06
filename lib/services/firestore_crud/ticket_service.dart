@@ -118,7 +118,8 @@ class FirestoreTicketService {
     required String? image,
     required TicketStatus status,
   }) async {
-    DocumentReference ticketRef = await house.docRef.collection('Tickets').add({
+    DocumentReference ticketRef =
+        await house.firestoreRef.collection('Tickets').add({
       'Vorname': _staffUser.firstName,
       'Nachname': _staffUser.lastName,
       'erstellt am': dateTime,
@@ -134,10 +135,10 @@ class FirestoreTicketService {
         topic: topic,
         description: description,
         imageUrl: image,
-        docRef: ticketRef,
+        firestoreRef: ticketRef,
         status: status);
 
-    ticket.docRef = ticketRef;
+    ticket.firestoreRef = ticketRef;
     return ticket;
   }
 
@@ -175,26 +176,26 @@ class FirestoreTicketService {
 
   Future<void> deleteTicket(Ticket ticket) async {
     deleteStorageImage(ticket.imageUrl!);
-    await Future.wait([ticket.docRef.delete()]);
+    await Future.wait([ticket.firestoreRef.delete()]);
   }
 
   Future<Ticket> changeTicketTopic(Ticket ticket, String newTopic) async {
     ticket.topic = newTopic;
-    await ticket.docRef.update({'Thema': newTopic});
+    await ticket.firestoreRef.update({'Thema': newTopic});
     return ticket;
   }
 
   Future<Ticket> changeTicketDescription(
       Ticket ticket, String newDescription) async {
     ticket.description = newDescription;
-    await ticket.docRef.update({'Problembeschreibung': newDescription});
+    await ticket.firestoreRef.update({'Problembeschreibung': newDescription});
     return ticket;
   }
 
   Future<Ticket> updateTicketStatus(
       Ticket ticket, TicketStatus newStatus) async {
     ticket.status = newStatus;
-    await ticket.docRef.update({'Status': newStatus.name});
+    await ticket.firestoreRef.update({'Status': newStatus.name});
     return ticket;
   }
 
@@ -203,7 +204,7 @@ class FirestoreTicketService {
   Future<Ticket> changeTicketImage(Ticket ticket, String? newImageUrl) async {
     deleteStorageImage(ticket.imageUrl!);
     ticket.imageUrl = newImageUrl;
-    await ticket.docRef.update({'Bild': newImageUrl});
+    await ticket.firestoreRef.update({'Bild': newImageUrl});
     return ticket;
   }
 

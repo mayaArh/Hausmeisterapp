@@ -58,21 +58,8 @@ class FirestoreDataProvider extends ChangeNotifier {
     if (_snapshots != null) {
       for (final snapshot in _snapshots!) {
         for (final doc in snapshot.docs) {
-          final data = doc.data();
-          final String houseCity = data['Ort'];
-          final String houseStreet = data['Strasse'];
-          final int houseNumber = data['Hausnummer'];
-          final int postalCode = data['Postleitzahl'];
-          if (houseCity == city) {
-            House house = House(
-              street: houseStreet,
-              houseNumber: houseNumber,
-              postalCode: postalCode,
-              city: houseCity,
-            );
-            house.docRef = doc.reference;
-            houses.add(house);
-          }
+          final house = House.fromFirestore(doc);
+          houses.add(house);
         }
       }
     }

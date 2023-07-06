@@ -3,7 +3,7 @@ import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../../model_classes.dart/house.dart';
+import '../model_classes.dart/house.dart';
 
 class HousesOverview extends StatefulWidget {
   const HousesOverview({super.key});

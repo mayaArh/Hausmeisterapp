@@ -4,10 +4,10 @@ import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
 import 'package:mein_digitaler_hausmeister/utilities/show_error_dialog.dart';
 
-import '../../model_classes.dart/house.dart';
+import '../model_classes.dart/house.dart';
 
-import '../../model_classes.dart/image.dart';
-import '../../model_classes.dart/ticket.dart';
+import '../model_classes.dart/image.dart';
+import '../model_classes.dart/ticket.dart';
 
 class ImageCouldNotBeReadAsBytes implements Exception {}
 

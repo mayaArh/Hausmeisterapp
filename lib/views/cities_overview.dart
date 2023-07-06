@@ -3,9 +3,9 @@ import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../../constants/routes.dart';
-import '../../enums/menu_entries.dart';
-import '../../utilities/show_error_dialog.dart';
+import '../constants/routes.dart';
+import '../enums/menu_entries.dart';
+import '../utilities/show_error_dialog.dart';
 
 class CitiesOverview extends StatefulWidget {
   const CitiesOverview({super.key});

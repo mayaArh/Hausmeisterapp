@@ -18,6 +18,10 @@ class CouldNotUpdateTicket implements Exception {}
 
 class CouldNotFindGivenHouse implements Exception {}
 
+class HouseDoesntHaveAllFields implements Exception {}
+
+class TicketDoesntHaveAllFields implements Exception {}
+
 class SeveralUsersWithSameEmail implements Exception {}
 
 class GivenCityDoesntExist implements Exception {}

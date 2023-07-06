@@ -3,23 +3,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../enums/ticket_status.dart';
 
 class Ticket {
+  DocumentReference firestoreRef;
   final String firstName;
   final String lastName;
   final String dateTime;
   String topic;
   String description;
   String? imageUrl;
-  DocumentReference docRef;
   TicketStatus status;
 
   Ticket(
-      {required this.firstName,
+      {required this.firestoreRef,
+      required this.firstName,
       required this.lastName,
       required this.dateTime,
       required this.topic,
       required this.description,
       required this.imageUrl,
-      required this.docRef,
       required this.status});
 
   @override
@@ -27,17 +27,22 @@ class Ticket {
     return 'Ersteller: $firstName $lastName, Thema: $topic, Problembeschreibung: $description, Status: ${status.name}';
   }
 
-  factory Ticket.fromJson(Map<String, dynamic> json, DocumentReference docRef) {
-    return Ticket(
-      firstName: json['Vorname'],
-      lastName: json['Nachname'],
-      dateTime: json['erstellt am'],
-      topic: json['Thema'],
-      description: json['Problembeschreibung'],
-      imageUrl: json['Bild'] == '' ? null : json['Bild'],
-      docRef: docRef,
-      status: TicketStatus.values.byName(json['Status']),
-    );
+  factory Ticket.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+    try {
+      Map<String, dynamic> data = doc.data()!;
+      return Ticket(
+        firestoreRef: doc.reference,
+        firstName: doc['Vorname'],
+        lastName: doc['Nachname'],
+        dateTime: doc['erstellt am'],
+        topic: doc['Thema'],
+        description: doc['Problembeschreibung'],
+        imageUrl: doc['Bild'] == '' ? null : doc['Bild'],
+        status: TicketStatus.values.byName(doc['Status']),
+      );
+    } catch (_) {
+      throw TicketDoesntHaveAllFields();
+    }
   }
 
   Map<String, dynamic> toJson() {
