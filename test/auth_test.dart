@@ -1,6 +1,7 @@
+import 'package:mein_digitaler_hausmeister/model_classes.dart/staff.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_exceptions.dart';
-import 'package:mein_digitaler_hausmeister/services/auth/auth_provider.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_user.dart';
+import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -63,7 +64,7 @@ void main() {
 
 class NotInitializedException implements Exception {}
 
-class MockAuthProvider implements AuthProvider {
+class MockAuthProvider implements FirebaseAuthProvider {
   AuthUser? _user;
   var _isInitialized = false;
   bool get isInitialized => _isInitialized;
@@ -113,4 +114,8 @@ class MockAuthProvider implements AuthProvider {
     const newUser = AuthUser(email: 'dummy', isEmailVerified: true, uid: '');
     _user = newUser;
   }
+
+  @override
+  // TODO: implement currentStaff
+  Future<Staff?> get currentStaff => throw UnimplementedError();
 }

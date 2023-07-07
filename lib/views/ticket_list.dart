@@ -5,12 +5,10 @@ import '../model_classes.dart/ticket.dart';
 
 class TicketList extends StatelessWidget {
   final List<Ticket> tickets;
-  final Function(Ticket) onTicketChanged;
 
   const TicketList({
     Key? key,
     required this.tickets,
-    required this.onTicketChanged,
   }) : super(key: key);
 
   @override
@@ -41,7 +39,6 @@ class TicketList extends StatelessWidget {
                             padding: const EdgeInsets.all(0),
                             child: SingleTicketView(
                               selectedTicket: ticket,
-                              onTicketChanged: onTicketChanged,
                             ),
                           ),
                         ),

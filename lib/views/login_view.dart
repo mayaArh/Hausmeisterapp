@@ -3,7 +3,7 @@ import 'dart:developer' as developer;
 
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_exceptions.dart';
-import '../services/auth/auth_service.dart';
+import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.dart';
 import '../services/firestore_crud/registration_service.dart';
 import '../utilities/show_error_dialog.dart';
 
@@ -65,12 +65,12 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                final userCredential = await AuthService.firebase().logIn(
+                final userCredential = await FirebaseAuthProvider().logIn(
                   email: email,
                   password: password,
                 );
                 developer.log(userCredential.toString());
-                final user = AuthService.firebase().currentUser;
+                final user = FirebaseAuthProvider().currentUser;
                 if (user?.isEmailVerified ?? false) {
                   _registrationService.changeDocIdtoUID(user!);
                   Navigator.of(context).pushNamedAndRemoveUntil(

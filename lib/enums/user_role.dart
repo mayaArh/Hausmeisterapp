@@ -1,1 +1,1 @@
-enum Role { bigJanitor, janitor, renter }
+enum Role { bigJanitor, janitor }

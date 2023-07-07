@@ -23,7 +23,7 @@ class TicketCreationView extends StatefulWidget {
 }
 
 class _TicketCreationViewState extends State<TicketCreationView> {
-  final FirestoreTicketService _ticketService = FirestoreTicketService();
+  final FirestoreDataService _ticketService = FirestoreDataService();
   late final TextEditingController _topic;
   late final TextEditingController _description;
   String? _imageUrl;

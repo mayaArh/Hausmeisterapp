@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
-import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
+
+import '../services/auth/firebase_auth_provider.dart';
 
 class VerifyEmailView extends StatefulWidget {
   const VerifyEmailView({
@@ -24,12 +25,12 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
               "Um Ihre Identität zu bestätigen, haben wir eine E-Mail an die angegebene E-Mail Adresse versendet. Bitte schauen Sie in ihr E-Mail Postfach und verifizieren Sie ihre E-Mail Adresse."),
           TextButton(
               onPressed: () async {
-                await AuthService.firebase().sendEmailVerification();
+                await FirebaseAuthProvider().sendEmailVerification();
               },
               child: const Text('E-Mail erneut senden.')),
           TextButton(
               onPressed: () async {
-                await AuthService.firebase().logOut();
+                await FirebaseAuthProvider().logOut();
                 Navigator.of(context)
                     .pushNamedAndRemoveUntil(loginRoute, (route) => false);
               },

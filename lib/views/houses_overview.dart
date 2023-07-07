@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
-import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_provider.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
 import 'package:provider/provider.dart';
 
 import '../model_classes.dart/house.dart';
@@ -17,33 +17,30 @@ class _HousesOverviewState extends State<HousesOverview> {
   Widget build(BuildContext context) {
     final String city = ModalRoute.of(context)!.settings.arguments as String;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(city)),
-      body: Consumer<FirestoreDataProvider>(
-        builder: (context, provider, _) {
-          if (provider.isLoading) {
-            return const CircularProgressIndicator();
-          } else if (provider.hasData) {
-            final houses = provider.getAllHousesForCity(city);
-            return ListView(
-                children: houses
-                    .map((House house) => OutlinedButton(
-                        onPressed: () {
-                          Navigator.of(context).pushNamed(ticketsOverviewRoute,
-                              arguments: house);
-                        },
-                        style: ButtonStyle(
-                            shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(100.0),
-                        ))),
-                        child: Text(house.shortAddress)))
-                    .toList());
-          } else {
-            return const Text('Es sind noch keine Daten vorhanden');
-          }
-        },
-      ),
-    );
+    return StreamProvider<List<House>>(
+        create: (_) => FirestoreDataService().streamHousesForCity(city),
+        initialData: const [],
+        builder: (context, child) {
+          return Scaffold(
+              appBar: AppBar(title: Text(city)),
+              body: StreamProvider<List<House>>.value(
+                  value: FirestoreDataService().streamHousesForCity(city),
+                  initialData: const [],
+                  child: ListView(
+                      children: Provider.of<List<House>>(context)
+                          .map((House house) => OutlinedButton(
+                              onPressed: () {
+                                Navigator.of(context).pushNamed(
+                                    ticketsOverviewRoute,
+                                    arguments: house);
+                              },
+                              style: ButtonStyle(
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(100.0),
+                              ))),
+                              child: Text(house.shortAddress)))
+                          .toList())));
+        });
   }
 }

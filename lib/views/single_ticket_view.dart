@@ -7,10 +7,8 @@ import '../model_classes.dart/ticket.dart';
 
 class SingleTicketView extends StatefulWidget {
   final Ticket selectedTicket;
-  final Function(Ticket) onTicketChanged;
 
-  const SingleTicketView(
-      {super.key, required this.selectedTicket, required this.onTicketChanged});
+  const SingleTicketView({super.key, required this.selectedTicket});
 
   @override
   State<SingleTicketView> createState() => _SingleTicketViewState();
@@ -20,7 +18,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
   late final TextEditingController _topic;
   late final TextEditingController _description;
   String? _imageUrl;
-  final FirestoreTicketService _ticketService = FirestoreTicketService();
+  final FirestoreDataService _ticketService = FirestoreDataService();
 
   @override
   void initState() {
@@ -60,7 +58,6 @@ class _SingleTicketViewState extends State<SingleTicketView> {
         _description.text,
       );
     }
-    widget.onTicketChanged(changedTicket);
   }
 
   @override
@@ -103,7 +100,6 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                           widget.selectedTicket, TicketStatus.open);
                     }
 
-                    widget.onTicketChanged(ticket);
                     Navigator.pop(context);
                   },
                   child: widget.selectedTicket.status == TicketStatus.open

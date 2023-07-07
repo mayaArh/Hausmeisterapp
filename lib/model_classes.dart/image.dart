@@ -5,7 +5,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mein_digitaler_hausmeister/model_classes.dart/staff.dart';
-import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_provider.dart';
+import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -21,7 +21,6 @@ class UserImage extends StatefulWidget {
 }
 
 class _UserImageState extends State<UserImage> {
-  final FirestoreDataProvider _dataProvider = FirestoreDataProvider();
   final ImagePicker _picker = ImagePicker();
   final ImageCropper _imageCropper = ImageCropper();
   final storageRef = FirebaseStorage.instance.ref();
@@ -139,10 +138,11 @@ class _UserImageState extends State<UserImage> {
 
   Future _uploadFile(String path) async {
     String userPath = '';
-    if (_dataProvider.staffUser is Janitor) {
+    final staff = await AuthService.firebase().currentStaff;
+    if (staff is Janitor) {
       userPath = janitorPath;
     }
-    if (_dataProvider.staffUser is BuildingManagement) {
+    if (staff is BuildingManager) {
       userPath = buildingManagementPath;
     }
     final ref = storageRef

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
+import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/registration_service.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -13,11 +14,11 @@ import '../../model_classes.dart/ticket.dart';
 import '../auth/auth_user.dart';
 import 'crud_exceptions.dart';
 
-class FirestoreTicketService {
-  FirestoreTicketService._sharedInstance();
-  static final FirestoreTicketService _shared =
-      FirestoreTicketService._sharedInstance();
-  factory FirestoreTicketService() => _shared;
+class FirestoreDataService {
+  FirestoreDataService._sharedInstance();
+  static final FirestoreDataService _shared =
+      FirestoreDataService._sharedInstance();
+  factory FirestoreDataService() => _shared;
 
   final db = FirebaseFirestore.instance;
   final storage = FirebaseStorage.instance;
@@ -44,6 +45,79 @@ class FirestoreTicketService {
     return zippedStreams;
   }
 
+  Stream<List<String>> streamCities() async* {
+    Staff? staff = await AuthService.firebase().currentStaff;
+    if (staff != null) {
+      DocumentReference<Map<String, dynamic>> userDoc = staff.firestoreRef;
+      try {
+        yield* userDoc.snapshots().map((userSnapshot) {
+          final userData = userSnapshot.data();
+          List<String> cityNames = [];
+          if (userData != null) {
+            final cityList = userData['Gebäude'];
+            cityNames = cityList.keys.toList() ?? [];
+            cityNames.sort((elemA, elemB) => elemA.compareTo(elemB));
+          }
+          return cityNames;
+        });
+      } catch (e) {
+        throw CouldNotFindUserData();
+      }
+    } else {
+      throw CouldNotFindUser();
+    }
+  }
+
+  Stream<List<House>> streamHousesForCity(String city) async* {
+    Staff? staff = await AuthService.firebase().currentStaff;
+    if (staff != null) {
+      DocumentReference<Map<String, dynamic>> userDoc = staff.firestoreRef;
+      try {
+        await for (DocumentSnapshot<Map<String, dynamic>> userSnapshot
+            in userDoc.snapshots()) {
+          final userData = userSnapshot.data();
+          List<House> houseList = [];
+          if (userData != null) {
+            Map<String, dynamic> houseMap = userData['Gebäude'];
+
+            if (houseMap.containsKey(city)) {
+              List<dynamic> houseDocs = houseMap[city];
+              for (DocumentReference<Map<String, dynamic>> houseDoc in houseDocs
+                  .cast<DocumentReference<Map<String, dynamic>>>()) {
+                final houseSnapshot = await houseDoc.get();
+                houseList.add(House.fromFirestore(houseSnapshot));
+              }
+            }
+            _sortHouses(houseList);
+          }
+          yield houseList;
+        }
+      } catch (e) {
+        throw CouldNotFindUserData();
+      }
+    } else {
+      throw CouldNotFindUser();
+    }
+  }
+
+  Stream<List<Ticket>> streamTicketsForHouse(House house,
+      {required bool filterOpenTickets}) {
+    return house.firestoreRef.collection('Tickets').snapshots().map((data) {
+      List<Ticket> ticketList = [];
+      for (QueryDocumentSnapshot<Map<String, dynamic>> ticketDoc in data.docs) {
+        if (filterOpenTickets &&
+            ticketDoc.data()['Status'] == TicketStatus.open.toString()) {
+          ticketList.add(Ticket.fromFirestore(ticketDoc));
+        } else if (filterOpenTickets == false &&
+            ticketDoc.data()['Status'] == TicketStatus.done.toString()) {
+          ticketList.add(Ticket.fromFirestore(ticketDoc));
+        }
+        _sortTicketsByDateTime(ticketList);
+      }
+      return ticketList;
+    });
+  }
+
   ///Fetches the in firestore stored data for the given user and
   ///stores it in a corresponding <Staff> member. Returns a Future of
   ///the <Staff> member.
@@ -55,28 +129,14 @@ class FirestoreTicketService {
         .then((DocumentSnapshot<Map<String, dynamic>> documentSnapshot) {
       userData = documentSnapshot.data()!;
       _setAllTicketsForUser(userData);
+      if (userDoc.parent.id == 'Hausverwaltung') {
+        _staffUser = BuildingManager.fromFirebase(documentSnapshot);
+      } else if (userDoc.parent.id == 'Hausmeister') {
+        _staffUser = Janitor.fromFirebase(documentSnapshot);
+      } else {
+        throw CouldNotFindUser();
+      }
     });
-    final String firstName = userData['Vorname'];
-    final String lastName = userData['Nachname'];
-    final String email = userData['Email'];
-    final String phoneNumber = userData['Vorname'];
-    if (userDoc.parent.id == 'Hausverwaltung') {
-      _staffUser = BuildingManagement(
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        phoneNumber: phoneNumber,
-      );
-    } else if (userDoc.parent.id == 'Hausmeister') {
-      _staffUser = Janitor(
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        phoneNumber: phoneNumber,
-      );
-    } else {
-      throw CouldNotFindUser();
-    }
     return _staffUser;
   }
 
@@ -142,30 +202,6 @@ class FirestoreTicketService {
     return ticket;
   }
 
-  Future<List<Ticket>> getFilteredTickets(House house, Ticket? newTicket,
-      {required bool filterOpenTickets}) async {
-    List<Ticket> allTickets = await house.allTickets;
-
-    List<Ticket> ticketsToRemove = [];
-    for (Ticket ticket in allTickets) {
-      if (filterOpenTickets && ticket.status != TicketStatus.open) {
-        ticketsToRemove.add(ticket);
-      } else if (!filterOpenTickets && ticket.status == TicketStatus.open) {
-        ticketsToRemove.add(ticket);
-      }
-    }
-
-    allTickets.removeWhere((ticket) => ticketsToRemove.contains(ticket));
-
-    if (newTicket != null) {
-      allTickets.add(newTicket);
-    }
-
-    _sortTicketsByDateTime(allTickets);
-
-    return allTickets;
-  }
-
   void _sortTicketsByDateTime(List<Ticket> tickets) {
     tickets.sort((ticketA, ticketB) {
       final dateTimeA = DateFormat('dd.MM.yyyy, HH:mm').parse(ticketA.dateTime);
@@ -213,5 +249,16 @@ class FirestoreTicketService {
       final imageRef = storage.refFromURL(imageUrl);
       await imageRef.delete();
     }
+  }
+
+  void _sortHouses(List<House> houses) {
+    houses.sort((houseA, houseB) {
+      int streetComparison = houseA.street.compareTo(houseB.street);
+      if (streetComparison != 0) {
+        return streetComparison;
+      } else {
+        return houseA.houseNumber.compareTo(houseB.houseNumber);
+      }
+    });
   }
 }

@@ -1,10 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mein_digitaler_hausmeister/model_classes.dart/ticket.dart';
-import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/crud_exceptions.dart';
-
-import '../services/auth/auth_user.dart';
-import '../services/firestore_crud/firestore_data_provider.dart';
 
 class House {
   final DocumentReference firestoreRef;
@@ -12,10 +7,6 @@ class House {
   final int houseNumber;
   final int postalCode;
   final String city;
-  late List<Ticket> tickets;
-
-  final FirestoreDataProvider dataProvider = FirestoreDataProvider();
-  final AuthUser user = AuthService.firebase().currentUser!;
 
   House({
     required this.firestoreRef,
@@ -64,31 +55,5 @@ class House {
     result = prime * result + postalCode.hashCode;
     result = prime * result + city.hashCode;
     return result;
-  }
-
-  Future<List<Ticket>> get allTickets async {
-    List<Ticket> tickets = [];
-    if (dataProvider.snapshots != null) {
-      for (final QuerySnapshot<Map<String, dynamic>> snapshot
-          in dataProvider.snapshots!) {
-        for (final QueryDocumentSnapshot<Map<String, dynamic>> houseDoc
-            in snapshot.docs) {
-          final House house = House.fromFirestore(houseDoc);
-
-          if (house == this) {
-            final QuerySnapshot<Map<String, dynamic>> ticketDocs =
-                await house.firestoreRef.collection('Tickets').get();
-
-            for (final QueryDocumentSnapshot<
-                Map<String, dynamic>> ticketSnapshot in ticketDocs.docs) {
-              final Ticket ticket = Ticket.fromFirestore(ticketSnapshot);
-              tickets.add(ticket);
-            }
-          }
-        }
-      }
-    }
-
-    return tickets;
   }
 }

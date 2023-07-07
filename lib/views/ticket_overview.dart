@@ -15,6 +15,7 @@ class TicketViewChanger extends StatefulWidget {
 }
 
 class TicketViewChangerState extends State<TicketViewChanger> {
+  List<Ticket> ticketList = [];
   int _currentIndex = 0;
   final PageController _pageController = PageController(initialPage: 0);
 
@@ -49,17 +50,9 @@ class TicketViewChangerState extends State<TicketViewChanger> {
               _currentIndex = newIndex;
             });
           },
-          children: [
-            OpenTicketsOverview(
-              onTicketChanged: (Ticket changedTicket) {
-                setState(() {});
-              },
-            ),
-            ClosedTicketsOverview(
-              onTicketChanged: (Ticket changedTicket) {
-                setState(() {});
-              },
-            ),
+          children: const [
+            OpenTicketsOverview(),
+            ClosedTicketsOverview(),
           ]),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -92,10 +85,7 @@ class TicketViewChangerState extends State<TicketViewChanger> {
 }
 
 abstract class TicketsOverview extends StatefulWidget {
-  final Function(Ticket) onTicketChanged;
-
-  const TicketsOverview({Key? key, required this.onTicketChanged})
-      : super(key: key);
+  const TicketsOverview({Key? key}) : super(key: key);
 
   Future<List<Ticket>> fetchTickets(House house, bool filterOpenTickets);
 
@@ -116,7 +106,6 @@ class _TicketsOverviewState<T extends TicketsOverview> extends State<T> {
               final tickets = snapshot.data;
               return TicketList(
                 tickets: tickets ?? [],
-                onTicketChanged: widget.onTicketChanged,
               );
             default:
               return const Scaffold();

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/crud_exceptions.dart';
 
 import '../enums/ticket_status.dart';
 
@@ -32,28 +33,16 @@ class Ticket {
       Map<String, dynamic> data = doc.data()!;
       return Ticket(
         firestoreRef: doc.reference,
-        firstName: doc['Vorname'],
-        lastName: doc['Nachname'],
-        dateTime: doc['erstellt am'],
-        topic: doc['Thema'],
-        description: doc['Problembeschreibung'],
-        imageUrl: doc['Bild'] == '' ? null : doc['Bild'],
-        status: TicketStatus.values.byName(doc['Status']),
+        firstName: data['Vorname'],
+        lastName: data['Nachname'],
+        dateTime: data['erstellt am'],
+        topic: data['Thema'],
+        description: data['Problembeschreibung'],
+        imageUrl: data['Bild'] == '' ? null : doc['Bild'],
+        status: TicketStatus.values.byName(data['Status']),
       );
     } catch (_) {
       throw TicketDoesntHaveAllFields();
     }
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'Vorname': firstName,
-      'Nachname': lastName,
-      'erstellt am': dateTime,
-      'Problembeschreibung': description,
-      'Thema': topic,
-      'Bild': imageUrl ?? '',
-      'Status': status.name,
-    };
   }
 }

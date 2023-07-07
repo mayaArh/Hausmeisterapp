@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
-import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_provider.dart';
+import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
 import 'package:mein_digitaler_hausmeister/views/houses_overview.dart';
 import 'package:mein_digitaler_hausmeister/views/login_view.dart';
 import 'package:mein_digitaler_hausmeister/views/register_view.dart';
@@ -12,9 +12,8 @@ import 'views/verify_email_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(ChangeNotifierProvider(
-    create: (_) => FirestoreDataProvider(),
-    child: MaterialApp(
+  runApp(
+    MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
           primarySwatch: Colors.blueGrey,
@@ -28,7 +27,7 @@ void main() {
           housesOverviewRoute: (context) => const HousesOverview(),
           ticketsOverviewRoute: (context) => const TicketViewChanger(),
         }),
-  ));
+  );
 }
 
 class HomePage extends StatelessWidget {
@@ -38,11 +37,11 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: AuthService.firebase().initialize(),
+        future: FirebaseAuthProvider().initialize(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              final user = AuthService.firebase().currentUser;
+              final user = FirebaseAuthProvider().currentUser;
               if (user != null) {
                 if (user.isEmailVerified) {
                   return const LoginView();

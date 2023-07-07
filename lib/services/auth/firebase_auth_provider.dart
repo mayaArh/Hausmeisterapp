@@ -1,12 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_exceptions.dart';
-import 'package:mein_digitaler_hausmeister/services/auth/auth_provider.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_user.dart';
 
 import 'package:firebase_auth/firebase_auth.dart'
     show FirebaseAuth, FirebaseAuthException;
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
 
 import '../../firebase_options.dart';
+import '../../model_classes.dart/staff.dart';
+import 'auth_provider.dart';
 
 class FirebaseAuthProvider extends AuthProvider {
   @override
@@ -45,6 +47,18 @@ class FirebaseAuthProvider extends AuthProvider {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       return AuthUser.fromFirebase(user);
+    } else {
+      return null;
+    }
+  }
+
+  @override
+  Future<Staff?> get currentStaff async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final staff = await FirestoreDataService()
+          .fetchUserFirestoreDataAsStaff(AuthUser.fromFirebase(user));
+      return staff;
     } else {
       return null;
     }

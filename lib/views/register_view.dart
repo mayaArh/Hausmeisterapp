@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
-import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/registration_service.dart';
 
 import '../services/auth/auth_exceptions.dart';
+import '../services/auth/firebase_auth_provider.dart';
 import '../utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
@@ -66,11 +66,11 @@ class RegisterViewState extends State<RegisterView> {
                 try {
                   //check if firestore user exists
                   if (await _registrationService.isAllowedUser(email)) {
-                    await AuthService.firebase().createUser(
+                    await FirebaseAuthProvider().createUser(
                       email: email,
                       password: password,
                     );
-                    await AuthService.firebase().sendEmailVerification();
+                    await FirebaseAuthProvider().sendEmailVerification();
                     Navigator.of(context).pushNamed(verifyEmailRoute);
                   } else {
                     ErrorDialog.showErrorDialog(context,
