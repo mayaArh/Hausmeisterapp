@@ -36,6 +36,7 @@ class Janitor extends Staff {
   factory Janitor.fromFirebase(DocumentSnapshot<Map<String, dynamic>> doc) {
     try {
       Map<String, dynamic> data = doc.data()!;
+      print('data: $data');
       return Janitor(
         firestoreRef: doc.reference,
         firstName: data['Vorname'],

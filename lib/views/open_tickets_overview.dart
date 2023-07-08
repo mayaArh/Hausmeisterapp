@@ -17,12 +17,12 @@ class _OpenTicketsOverviewState extends State<OpenTicketsOverview> {
   @override
   Widget build(BuildContext context) {
     final House house = ModalRoute.of(context)!.settings.arguments as House;
-    return StreamProvider<List<Ticket>>.value(
-        value: FirestoreDataService()
+    return StreamProvider<List<Ticket>>(
+        create: (_) => FirestoreDataService()
             .streamTicketsForHouse(house, filterOpenTickets: true),
         initialData: const [],
-        child: TicketList(
-          tickets: Provider.of<List<Ticket>>(context),
-        ));
+        builder: (context, child) {
+          return TicketList(tickets: Provider.of<List<Ticket>>(context));
+        });
   }
 }

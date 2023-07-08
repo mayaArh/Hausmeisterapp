@@ -5,13 +5,11 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
-import 'package:mein_digitaler_hausmeister/services/firestore_crud/registration_service.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../model_classes.dart/house.dart';
 import '../../model_classes.dart/staff.dart';
 import '../../model_classes.dart/ticket.dart';
-import '../auth/auth_user.dart';
 import 'crud_exceptions.dart';
 
 class FirestoreDataService {
@@ -22,28 +20,6 @@ class FirestoreDataService {
 
   final db = FirebaseFirestore.instance;
   final storage = FirebaseStorage.instance;
-  late Staff _staffUser;
-  List<List<String>> houseDocIds = [];
-  late DocumentReference<Map<String, dynamic>> userDoc;
-
-  final _registrationService = RegistrationService();
-
-  Stream<List<QuerySnapshot<Map<String, dynamic>>>> get firestoreStreams {
-    List<Stream<QuerySnapshot<Map<String, dynamic>>>> streams = [];
-    for (List<String> houseDocIdList in houseDocIds) {
-      final stream = db
-          .collection('Gebäude')
-          .where(
-            FieldPath.documentId,
-            whereIn: houseDocIdList,
-          )
-          .snapshots();
-      streams.add(stream);
-    }
-    Stream<List<QuerySnapshot<Map<String, dynamic>>>> zippedStreams =
-        ZipStream(streams, (values) => values);
-    return zippedStreams;
-  }
 
   Stream<List<String>> streamCities() async* {
     Staff? staff = await AuthService.firebase().currentStaff;
@@ -79,7 +55,6 @@ class FirestoreDataService {
           List<House> houseList = [];
           if (userData != null) {
             Map<String, dynamic> houseMap = userData['Gebäude'];
-
             if (houseMap.containsKey(city)) {
               List<dynamic> houseDocs = houseMap[city];
               for (DocumentReference<Map<String, dynamic>> houseDoc in houseDocs
@@ -105,68 +80,18 @@ class FirestoreDataService {
     return house.firestoreRef.collection('Tickets').snapshots().map((data) {
       List<Ticket> ticketList = [];
       for (QueryDocumentSnapshot<Map<String, dynamic>> ticketDoc in data.docs) {
+        final ticketData = ticketDoc.data();
         if (filterOpenTickets &&
-            ticketDoc.data()['Status'] == TicketStatus.open.toString()) {
-          ticketList.add(Ticket.fromFirestore(ticketDoc));
+            ticketData['Status'] == TicketStatus.open.name) {
+          final ticket = Ticket.fromFirestore(ticketDoc);
+          ticketList.add(ticket);
         } else if (filterOpenTickets == false &&
-            ticketDoc.data()['Status'] == TicketStatus.done.toString()) {
+            ticketDoc.data()['Status'] == TicketStatus.done.name) {
           ticketList.add(Ticket.fromFirestore(ticketDoc));
         }
         _sortTicketsByDateTime(ticketList);
       }
       return ticketList;
-    });
-  }
-
-  ///Fetches the in firestore stored data for the given user and
-  ///stores it in a corresponding <Staff> member. Returns a Future of
-  ///the <Staff> member.
-  Future<Staff> fetchUserFirestoreDataAsStaff(AuthUser user) async {
-    userDoc = (await _registrationService.getFirestoreUserDoc(user.email!))!;
-    late final Map<String, dynamic> userData;
-    await userDoc
-        .get()
-        .then((DocumentSnapshot<Map<String, dynamic>> documentSnapshot) {
-      userData = documentSnapshot.data()!;
-      _setAllTicketsForUser(userData);
-      if (userDoc.parent.id == 'Hausverwaltung') {
-        _staffUser = BuildingManager.fromFirebase(documentSnapshot);
-      } else if (userDoc.parent.id == 'Hausmeister') {
-        _staffUser = Janitor.fromFirebase(documentSnapshot);
-      } else {
-        throw CouldNotFindUser();
-      }
-    });
-    return _staffUser;
-  }
-
-  void _setAllTicketsForUser(Map<String, dynamic> userData) async {
-    final houseMap = userData['Gebäude'];
-    final fetchHouseDataTasks = <Future<void>>[];
-    int i = 0;
-    List<String> houseDocIDs = List.empty(growable: true);
-    houseMap.forEach((city, houseDocs) async {
-      for (DocumentReference<Map<String, dynamic>> houseDoc in houseDocs) {
-        houseDocIDs.add(houseDoc.id);
-        i++;
-        if (i == 10 || houseDocs.last == houseDoc) {
-          houseDocIds.add(List<String>.from(houseDocIDs));
-          houseDocIDs.clear();
-          i = 0;
-        }
-        fetchHouseDataTasks.add(_fetchHouseData(houseDoc, city));
-      }
-    });
-    if (houseDocIDs.isNotEmpty) {
-      houseDocIds.add(List<String>.from(houseDocIDs));
-    }
-    await Future.wait(fetchHouseDataTasks);
-  }
-
-  Future<void> _fetchHouseData(
-      DocumentReference<Map<String, dynamic>> houseDoc, String city) async {
-    await houseDoc.get().then((snapshot) {
-      snapshot.data()!;
     });
   }
 
@@ -178,27 +103,19 @@ class FirestoreDataService {
     required String? image,
     required TicketStatus status,
   }) async {
-    DocumentReference ticketRef =
+    final staffUser = await AuthService.firebase().currentStaff;
+    DocumentReference<Map<String, dynamic>> ticketRef =
         await house.firestoreRef.collection('Tickets').add({
-      'Vorname': _staffUser.firstName,
-      'Nachname': _staffUser.lastName,
+      'Vorname': staffUser!.firstName,
+      'Nachname': staffUser.lastName,
       'erstellt am': dateTime,
       'Problembeschreibung': description,
       'Thema': topic,
       'Bild': image ?? '',
       'Status': status.name,
     });
-    Ticket ticket = Ticket(
-        firstName: _staffUser.firstName,
-        lastName: _staffUser.lastName,
-        dateTime: dateTime,
-        topic: topic,
-        description: description,
-        imageUrl: image,
-        firestoreRef: ticketRef,
-        status: status);
-
-    ticket.firestoreRef = ticketRef;
+    final ticketSnapshot = await ticketRef.get();
+    Ticket ticket = Ticket.fromFirestore(ticketSnapshot);
     return ticket;
   }
 

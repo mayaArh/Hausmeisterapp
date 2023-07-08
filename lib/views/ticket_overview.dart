@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/views/closed_tickets_overview.dart';
-import 'package:mein_digitaler_hausmeister/views/ticket_list.dart';
 
 import '../model_classes.dart/house.dart';
 import '../model_classes.dart/ticket.dart';
@@ -78,38 +77,6 @@ class TicketViewChangerState extends State<TicketViewChanger> {
                 duration: const Duration(milliseconds: 550),
                 curve: Curves.fastEaseInToSlowEaseOut);
           });
-        },
-      ),
-    );
-  }
-}
-
-abstract class TicketsOverview extends StatefulWidget {
-  const TicketsOverview({Key? key}) : super(key: key);
-
-  Future<List<Ticket>> fetchTickets(House house, bool filterOpenTickets);
-
-  @override
-  State<TicketsOverview> createState() => _TicketsOverviewState();
-}
-
-class _TicketsOverviewState<T extends TicketsOverview> extends State<T> {
-  @override
-  Widget build(BuildContext context) {
-    final House house = ModalRoute.of(context)!.settings.arguments as House;
-    return Scaffold(
-      body: FutureBuilder<List<Ticket>>(
-        future: widget.fetchTickets(house, true),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              final tickets = snapshot.data;
-              return TicketList(
-                tickets: tickets ?? [],
-              );
-            default:
-              return const Scaffold();
-          }
         },
       ),
     );

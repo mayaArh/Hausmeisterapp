@@ -1,13 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_exceptions.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_user.dart';
 
 import 'package:firebase_auth/firebase_auth.dart'
     show FirebaseAuth, FirebaseAuthException;
-import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
 
 import '../../firebase_options.dart';
 import '../../model_classes.dart/staff.dart';
+import '../firestore_crud/crud_exceptions.dart';
+import '../firestore_crud/registration_service.dart';
 import 'auth_provider.dart';
 
 class FirebaseAuthProvider extends AuthProvider {
@@ -55,13 +57,21 @@ class FirebaseAuthProvider extends AuthProvider {
   @override
   Future<Staff?> get currentStaff async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final staff = await FirestoreDataService()
-          .fetchUserFirestoreDataAsStaff(AuthUser.fromFirebase(user));
-      return staff;
-    } else {
-      return null;
-    }
+    final userDoc =
+        (await RegistrationService().getFirestoreUserDoc(user!.email!))!;
+    Staff? staffUser;
+    await userDoc
+        .get()
+        .then((DocumentSnapshot<Map<String, dynamic>> documentSnapshot) {
+      if (userDoc.parent.id == 'Hausverwaltung') {
+        staffUser = BuildingManager.fromFirebase(documentSnapshot);
+      } else if (userDoc.parent.id == 'Hausmeister') {
+        staffUser = Janitor.fromFirebase(documentSnapshot);
+      } else {
+        throw CouldNotFindUser();
+      }
+    });
+    return staffUser;
   }
 
   @override
