@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mein_digitaler_hausmeister/model_classes.dart/staff.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -13,6 +12,8 @@ class UserImage extends StatefulWidget {
   final Function(String? imageUrl) onFileChanged;
   final String? initialImageUrl;
   final bool canBeEdited;
+  static const janitorPath = 'janitorImages';
+  static const buildingManagementPath = 'propertyManagementImages';
 
   const UserImage(
       {super.key,
@@ -28,8 +29,6 @@ class _UserImageState extends State<UserImage> {
   final ImagePicker _picker = ImagePicker();
   final ImageCropper _imageCropper = ImageCropper();
   final storageRef = FirebaseStorage.instance.ref();
-  static const janitorPath = 'janitorImages';
-  static const buildingManagementPath = 'propertyManagementImages';
   String? imageUrl;
   int index = 0;
 
@@ -143,17 +142,8 @@ class _UserImageState extends State<UserImage> {
   }
 
   Future _uploadFile(String path) async {
-    String userPath = '';
-    final staff = await AuthService.firebase().currentStaff;
-    if (staff is Janitor) {
-      userPath = janitorPath;
-    }
-    if (staff is BuildingManager) {
-      userPath = buildingManagementPath;
-    }
     final ref = storageRef
-        .child(userPath)
-        .child(DateTime.now().toIso8601String() + p.basename(path));
+        .child(AuthService.firebase().currentUser!.uid + p.basename(path));
     final result = await ref.putFile(File(path));
     final fileUrl = await result.ref.getDownloadURL();
 

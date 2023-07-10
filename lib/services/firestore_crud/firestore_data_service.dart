@@ -97,18 +97,14 @@ class FirestoreDataService {
 
   Future<Ticket> addTicketToHouse({
     required House house,
-    required String topic,
-    required String description,
-    required String dateTime,
-    required String? image,
-    required TicketStatus status,
+    required Ticket ticket,
   }) async {
     final staffUser = await AuthService.firebase().currentStaff;
     DocumentReference<Map<String, dynamic>> ticketRef =
         await house.firestoreRef.collection('Tickets').add({
       'Vorname': staffUser!.firstName,
       'Nachname': staffUser.lastName,
-      'erstellt am': dateTime,
+      'erstellt am': ticket.dateTime,
       'Problembeschreibung': description,
       'Thema': topic,
       'Bild': image ?? '',
