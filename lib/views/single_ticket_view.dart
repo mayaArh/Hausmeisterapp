@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
-import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 
 import '../model_classes.dart/image.dart';
 import '../model_classes.dart/ticket.dart';

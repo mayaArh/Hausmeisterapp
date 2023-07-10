@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
-import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 import 'package:mein_digitaler_hausmeister/utilities/show_error_dialog.dart';
 
 import '../model_classes.dart/house.dart';

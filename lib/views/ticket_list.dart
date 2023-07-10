@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 import 'package:mein_digitaler_hausmeister/views/single_ticket_view.dart';
 
 import '../model_classes.dart/ticket.dart';
@@ -16,6 +16,7 @@ class TicketList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('tickets: $tickets');
     return tickets.isNotEmpty
         ? ListView.builder(
             itemCount: tickets.length,
@@ -50,44 +51,45 @@ class TicketList extends StatelessWidget {
                       },
                     );
                   },
-                  child: canBeEdited
-                      ? Container(
-                          height: 70,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.black87),
-                          ),
-                          padding: const EdgeInsets.all(18),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  children: [
-                                    Center(
-                                      child: Text(
-                                        ticket.topic,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                    Center(
-                                      child: Text(
-                                          'erstellt am: ${ticket.dateTime}'),
-                                    ),
-                                  ],
+                  child: Container(
+                      height: 70,
+                      width: double.maxFinite,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black87),
+                      ),
+                      padding: const EdgeInsets.all(18),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Center(
+                                  child: Text(
+                                    ticket.topic,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                              ),
-                              Align(
-                                  alignment: Alignment.centerRight,
-                                  child: IconButton(
+                                Center(
+                                  child:
+                                      Text('erstellt am: ${ticket.dateTime}'),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Align(
+                              alignment: Alignment.centerRight,
+                              child: canBeEdited
+                                  ? IconButton(
                                       onPressed: () async {
                                         print('hi');
                                         FirestoreDataService()
                                             .deleteTicket(ticket);
                                       },
-                                      icon: const Icon(Icons.delete_outlined))),
-                            ],
-                          ))
-                      : null);
+                                      icon: const Icon(Icons.delete_outlined))
+                                  : null),
+                        ],
+                      )));
             },
           )
         : const Text('');

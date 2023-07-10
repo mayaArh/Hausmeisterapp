@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
-import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 import 'package:provider/provider.dart';
 
 import '../model_classes.dart/house.dart';

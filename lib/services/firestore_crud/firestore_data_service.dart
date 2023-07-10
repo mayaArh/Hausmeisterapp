@@ -86,10 +86,12 @@ class FirestoreDataService {
           ticketList.add(ticket);
         } else if (filterOpenTickets == false &&
             ticketDoc.data()['Status'] == TicketStatus.done.name) {
-          ticketList.add(Ticket.fromFirestore(ticketDoc));
+          final ticket = Ticket.fromFirestore(ticketDoc);
+          ticketList.add(ticket);
         }
         _sortTicketsByDateTime(ticketList);
       }
+      print(ticketList.toString());
       return ticketList;
     });
   }
