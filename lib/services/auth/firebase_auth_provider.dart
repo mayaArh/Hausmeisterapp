@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_exceptions.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_user.dart';
@@ -57,26 +56,23 @@ class FirebaseAuthProvider extends AuthProvider {
   @override
   Future<Staff?> get currentStaff async {
     final user = FirebaseAuth.instance.currentUser;
+    Staff? staff;
     if (user != null) {
       final userDoc =
           (await RegistrationService().getFirestoreUserDoc(user.email!))!;
       Staff? staffUser;
-      await userDoc
-          .get()
-          .then((DocumentSnapshot<Map<String, dynamic>> documentSnapshot) {
-        print(documentSnapshot.data());
+      await userDoc.get().then((snapshot) {
         if (userDoc.parent.id == 'Hausverwaltung') {
-          staffUser = BuildingManager.fromFirebase(documentSnapshot);
+          staffUser = BuildingManager.fromFirebase(snapshot);
         } else if (userDoc.parent.id == 'Hausmeister') {
-          staffUser = Janitor.fromFirebase(documentSnapshot);
+          staffUser = Janitor.fromFirebase(snapshot);
         } else {
           throw CouldNotFindUser();
         }
+        staff = staffUser;
       });
-      return staffUser;
-    } else {
-      return null;
     }
+    return staff;
   }
 
   @override

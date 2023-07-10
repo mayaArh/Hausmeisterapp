@@ -37,9 +37,11 @@ class RegistrationService {
 
   Future<void> changeDocIdtoUID(AuthUser user) async {
     final userDoc = await getFirestoreUserDoc(user.email!);
-    final newUserDoc = userDoc!.parent.doc(user.uid);
-    final data = await userDoc.get().then((snapshot) => snapshot.data());
-    await userDoc.delete();
-    newUserDoc.set(data!);
+    if (userDoc!.id != user.uid) {
+      final newUserDoc = userDoc.parent.doc(user.uid);
+      final data = await userDoc.get().then((snapshot) => snapshot.data());
+      await userDoc.delete();
+      newUserDoc.set(data!);
+    }
   }
 }
