@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.dart';
-import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
 import 'package:mein_digitaler_hausmeister/views/houses_overview.dart';
 import 'package:mein_digitaler_hausmeister/views/login_view.dart';
 import 'package:mein_digitaler_hausmeister/views/register_view.dart';
 import 'package:mein_digitaler_hausmeister/views/cities_overview.dart';
 import 'package:mein_digitaler_hausmeister/views/ticket_overview.dart';
-import 'package:provider/provider.dart';
 import 'constants/routes.dart';
 import 'views/verify_email_view.dart';
 

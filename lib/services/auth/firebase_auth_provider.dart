@@ -57,21 +57,26 @@ class FirebaseAuthProvider extends AuthProvider {
   @override
   Future<Staff?> get currentStaff async {
     final user = FirebaseAuth.instance.currentUser;
-    final userDoc =
-        (await RegistrationService().getFirestoreUserDoc(user!.email!))!;
-    Staff? staffUser;
-    await userDoc
-        .get()
-        .then((DocumentSnapshot<Map<String, dynamic>> documentSnapshot) {
-      if (userDoc.parent.id == 'Hausverwaltung') {
-        staffUser = BuildingManager.fromFirebase(documentSnapshot);
-      } else if (userDoc.parent.id == 'Hausmeister') {
-        staffUser = Janitor.fromFirebase(documentSnapshot);
-      } else {
-        throw CouldNotFindUser();
-      }
-    });
-    return staffUser;
+    if (user != null) {
+      final userDoc =
+          (await RegistrationService().getFirestoreUserDoc(user.email!))!;
+      Staff? staffUser;
+      await userDoc
+          .get()
+          .then((DocumentSnapshot<Map<String, dynamic>> documentSnapshot) {
+        print(documentSnapshot.data());
+        if (userDoc.parent.id == 'Hausverwaltung') {
+          staffUser = BuildingManager.fromFirebase(documentSnapshot);
+        } else if (userDoc.parent.id == 'Hausmeister') {
+          staffUser = Janitor.fromFirebase(documentSnapshot);
+        } else {
+          throw CouldNotFindUser();
+        }
+      });
+      return staffUser;
+    } else {
+      return null;
+    }
   }
 
   @override

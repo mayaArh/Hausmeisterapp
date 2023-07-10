@@ -5,7 +5,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
-import 'package:rxdart/rxdart.dart';
 
 import '../../model_classes.dart/house.dart';
 import '../../model_classes.dart/staff.dart';
@@ -128,7 +127,9 @@ class FirestoreDataService {
   }
 
   Future<void> deleteTicket(Ticket ticket) async {
-    deleteStorageImage(ticket.imageUrl!);
+    if (ticket.imageUrl != null) {
+      deleteStorageImage(ticket.imageUrl!);
+    }
     await Future.wait([ticket.firestoreRef.delete()]);
   }
 

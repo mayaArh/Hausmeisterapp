@@ -12,9 +12,13 @@ import 'package:path_provider/path_provider.dart';
 class UserImage extends StatefulWidget {
   final Function(String? imageUrl) onFileChanged;
   final String? initialImageUrl;
+  final bool canBeEdited;
 
   const UserImage(
-      {super.key, required this.onFileChanged, required this.initialImageUrl});
+      {super.key,
+      required this.onFileChanged,
+      required this.initialImageUrl,
+      required this.canBeEdited});
 
   @override
   State<UserImage> createState() => _UserImageState();
@@ -33,7 +37,9 @@ class _UserImageState extends State<UserImage> {
   Widget build(BuildContext context) {
     if (index == 0) {
       imageUrl = widget.initialImageUrl;
-      index++;
+      if (widget.canBeEdited) {
+        index++;
+      }
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

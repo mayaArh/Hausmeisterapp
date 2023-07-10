@@ -7,8 +7,10 @@ import '../model_classes.dart/ticket.dart';
 
 class SingleTicketView extends StatefulWidget {
   final Ticket selectedTicket;
+  final bool canBeEdited;
 
-  const SingleTicketView({super.key, required this.selectedTicket});
+  const SingleTicketView(
+      {super.key, required this.selectedTicket, required this.canBeEdited});
 
   @override
   State<SingleTicketView> createState() => _SingleTicketViewState();
@@ -39,24 +41,26 @@ class _SingleTicketViewState extends State<SingleTicketView> {
   }
 
   void _executeOnDialogDismissed() async {
-    Ticket changedTicket = widget.selectedTicket;
-    if (_imageUrl != widget.selectedTicket.imageUrl) {
-      changedTicket = await _ticketService.changeTicketImage(
-        changedTicket,
-        _imageUrl,
-      );
-    }
-    if (_topic.text != widget.selectedTicket.topic) {
-      changedTicket = await _ticketService.changeTicketTopic(
-        changedTicket,
-        _topic.text,
-      );
-    }
-    if (_description.text != widget.selectedTicket.description) {
-      changedTicket = await _ticketService.changeTicketDescription(
-        changedTicket,
-        _description.text,
-      );
+    if (widget.canBeEdited) {
+      Ticket changedTicket = widget.selectedTicket;
+      if (_imageUrl != widget.selectedTicket.imageUrl) {
+        changedTicket = await _ticketService.changeTicketImage(
+          changedTicket,
+          _imageUrl,
+        );
+      }
+      if (_topic.text != widget.selectedTicket.topic) {
+        changedTicket = await _ticketService.changeTicketTopic(
+          changedTicket,
+          _topic.text,
+        );
+      }
+      if (_description.text != widget.selectedTicket.description) {
+        changedTicket = await _ticketService.changeTicketDescription(
+          changedTicket,
+          _description.text,
+        );
+      }
     }
   }
 
@@ -91,15 +95,13 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                               : MaterialStateProperty.all(
                                   Colors.deepOrange.shade400)),
                   onPressed: () async {
-                    Ticket ticket;
                     if (widget.selectedTicket.status == TicketStatus.open) {
-                      ticket = await _ticketService.updateTicketStatus(
+                      await _ticketService.updateTicketStatus(
                           widget.selectedTicket, TicketStatus.done);
                     } else {
-                      ticket = await _ticketService.updateTicketStatus(
+                      await _ticketService.updateTicketStatus(
                           widget.selectedTicket, TicketStatus.open);
                     }
-
                     Navigator.pop(context);
                   },
                   child: widget.selectedTicket.status == TicketStatus.open
@@ -125,6 +127,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
         child: TextField(
           controller: _topic,
           keyboardType: TextInputType.text,
+          readOnly: !widget.canBeEdited,
           textAlign: TextAlign.left,
           style: const TextStyle(fontWeight: FontWeight.bold),
           decoration: const InputDecoration(border: InputBorder.none),
@@ -146,6 +149,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                     controller: _description,
                     keyboardType: TextInputType.multiline,
                     maxLines: null,
+                    readOnly: !widget.canBeEdited,
                     decoration: _description.text == ''
                         ? const InputDecoration(
                             hintText: 'Problembeschreibung',
@@ -162,6 +166,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
         });
       },
       initialImageUrl: imgUrl,
+      canBeEdited: widget.canBeEdited,
     );
   }
 }

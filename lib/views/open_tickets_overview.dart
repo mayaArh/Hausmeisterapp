@@ -22,7 +22,10 @@ class _OpenTicketsOverviewState extends State<OpenTicketsOverview> {
             .streamTicketsForHouse(house, filterOpenTickets: true),
         initialData: const [],
         builder: (context, child) {
-          return TicketList(tickets: Provider.of<List<Ticket>>(context));
+          return TicketList(
+            tickets: Provider.of<List<Ticket>>(context),
+            canBeEdited: true,
+          );
         });
   }
 }

@@ -94,6 +94,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                   });
                 },
                 initialImageUrl: null,
+                canBeEdited: true,
               ),
             ),
             const SizedBox(

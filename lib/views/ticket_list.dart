@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/ticket_service.dart';
 import 'package:mein_digitaler_hausmeister/views/single_ticket_view.dart';
 
 import '../model_classes.dart/ticket.dart';
 
 class TicketList extends StatelessWidget {
   final List<Ticket> tickets;
+  final bool canBeEdited;
 
   const TicketList({
     Key? key,
     required this.tickets,
+    required this.canBeEdited,
   }) : super(key: key);
 
   @override
@@ -19,56 +22,74 @@ class TicketList extends StatelessWidget {
             itemBuilder: (context, index) {
               final ticket = tickets[index];
               return GestureDetector(
-                onTap: () {
-                  showDialog<void>(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return Dialog(
-                        insetPadding: const EdgeInsets.symmetric(
-                          horizontal: 25,
-                          vertical: 80,
-                        ),
-                        child: Container(
+                  onTap: () {
+                    showDialog<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Dialog(
+                          insetPadding: const EdgeInsets.symmetric(
+                            horizontal: 25,
+                            vertical: 80,
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.black87,
+                                width: 2.0,
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(0),
+                              child: SingleTicketView(
+                                selectedTicket: ticket,
+                                canBeEdited: canBeEdited,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  child: canBeEdited
+                      ? Container(
+                          height: 70,
                           decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.black87,
-                              width: 2.0,
-                            ),
+                            border: Border.all(color: Colors.black87),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(0),
-                            child: SingleTicketView(
-                              selectedTicket: ticket,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-                child: Container(
-                  height: 70,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black87),
-                  ),
-                  padding: const EdgeInsets.all(18),
-                  child: Column(
-                    children: [
-                      Center(
-                        child: Text(
-                          ticket.topic,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Center(
-                        child: Text('erstellt am: ${ticket.dateTime}'),
-                      ),
-                    ],
-                  ),
-                ),
-              );
+                          padding: const EdgeInsets.all(18),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    Center(
+                                      child: Text(
+                                        ticket.topic,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    Center(
+                                      child: Text(
+                                          'erstellt am: ${ticket.dateTime}'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Align(
+                                  alignment: Alignment.centerRight,
+                                  child: IconButton(
+                                      onPressed: () async {
+                                        print('hi');
+                                        FirestoreDataService()
+                                            .deleteTicket(ticket);
+                                      },
+                                      icon: const Icon(Icons.delete_outlined))),
+                            ],
+                          ))
+                      : null);
             },
           )
-        : const Text('Es sind noch keine Tickets vorhanden');
+        : const Text('');
   }
 }
