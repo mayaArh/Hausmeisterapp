@@ -45,90 +45,92 @@ class _TicketCreationViewState extends State<TicketCreationView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('Neues Ticket erstellen')),
-        body: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(3.5),
+      appBar: AppBar(title: const Text('Neues Ticket erstellen')),
+      body: SingleChildScrollView(
+          child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(3.5),
+            child: TextField(
+                controller: _topic,
+                keyboardType: TextInputType.text,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+                decoration: const InputDecoration(
+                    hintText: 'Thema', border: InputBorder.none)),
+          ),
+          Container(
+            height: 200,
+            padding: const EdgeInsets.all(3.5),
+            decoration: BoxDecoration(
+              border:
+                  Border.all(color: Colors.grey), // Add border properties here
+              borderRadius:
+                  BorderRadius.circular(4.0), // Add border radius if desired
+            ),
+            child: SizedBox(
+                child: SingleChildScrollView(
               child: TextField(
-                  controller: _topic,
-                  keyboardType: TextInputType.text,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  controller: _description,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
                   decoration: const InputDecoration(
-                      hintText: 'Thema', border: InputBorder.none)),
+                      hintText: 'Problembeschreibung',
+                      border: InputBorder.none)),
+            )),
+          ),
+          Container(
+            padding: const EdgeInsets.all(0),
+            decoration: BoxDecoration(
+              border: Border.all(
+                  style: BorderStyle.none), // Add border properties here
+              borderRadius:
+                  BorderRadius.circular(4.0), // Add border radius if desired
             ),
-            Container(
-              height: 200,
-              padding: const EdgeInsets.all(3.5),
-              decoration: BoxDecoration(
-                border: Border.all(
-                    color: Colors.grey), // Add border properties here
-                borderRadius:
-                    BorderRadius.circular(4.0), // Add border radius if desired
-              ),
-              child: SizedBox(
-                  child: SingleChildScrollView(
-                child: TextField(
-                    controller: _description,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: const InputDecoration(
-                        hintText: 'Problembeschreibung',
-                        border: InputBorder.none)),
-              )),
-            ),
-            Container(
-              padding: const EdgeInsets.all(0),
-              decoration: BoxDecoration(
-                border: Border.all(
-                    style: BorderStyle.none), // Add border properties here
-                borderRadius:
-                    BorderRadius.circular(4.0), // Add border radius if desired
-              ),
-              child: UserImage(
-                onFileChanged: (imageUrl) {
-                  setState(() {
-                    _ticketService.deleteStorageImage(_imageUrl);
+            child: UserImage(
+              onFileChanged: (imageUrl) {
+                setState(() {
+                  _ticketService.deleteStorageImage(_imageUrl);
 
-                    _imageUrl = imageUrl;
-                  });
-                },
-                initialImageUrl: null,
-                canBeEdited: true,
-              ),
+                  _imageUrl = imageUrl;
+                });
+              },
+              initialImageUrl: null,
+              canBeEdited: true,
             ),
-            const SizedBox(
-              height: 25,
-            ),
-            OutlinedButton(
-                style: const ButtonStyle(
-                    elevation: MaterialStatePropertyAll(1.0),
-                    foregroundColor: MaterialStatePropertyAll(Colors.black54),
-                    backgroundColor: MaterialStatePropertyAll(
-                        Color.fromARGB(255, 126, 216, 130))),
-                onPressed: () async {
-                  final topic = _topic.text;
-                  final description = _description.text;
-                  final dateTime =
-                      DateFormat('dd.MM.yyyy, HH:mm').format(DateTime.now());
-                  if (topic.isEmpty) {
-                    ErrorDialog.showErrorDialog(
-                        context, 'Bitte geben Sie das Thema des Problems an.');
-                  } else {
-                    final newTicket = await _ticketService.addTicketToHouse(
-                      house: widget.house,
-                      topic: topic,
-                      description: description,
-                      dateTime: dateTime,
-                      image: _imageUrl,
-                      status: TicketStatus.open,
-                    );
-                    widget.onTicketAdded(newTicket);
-                    Navigator.pop(context);
-                  }
-                },
-                child: const Text('Ticket abschicken'))
-          ],
-        ));
+          ),
+          const SizedBox(
+            height: 25,
+          ),
+          OutlinedButton(
+              style: const ButtonStyle(
+                  elevation: MaterialStatePropertyAll(1.0),
+                  foregroundColor: MaterialStatePropertyAll(Colors.black54),
+                  backgroundColor: MaterialStatePropertyAll(
+                      Color.fromARGB(255, 126, 216, 130))),
+              onPressed: () async {
+                final topic = _topic.text;
+                final description = _description.text;
+                final dateTime =
+                    DateFormat('dd.MM.yyyy, HH:mm').format(DateTime.now());
+                if (topic.isEmpty) {
+                  ErrorDialog.showErrorDialog(
+                      context, 'Bitte geben Sie das Thema des Problems an.');
+                } else {
+                  final newTicket = await _ticketService.addTicketToHouse(
+                    house: widget.house,
+                    topic: topic,
+                    description: description,
+                    dateTime: dateTime,
+                    image: _imageUrl,
+                    status: TicketStatus.open,
+                  );
+                  widget.onTicketAdded(newTicket);
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Ticket abschicken'))
+        ],
+      )),
+    );
   }
 }

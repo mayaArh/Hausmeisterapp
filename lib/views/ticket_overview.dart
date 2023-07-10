@@ -22,6 +22,7 @@ class TicketViewChangerState extends State<TicketViewChanger> {
   Widget build(BuildContext context) {
     final House house = ModalRoute.of(context)!.settings.arguments as House;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(house.longAddress),
         actions: [

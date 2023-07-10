@@ -91,7 +91,6 @@ class FirestoreDataService {
         }
         _sortTicketsByDateTime(ticketList);
       }
-      print(ticketList.toString());
       return ticketList;
     });
   }

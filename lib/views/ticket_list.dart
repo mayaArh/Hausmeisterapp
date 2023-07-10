@@ -16,7 +16,6 @@ class TicketList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('tickets: $tickets');
     return tickets.isNotEmpty
         ? ListView.builder(
             itemCount: tickets.length,
@@ -82,7 +81,6 @@ class TicketList extends StatelessWidget {
                               child: canBeEdited
                                   ? IconButton(
                                       onPressed: () async {
-                                        print('hi');
                                         FirestoreDataService()
                                             .deleteTicket(ticket);
                                       },
