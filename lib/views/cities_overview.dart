@@ -35,7 +35,7 @@ class _CitiesOverviewState extends State<CitiesOverview> {
                     switch (value) {
                       case MenuEntry.logout:
                         final shouldLogout =
-                            await ErrorDialog.showLogoutDialog(context);
+                            await DialogDisplay.showLogoutDialog(context);
                         if (shouldLogout) {
                           await FirebaseAuthProvider().logOut();
                           Navigator.of(context).pushNamedAndRemoveUntil(

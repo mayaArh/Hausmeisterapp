@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
-import 'package:mein_digitaler_hausmeister/services/firestore_crud/registration_service.dart';
-
-import '../services/auth/auth_exceptions.dart';
-import '../services/auth/firebase_auth_provider.dart';
-import '../utilities/show_error_dialog.dart';
+import '../../services/auth/auth_exceptions.dart';
+import '../../services/auth/firebase_auth_provider.dart';
+import '../../services/firestore_crud/firestore_data_service.dart';
+import '../../utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({Key? key}) : super(key: key);
@@ -16,13 +15,11 @@ class RegisterView extends StatefulWidget {
 class RegisterViewState extends State<RegisterView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
-  late final RegistrationService _registrationService;
 
   @override
   void initState() {
     _password = TextEditingController();
     _email = TextEditingController();
-    _registrationService = RegistrationService();
     super.initState();
   }
 
@@ -65,7 +62,7 @@ class RegisterViewState extends State<RegisterView> {
                 final password = _password.text;
                 try {
                   //check if firestore user exists
-                  if (await _registrationService.isAllowedUser(email)) {
+                  if (await FirestoreDataService().isAllowedUser(email)) {
                     await FirebaseAuthProvider().createUser(
                       email: email,
                       password: password,
@@ -73,21 +70,21 @@ class RegisterViewState extends State<RegisterView> {
                     await FirebaseAuthProvider().sendEmailVerification();
                     Navigator.of(context).pushNamed(verifyEmailRoute);
                   } else {
-                    ErrorDialog.showErrorDialog(context,
-                        'Leider sind Sie nicht in unserem System registriert. Bitte überprüfen Sie noch einmal Ihre E-Mail Adresse.');
+                    DialogDisplay.showErrorDialog(context,
+                        'Leider sind Sie nicht in unserem System gespeichert. Bitte überprüfen Sie noch einmal Ihre E-Mail Adresse.');
                   }
                 } on WeakPasswordAuthException {
-                  await ErrorDialog.showErrorDialog(
+                  await DialogDisplay.showErrorDialog(
                       context, 'Password zu schwach');
                 } on EmailAlreadyInUseAuthException {
-                  await ErrorDialog.showErrorDialog(context,
+                  await DialogDisplay.showErrorDialog(context,
                       'Es existiert bereits ein verifizierter Nutzer mit dieser E-Mail Adresse.');
                 } on InvalidEmailAuthException {
-                  await ErrorDialog.showErrorDialog(
+                  await DialogDisplay.showErrorDialog(
                       context, 'Keine valide E-Mail Adresse.');
                 } on GenericAuthException {
-                  await ErrorDialog.showErrorDialog(
-                      context, 'Es gab einen Fehler bei der Registrierung.');
+                  await DialogDisplay.showErrorDialog(context,
+                      'Es gab einen Fehler bei der Registrierung. Bitte versuchen Sie es später erneut.');
                 }
               },
               child: const Text('Registrierung'),

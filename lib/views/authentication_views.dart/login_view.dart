@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'dart:developer' as developer;
-
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_exceptions.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.dart';
-import '../services/firestore_crud/registration_service.dart';
-import '../utilities/show_error_dialog.dart';
+import '../../services/firestore_crud/firestore_data_service.dart';
+import '../../utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -17,13 +15,11 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
-  late final RegistrationService _registrationService;
 
   @override
   void initState() {
     _email = TextEditingController();
     _password = TextEditingController();
-    _registrationService = RegistrationService();
     super.initState();
   }
 
@@ -48,7 +44,7 @@ class _LoginViewState extends State<LoginView> {
             autocorrect: false,
             keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(
-              hintText: 'Arbeits-Email-Adresse',
+              hintText: 'Email',
             ),
           ),
           TextField(
@@ -65,14 +61,13 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                final userCredential = await FirebaseAuthProvider().logIn(
+                await FirebaseAuthProvider().logIn(
                   email: email,
                   password: password,
                 );
-                developer.log(userCredential.toString());
                 final user = FirebaseAuthProvider().currentUser;
                 if (user?.isEmailVerified ?? false) {
-                  _registrationService.changeDocIdtoUID(user!);
+                  FirestoreDataService().changeDocIdtoUID(user!);
                   Navigator.of(context).pushNamedAndRemoveUntil(
                     citiesOverviewRoute,
                     (route) => false,
@@ -84,16 +79,17 @@ class _LoginViewState extends State<LoginView> {
                   );
                 }
               } on UserNotFoundAuthException {
-                await ErrorDialog.showErrorDialog(
-                    context, 'Benutzer existiert nicht');
+                await DialogDisplay.showErrorDialog(
+                    context, 'Der angegebene Benutzer existiert nicht');
               } on WrongPasswordAuthException {
-                await ErrorDialog.showErrorDialog(context, 'Falsches Passwort');
+                await DialogDisplay.showErrorDialog(
+                    context, 'Falsches Passwort');
               } on NoInternetAuthException {
-                await ErrorDialog.showErrorDialog(
+                await DialogDisplay.showErrorDialog(
                     context, 'Bitte verbinden Sie sich mit dem Internet.');
               } on GenericAuthException {
-                await ErrorDialog.showErrorDialog(
-                    context, 'Bei der Anmeldung ist ein Fehler aufgetreten.');
+                await DialogDisplay.showErrorDialog(context,
+                    'Bei der Anmeldung ist ein unbekannter Fehler aufgetreten. Bitte versuchen Sie es später erneut.');
               }
             },
             child: const Text('Anmelden.'),

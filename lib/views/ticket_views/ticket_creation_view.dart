@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 import 'package:mein_digitaler_hausmeister/utilities/show_error_dialog.dart';
 
-import '../model_classes.dart/house.dart';
+import '../../model_classes.dart/house.dart';
 
-import '../model_classes.dart/image.dart';
-import '../model_classes.dart/ticket.dart';
+import '../../model_classes.dart/image.dart';
+import '../../model_classes.dart/ticket.dart';
 
 class ImageCouldNotBeReadAsBytes implements Exception {}
 
@@ -113,7 +112,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                 final dateTime =
                     DateFormat('dd.MM.yyyy, HH:mm').format(DateTime.now());
                 if (topic.isEmpty) {
-                  ErrorDialog.showErrorDialog(
+                  DialogDisplay.showErrorDialog(
                       context, 'Bitte geben Sie das Thema des Problems an.');
                 } else {
                   final newTicket = await _ticketService.addTicketToHouse(
@@ -122,7 +121,6 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                     description: description,
                     dateTime: dateTime,
                     image: _imageUrl,
-                    status: TicketStatus.open,
                   );
                   widget.onTicketAdded(newTicket);
                   Navigator.pop(context);
