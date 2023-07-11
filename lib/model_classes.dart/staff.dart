@@ -1,15 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mein_digitaler_hausmeister/model_classes.dart/ticket.dart';
-
 import '../services/firestore_crud/crud_exceptions.dart';
 
+//Represents a user
 abstract class Staff {
   final DocumentReference<Map<String, dynamic>> firestoreRef;
   final String firstName;
   final String lastName;
   String email;
   String phoneNumber;
-  List<Ticket> tickets = [];
 
   Staff({
     required this.firestoreRef,
@@ -18,12 +16,9 @@ abstract class Staff {
     required this.email,
     required this.phoneNumber,
   });
-
-  void addTicket(Ticket ticket) {
-    tickets.add(ticket);
-  }
 }
 
+//Represents a janitor
 class Janitor extends Staff {
   Janitor({
     required super.firestoreRef,
@@ -33,6 +28,7 @@ class Janitor extends Staff {
     required super.phoneNumber,
   });
 
+  //Creates a janitor from a Firestore [DocumentSnapshot]
   factory Janitor.fromFirebase(DocumentSnapshot<Map<String, dynamic>> doc) {
     try {
       Map<String, dynamic> data = doc.data()!;
@@ -49,6 +45,7 @@ class Janitor extends Staff {
   }
 }
 
+//Represents a building manager
 class BuildingManager extends Staff {
   BuildingManager({
     required super.firestoreRef,
@@ -58,6 +55,7 @@ class BuildingManager extends Staff {
     required super.phoneNumber,
   });
 
+  //Creates a building manager from a Firestore [DocumentSnapshot]
   factory BuildingManager.fromFirebase(
       DocumentSnapshot<Map<String, dynamic>> doc) {
     try {

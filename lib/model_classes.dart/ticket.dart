@@ -3,6 +3,7 @@ import 'package:mein_digitaler_hausmeister/services/firestore_crud/crud_exceptio
 
 import '../enums/ticket_status.dart';
 
+/// Represents a ticket.
 class Ticket {
   DocumentReference firestoreRef;
   final String firstName;
@@ -23,11 +24,7 @@ class Ticket {
       required this.imageUrl,
       required this.status});
 
-  @override
-  String toString() {
-    return 'Ersteller: $firstName $lastName, Thema: $topic, Problembeschreibung: $description, Status: ${status.name}';
-  }
-
+  /// Creates a ticket from a Firestore [DocumentSnapshot]
   factory Ticket.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     try {
       Map<String, dynamic> data = doc.data()!;

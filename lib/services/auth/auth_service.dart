@@ -4,6 +4,7 @@ import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.
 
 import '../../model_classes.dart/staff.dart';
 
+/// Wrapper class for authentication providers.
 class AuthService implements AuthProvider {
   final AuthProvider provider;
 

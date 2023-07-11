@@ -1,17 +1,19 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_exceptions.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_user.dart';
-
 import 'package:firebase_auth/firebase_auth.dart'
     show FirebaseAuth, FirebaseAuthException;
-
 import '../../firebase_options.dart';
 import '../../model_classes.dart/staff.dart';
 import '../firestore_crud/crud_exceptions.dart';
-import '../firestore_crud/registration_service.dart';
+import '../firestore_crud/firestore_data_service.dart';
 import 'auth_provider.dart';
 
+/// Authentication provider for Firebase.
 class FirebaseAuthProvider extends AuthProvider {
+  //Creates an [AuthUser] with the given email and password
+  //and returns it if the creation was successful, otherwise
+  //throws an exception describing the error.
   @override
   Future<AuthUser> createUser({
     required String email,
@@ -43,6 +45,8 @@ class FirebaseAuthProvider extends AuthProvider {
     }
   }
 
+  //Returns the current [AuthUser] if the user is logged in,
+  //otherwise returns null.
   @override
   AuthUser? get currentUser {
     final user = FirebaseAuth.instance.currentUser;
@@ -53,13 +57,14 @@ class FirebaseAuthProvider extends AuthProvider {
     }
   }
 
+  //Returns the currently logged in user as a [Staff] object
   @override
   Future<Staff?> get currentStaff async {
     final user = FirebaseAuth.instance.currentUser;
     Staff? staff;
     if (user != null) {
       final userDoc =
-          (await RegistrationService().getFirestoreUserDoc(user.email!))!;
+          (await FirestoreDataService().getFirestoreUserDoc(user.email!))!;
       Staff? staffUser;
       await userDoc.get().then((snapshot) {
         if (userDoc.parent.id == 'Hausverwaltung') {
@@ -75,6 +80,9 @@ class FirebaseAuthProvider extends AuthProvider {
     return staff;
   }
 
+  //Logs in the user with the given email and password and
+  //returns the [AuthUser] if the login was successful, otherwise
+  //throws an exception describing the error.
   @override
   Future<AuthUser> logIn(
       {required String email, required String password}) async {

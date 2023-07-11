@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 
-import '../services/auth/firebase_auth_provider.dart';
+import '../../services/auth/firebase_auth_provider.dart';
 
+/// This class is responsible for asking the user to verify his email address.
 class VerifyEmailView extends StatefulWidget {
   const VerifyEmailView({
     super.key,

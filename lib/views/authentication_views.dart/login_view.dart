@@ -5,6 +5,8 @@ import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.
 import '../../services/firestore_crud/firestore_data_service.dart';
 import '../../utilities/show_error_dialog.dart';
 
+/// This class is responsible for
+/// displaying the login screen including possible error messages.
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
 

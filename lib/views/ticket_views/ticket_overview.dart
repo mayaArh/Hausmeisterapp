@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:mein_digitaler_hausmeister/views/closed_tickets_overview.dart';
+import 'package:mein_digitaler_hausmeister/constants/routes.dart';
+import 'package:mein_digitaler_hausmeister/views/ticket_views/closed_tickets_overview.dart';
 
-import '../model_classes.dart/house.dart';
-import '../model_classes.dart/ticket.dart';
-import 'ticket_creation_view.dart';
+import '../../model_classes.dart/house.dart';
+import '../../model_classes.dart/ticket.dart';
 import 'open_tickets_overview.dart';
 
+//Controls the view of the tickets for a house and allows the user
+//to switch between open and closed tickets as well as to create new tickets.
 class TicketViewChanger extends StatefulWidget {
   const TicketViewChanger({super.key});
 
@@ -26,21 +28,16 @@ class TicketViewChangerState extends State<TicketViewChanger> {
       appBar: AppBar(
         title: Text(house.longAddress),
         actions: [
-          IconButton(
-            onPressed: () async {
-              await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => TicketCreationView(
-                      house: house,
-                      onTicketAdded: (Ticket newTicket) {
-                        setState(() {});
-                      }),
-                ),
-              );
-              setState(() {});
-            },
-            icon: const Icon(Icons.add),
-          ),
+          _currentIndex == 0
+              ? IconButton(
+                  onPressed: () async {
+                    await Navigator.of(context)
+                        .pushNamed(ticketCreationRoute, arguments: house);
+                    setState(() {});
+                  },
+                  icon: const Icon(Icons.add),
+                )
+              : Container(),
         ],
       ),
       body: PageView(

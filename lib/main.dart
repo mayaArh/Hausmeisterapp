@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.dart';
 import 'package:mein_digitaler_hausmeister/views/houses_overview.dart';
-import 'package:mein_digitaler_hausmeister/views/login_view.dart';
-import 'package:mein_digitaler_hausmeister/views/register_view.dart';
+import 'package:mein_digitaler_hausmeister/views/authentication_views.dart/login_view.dart';
+import 'package:mein_digitaler_hausmeister/views/authentication_views.dart/register_view.dart';
 import 'package:mein_digitaler_hausmeister/views/cities_overview.dart';
-import 'package:mein_digitaler_hausmeister/views/ticket_overview.dart';
+import 'package:mein_digitaler_hausmeister/views/ticket_views/ticket_creation_view.dart';
+import 'package:mein_digitaler_hausmeister/views/ticket_views/ticket_overview.dart';
 import 'constants/routes.dart';
-import 'views/verify_email_view.dart';
+import 'views/authentication_views.dart/verify_email_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,14 +25,16 @@ void main() {
           citiesOverviewRoute: (context) => const CitiesOverview(),
           housesOverviewRoute: (context) => const HousesOverview(),
           ticketsOverviewRoute: (context) => const TicketViewChanger(),
+          ticketCreationRoute: (context) => const TicketCreationView(),
         }),
   );
 }
 
+//This class is responsible for displaying the correct view
+//depending on the user's authentication status.
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(

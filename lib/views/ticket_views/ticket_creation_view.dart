@@ -6,16 +6,10 @@ import 'package:mein_digitaler_hausmeister/utilities/show_error_dialog.dart';
 import '../../model_classes.dart/house.dart';
 
 import '../../model_classes.dart/image.dart';
-import '../../model_classes.dart/ticket.dart';
 
-class ImageCouldNotBeReadAsBytes implements Exception {}
-
+// View for creating a new ticket.
 class TicketCreationView extends StatefulWidget {
-  final House house;
-  final Function(Ticket) onTicketAdded;
-
-  const TicketCreationView(
-      {super.key, required this.house, required this.onTicketAdded});
+  const TicketCreationView({super.key});
 
   @override
   State<TicketCreationView> createState() => _TicketCreationViewState();
@@ -43,6 +37,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
 
   @override
   Widget build(BuildContext context) {
+    final House house = ModalRoute.of(context)!.settings.arguments as House;
     return Scaffold(
       appBar: AppBar(title: const Text('Neues Ticket erstellen')),
       body: SingleChildScrollView(
@@ -61,10 +56,8 @@ class _TicketCreationViewState extends State<TicketCreationView> {
             height: 200,
             padding: const EdgeInsets.all(3.5),
             decoration: BoxDecoration(
-              border:
-                  Border.all(color: Colors.grey), // Add border properties here
-              borderRadius:
-                  BorderRadius.circular(4.0), // Add border radius if desired
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(4.0),
             ),
             child: SizedBox(
                 child: SingleChildScrollView(
@@ -80,10 +73,8 @@ class _TicketCreationViewState extends State<TicketCreationView> {
           Container(
             padding: const EdgeInsets.all(0),
             decoration: BoxDecoration(
-              border: Border.all(
-                  style: BorderStyle.none), // Add border properties here
-              borderRadius:
-                  BorderRadius.circular(4.0), // Add border radius if desired
+              border: Border.all(style: BorderStyle.none),
+              borderRadius: BorderRadius.circular(4.0),
             ),
             child: UserImage(
               onFileChanged: (imageUrl) {
@@ -115,14 +106,13 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                   DialogDisplay.showErrorDialog(
                       context, 'Bitte geben Sie das Thema des Problems an.');
                 } else {
-                  final newTicket = await _ticketService.addTicketToHouse(
-                    house: widget.house,
+                  await _ticketService.addTicketToHouse(
+                    house: house,
                     topic: topic,
                     description: description,
                     dateTime: dateTime,
                     image: _imageUrl,
                   );
-                  widget.onTicketAdded(newTicket);
                   Navigator.pop(context);
                 }
               },

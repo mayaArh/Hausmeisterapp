@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/crud_exceptions.dart';
 
+/// Represents a house in the database
 class House {
   final DocumentReference firestoreRef;
   final String street;
@@ -16,6 +17,7 @@ class House {
     required this.city,
   });
 
+  /// Creates a house from a Firestore [DocumentSnapshot]
   factory House.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     try {
       Map<String, dynamic> data = doc.data()!;

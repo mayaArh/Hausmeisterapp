@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../model_classes.dart/house.dart';
 
+/// Displays all houses for a city the user has access to.
 class HousesOverview extends StatefulWidget {
   const HousesOverview({super.key});
 
@@ -29,8 +30,8 @@ class _HousesOverviewState extends State<HousesOverview> {
                   child: ListView(
                       children: Provider.of<List<House>>(context)
                           .map((House house) => OutlinedButton(
-                              onPressed: () {
-                                Navigator.of(context).pushNamed(
+                              onPressed: () async {
+                                await Navigator.of(context).pushNamed(
                                     ticketsOverviewRoute,
                                     arguments: house);
                               },

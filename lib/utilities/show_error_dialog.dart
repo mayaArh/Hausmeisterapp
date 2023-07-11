@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-//displays error dialog
+//displays dialogs
 class DialogDisplay {
+  //displays an error message
   static Future<void> showErrorDialog(BuildContext context, String text) {
     return showDialog(
         context: context,
@@ -20,6 +21,8 @@ class DialogDisplay {
         });
   }
 
+  //displays a logout dialog that forces the user
+  //to confirm the logout
   static Future<bool> showLogoutDialog(BuildContext context) {
     return showDialog<bool>(
         context: context,

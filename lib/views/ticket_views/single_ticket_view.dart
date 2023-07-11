@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 
-import '../model_classes.dart/image.dart';
-import '../model_classes.dart/ticket.dart';
+import '../../model_classes.dart/image.dart';
+import '../../model_classes.dart/ticket.dart';
 
+/// Displays a single ticket and allows editing it if its status is open.
 class SingleTicketView extends StatefulWidget {
   final Ticket selectedTicket;
   final bool canBeEdited;
@@ -27,9 +28,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
     _topic = TextEditingController(text: widget.selectedTicket.topic);
     _description =
         TextEditingController(text: widget.selectedTicket.description);
-    if (widget.selectedTicket.imageUrl != null) {
-      _imageUrl = widget.selectedTicket.imageUrl!;
-    }
+    _imageUrl = widget.selectedTicket.imageUrl!;
     super.initState();
   }
 
@@ -121,6 +120,8 @@ class _SingleTicketViewState extends State<SingleTicketView> {
         ));
   }
 
+  /// Display the topic of the ticket in a text field
+  /// that can be edited if the ticket status is open.
   Widget _displayTopic() {
     return Container(
         padding: const EdgeInsets.all(3.5),
@@ -134,6 +135,8 @@ class _SingleTicketViewState extends State<SingleTicketView> {
         ));
   }
 
+  /// Display the description of the ticket in a text field
+  /// that can be edited if the ticket status is open.
   Widget _displayDescription() {
     return Container(
         height: 150,
@@ -157,6 +160,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                         : null))));
   }
 
+  /// Display the image of the ticket as a [UserImage] widget.
   Widget _displayUserImage(String? imgUrl) {
     return UserImage(
       onFileChanged: (imageUrl) {

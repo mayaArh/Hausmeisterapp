@@ -8,12 +8,14 @@ import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+/// Widget for displaying an user image and storing it in Firebase Storage.
+/// If [canBeEdited] is true, the user can add a new image, change
+/// the existing image or delete the existing image.
+
 class UserImage extends StatefulWidget {
-  final Function(String? imageUrl) onFileChanged;
   final String? initialImageUrl;
   final bool canBeEdited;
-  static const janitorPath = 'janitorImages';
-  static const buildingManagementPath = 'propertyManagementImages';
+  final Function(String? imageUrl) onFileChanged;
 
   const UserImage(
       {super.key,
@@ -50,7 +52,7 @@ class _UserImageState extends State<UserImage> {
                 height: 280,
                 padding: const EdgeInsets.all(8),
                 child: GestureDetector(
-                  onTap: () => _selectPhoto(),
+                  onTap: () => _selectImage(),
                   child: Stack(
                     children: [
                       _showImageContainer(imageUrl, context),
@@ -82,7 +84,9 @@ class _UserImageState extends State<UserImage> {
     );
   }
 
-  Future _selectPhoto() async {
+  /// Lets the user select an image by either accessing
+  ///  the camera or the gallery.
+  Future _selectImage() async {
     await showModalBottomSheet(
       context: context,
       builder: (context) => BottomSheet(
@@ -112,6 +116,7 @@ class _UserImageState extends State<UserImage> {
     );
   }
 
+  /// Crops the image and compresses it before uploading it to Firebase Storage.
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile =
         await _picker.pickImage(source: source, imageQuality: 50);
@@ -129,6 +134,7 @@ class _UserImageState extends State<UserImage> {
     await _uploadFile(file.path);
   }
 
+  /// Compresses the image to the given quality.
   Future<XFile> _compressImage(String path, int quality) async {
     final newPath = p.join((await getTemporaryDirectory()).path,
         '${DateTime.now()}.${p.extension(path)}');
@@ -141,6 +147,7 @@ class _UserImageState extends State<UserImage> {
     return result!;
   }
 
+  /// Uploads the image to Firebase Storage.
   Future _uploadFile(String path) async {
     final ref = storageRef
         .child(AuthService.firebase().currentUser!.uid + p.basename(path));

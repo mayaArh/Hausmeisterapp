@@ -2,14 +2,18 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:intl/intl.dart';
 import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 
 import '../../model_classes.dart/house.dart';
 import '../../model_classes.dart/staff.dart';
 import '../../model_classes.dart/ticket.dart';
+import '../../utilities/sort.dart';
+import '../auth/auth_user.dart';
 import 'crud_exceptions.dart';
+
+// This class is responsible for all the CRUD operations that are
+// related to the firestore database and the connected firebase storage.
 
 class FirestoreDataService {
   FirestoreDataService._sharedInstance();
@@ -20,6 +24,8 @@ class FirestoreDataService {
   final db = FirebaseFirestore.instance;
   final storage = FirebaseStorage.instance;
 
+  //returns a stream of all the cities that are specified for the
+  //current user
   Stream<List<String>> streamCities() async* {
     Staff? staff = await AuthService.firebase().currentStaff;
     if (staff != null) {
@@ -43,6 +49,8 @@ class FirestoreDataService {
     }
   }
 
+  //returns a stream of all houses that are specified for the
+  //current user at the given city
   Stream<List<House>> streamHousesForCity(String city) async* {
     Staff? staff = await AuthService.firebase().currentStaff;
     if (staff != null) {
@@ -62,7 +70,7 @@ class FirestoreDataService {
                 houseList.add(House.fromFirestore(houseSnapshot));
               }
             }
-            _sortHouses(houseList);
+            Sort.sortHouses(houseList);
           }
           yield houseList;
         }
@@ -74,6 +82,9 @@ class FirestoreDataService {
     }
   }
 
+  //returns a stream of tickets for the given house. If filterOpenTickets is true,
+  //all tickets with status open are returned, otherwise all tickets
+  //with status done are returned
   Stream<List<Ticket>> streamTicketsForHouse(House house,
       {required bool filterOpenTickets}) {
     return house.firestoreRef.collection('Tickets').snapshots().map((data) {
@@ -89,53 +100,65 @@ class FirestoreDataService {
           final ticket = Ticket.fromFirestore(ticketDoc);
           ticketList.add(ticket);
         }
-        _sortTicketsByDateTime(ticketList);
+        Sort.sortTicketsByDateTime(ticketList);
       }
       return ticketList;
     });
   }
 
+  Future<DocumentReference<Map<String, dynamic>>?> getFirestoreUserDoc(
+      String email) async {
+    DocumentReference<Map<String, dynamic>>? userDoc;
+    try {
+      CollectionReference<Map<String, dynamic>> staffCollection =
+          db.collection('Hausverwaltung');
+      for (int i = 0; i < 2; i++) {
+        final QuerySnapshot<Map<String, dynamic>> queryUser =
+            await staffCollection.where('Email', isEqualTo: email).get();
+        if (queryUser.size == 1) {
+          userDoc = queryUser.docs.first.reference;
+        }
+        if (queryUser.size > 1) {
+          throw SeveralUsersWithSameEmail();
+        }
+        staffCollection = db.collection('Hausmeister');
+      }
+    } catch (_) {}
+    return userDoc;
+  }
+
+  //adds a new ticket to the given house
   Future<Ticket> addTicketToHouse({
     required House house,
-    required Ticket ticket,
+    required String topic,
+    required String description,
+    required String dateTime,
+    required String? image,
   }) async {
     final staffUser = await AuthService.firebase().currentStaff;
     DocumentReference<Map<String, dynamic>> ticketRef =
         await house.firestoreRef.collection('Tickets').add({
       'Vorname': staffUser!.firstName,
       'Nachname': staffUser.lastName,
-      'erstellt am': ticket.dateTime,
+      'erstellt am': dateTime,
       'Problembeschreibung': description,
       'Thema': topic,
       'Bild': image ?? '',
-      'Status': status.name,
+      'Status': 'open',
     });
     final ticketSnapshot = await ticketRef.get();
     Ticket ticket = Ticket.fromFirestore(ticketSnapshot);
     return ticket;
   }
 
-  void _sortTicketsByDateTime(List<Ticket> tickets) {
-    tickets.sort((ticketA, ticketB) {
-      final dateTimeA = DateFormat('dd.MM.yyyy, HH:mm').parse(ticketA.dateTime);
-      final dateTimeB = DateFormat('dd.MM.yyyy, HH:mm').parse(ticketB.dateTime);
-      return dateTimeA.compareTo(dateTimeB);
-    });
-  }
-
-  Future<void> deleteTicket(Ticket ticket) async {
-    if (ticket.imageUrl != null) {
-      deleteStorageImage(ticket.imageUrl!);
-    }
-    await Future.wait([ticket.firestoreRef.delete()]);
-  }
-
+  //changes the ticket topic to the given topic
   Future<Ticket> changeTicketTopic(Ticket ticket, String newTopic) async {
     ticket.topic = newTopic;
     await ticket.firestoreRef.update({'Thema': newTopic});
     return ticket;
   }
 
+  //changes the ticket description to the given description
   Future<Ticket> changeTicketDescription(
       Ticket ticket, String newDescription) async {
     ticket.description = newDescription;
@@ -143,6 +166,7 @@ class FirestoreDataService {
     return ticket;
   }
 
+  //updates the status of the given ticket to the new status
   Future<Ticket> updateTicketStatus(
       Ticket ticket, TicketStatus newStatus) async {
     ticket.status = newStatus;
@@ -151,14 +175,25 @@ class FirestoreDataService {
   }
 
   /// deletes the image stored for the ticket
-  /// and adds the given new image to the ticket
+  /// and adds a potentially new image to the ticket
   Future<Ticket> changeTicketImage(Ticket ticket, String? newImageUrl) async {
-    deleteStorageImage(ticket.imageUrl!);
-    ticket.imageUrl = newImageUrl;
-    await ticket.firestoreRef.update({'Bild': newImageUrl});
+    if (ticket.imageUrl != null) {
+      deleteStorageImage(ticket.imageUrl!);
+      ticket.imageUrl = newImageUrl;
+      await ticket.firestoreRef.update({'Bild': newImageUrl});
+    }
     return ticket;
   }
 
+  //deletes the ticket from the database and the corresponding image from the storage
+  Future<void> deleteTicket(Ticket ticket) async {
+    if (ticket.imageUrl != null) {
+      deleteStorageImage(ticket.imageUrl!);
+    }
+    await Future.wait([ticket.firestoreRef.delete()]);
+  }
+
+  //deletes the image from the storage
   Future<void> deleteStorageImage(String? imageUrl) async {
     if (imageUrl != null) {
       final imageRef = storage.refFromURL(imageUrl);
@@ -166,14 +201,19 @@ class FirestoreDataService {
     }
   }
 
-  void _sortHouses(List<House> houses) {
-    houses.sort((houseA, houseB) {
-      int streetComparison = houseA.street.compareTo(houseB.street);
-      if (streetComparison != 0) {
-        return streetComparison;
-      } else {
-        return houseA.houseNumber.compareTo(houseB.houseNumber);
-      }
-    });
+  //sets the id of the firestore document to the uid of the user
+  Future<void> changeDocIdtoUID(AuthUser user) async {
+    final userDoc = await getFirestoreUserDoc(user.email!);
+    if (userDoc!.id != user.uid) {
+      final newUserDoc = userDoc.parent.doc(user.uid);
+      final data = await userDoc.get().then((snapshot) => snapshot.data());
+      await userDoc.delete();
+      newUserDoc.set(data!);
+    }
+  }
+
+  //returns true if the user with the given email is allowed to use the app
+  Future<bool> isAllowedUser(String email) async {
+    return await getFirestoreUserDoc(email) != null;
   }
 }
