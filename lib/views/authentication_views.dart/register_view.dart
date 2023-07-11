@@ -3,7 +3,7 @@ import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import '../../services/auth/auth_exceptions.dart';
 import '../../services/auth/firebase_auth_provider.dart';
 import '../../services/firestore_crud/firestore_data_service.dart';
-import '../../utilities/show_error_dialog.dart';
+import '../../utilities/show_dialog.dart';
 
 /// This class is responsible for displaying the register screen
 ///  including possible error messages.

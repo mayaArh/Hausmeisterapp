@@ -1,4 +1,4 @@
-import 'package:mein_digitaler_hausmeister/model_classes.dart/staff.dart';
+import 'package:mein_digitaler_hausmeister/model_classes/staff.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_exceptions.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_user.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.dart';

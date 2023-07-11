@@ -2,7 +2,7 @@ import 'package:mein_digitaler_hausmeister/services/auth/auth_provider.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_user.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.dart';
 
-import '../../model_classes.dart/staff.dart';
+import '../../model_classes/staff.dart';
 
 /// Wrapper class for authentication providers.
 class AuthService implements AuthProvider {

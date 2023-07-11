@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/views/ticket_views/closed_tickets_overview.dart';
 
-import '../../model_classes.dart/house.dart';
-import '../../model_classes.dart/ticket.dart';
+import '../../model_classes/house.dart';
+import '../../model_classes/ticket.dart';
 import 'open_tickets_overview.dart';
 
 //Controls the view of the tickets for a house and allows the user

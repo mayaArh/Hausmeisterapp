@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 
-import '../model_classes.dart/house.dart';
-import '../model_classes.dart/ticket.dart';
+import '../model_classes/house.dart';
+import '../model_classes/ticket.dart';
 
 /// Class for sorting app objects.
 class Sort {

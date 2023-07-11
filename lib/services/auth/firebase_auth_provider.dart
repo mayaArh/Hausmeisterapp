@@ -4,7 +4,7 @@ import 'package:mein_digitaler_hausmeister/services/auth/auth_user.dart';
 import 'package:firebase_auth/firebase_auth.dart'
     show FirebaseAuth, FirebaseAuthException;
 import '../../firebase_options.dart';
-import '../../model_classes.dart/staff.dart';
+import '../../model_classes/staff.dart';
 import '../firestore_crud/crud_exceptions.dart';
 import '../firestore_crud/firestore_data_service.dart';
 import 'auth_provider.dart';

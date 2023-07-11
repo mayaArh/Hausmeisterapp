@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 import 'package:mein_digitaler_hausmeister/views/ticket_views/single_ticket_view.dart';
 
-import '../../model_classes.dart/ticket.dart';
+import '../../model_classes/ticket.dart';
 
 /// Displays a list of tickets and the possibility to delete them.
 class TicketList extends StatelessWidget {

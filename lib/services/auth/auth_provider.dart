@@ -1,4 +1,4 @@
-import 'package:mein_digitaler_hausmeister/model_classes.dart/staff.dart';
+import 'package:mein_digitaler_hausmeister/model_classes/staff.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_user.dart';
 
 /// Abstract class for authentication providers.

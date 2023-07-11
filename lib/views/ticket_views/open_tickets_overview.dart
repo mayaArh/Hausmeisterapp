@@ -3,8 +3,8 @@ import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_dat
 import 'package:mein_digitaler_hausmeister/views/ticket_views/ticket_list.dart';
 import 'package:provider/provider.dart';
 
-import '../../model_classes.dart/house.dart';
-import '../../model_classes.dart/ticket.dart';
+import '../../model_classes/house.dart';
+import '../../model_classes/ticket.dart';
 
 /// Displays all open tickets for a house
 class OpenTicketsOverview extends StatefulWidget {

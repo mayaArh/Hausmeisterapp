@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
-import 'package:mein_digitaler_hausmeister/utilities/show_error_dialog.dart';
+import 'package:mein_digitaler_hausmeister/utilities/show_dialog.dart';
 
-import '../../model_classes.dart/house.dart';
+import '../../model_classes/house.dart';
 
-import '../../model_classes.dart/image.dart';
+import '../../model_classes/image.dart';
 
 // View for creating a new ticket.
 class TicketCreationView extends StatefulWidget {

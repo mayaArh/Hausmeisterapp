@@ -5,9 +5,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 
-import '../../model_classes.dart/house.dart';
-import '../../model_classes.dart/staff.dart';
-import '../../model_classes.dart/ticket.dart';
+import '../../model_classes/house.dart';
+import '../../model_classes/staff.dart';
+import '../../model_classes/ticket.dart';
 import '../../utilities/sort.dart';
 import '../auth/auth_user.dart';
 import 'crud_exceptions.dart';

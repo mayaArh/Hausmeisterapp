@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../constants/routes.dart';
 import '../enums/menu_entries.dart';
-import '../utilities/show_error_dialog.dart';
+import '../utilities/show_dialog.dart';
 
 /// This class is responsible for displaying all the cities
 /// in which are houses the user has access to.
