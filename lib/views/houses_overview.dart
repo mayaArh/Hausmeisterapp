@@ -3,7 +3,10 @@ import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 import 'package:provider/provider.dart';
 
+import '../enums/menu_entries.dart';
 import '../model_classes/house.dart';
+import '../services/auth/firebase_auth_provider.dart';
+import '../utilities/show_dialog.dart';
 
 /// Displays all houses for a city the user has access to.
 class HousesOverview extends StatefulWidget {
@@ -23,7 +26,31 @@ class _HousesOverviewState extends State<HousesOverview> {
         initialData: const [],
         builder: (context, child) {
           return Scaffold(
-              appBar: AppBar(title: Text(city)),
+              appBar: AppBar(
+                title: Text(city),
+                actions: [
+                  PopupMenuButton<MenuEntry>(
+                    onSelected: (value) async {
+                      switch (value) {
+                        case MenuEntry.logout:
+                          final shouldLogout =
+                              await DialogDisplay.showLogoutDialog(context);
+                          if (shouldLogout) {
+                            await FirebaseAuthProvider().logOut();
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                                loginRoute, (_) => false);
+                          }
+                      }
+                    },
+                    itemBuilder: (context) {
+                      return const [
+                        PopupMenuItem<MenuEntry>(
+                            value: MenuEntry.logout, child: Text('Abmelden'))
+                      ];
+                    },
+                  )
+                ],
+              ),
               body: StreamProvider<List<House>>.value(
                   value: FirestoreDataService().streamHousesForCity(city),
                   initialData: const [],

@@ -26,7 +26,7 @@ class TicketViewChangerState extends State<TicketViewChanger> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text(house.longAddress),
+        title: Text(house.shortAddress),
         actions: [
           _currentIndex == 0
               ? IconButton(

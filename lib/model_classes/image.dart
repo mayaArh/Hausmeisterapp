@@ -38,50 +38,57 @@ class _UserImageState extends State<UserImage> {
   Widget build(BuildContext context) {
     if (index == 0) {
       imageUrl = widget.initialImageUrl;
-      if (widget.canBeEdited) {
-        index++;
-      }
+      index++;
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Align(
-            alignment: Alignment.center,
-            child: Container(
-                width: 364,
-                height: 280,
-                padding: const EdgeInsets.all(8),
-                child: GestureDetector(
-                  onTap: () => _selectImage(),
-                  child: Stack(
-                    children: [
-                      _showImageContainer(imageUrl, context),
-                      Positioned(
-                          width: 70,
-                          height: 70,
-                          top: 0,
-                          right: 0,
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                imageUrl = null;
-                              });
-                              widget.onFileChanged(null);
-                              _showImageContainer(imageUrl, context);
-                            },
-                            child: imageUrl != null
-                                ? const Icon(
-                                    Icons.delete_outline_outlined,
-                                    size: 25,
-                                    color: Colors.blueGrey,
-                                  )
-                                : null,
-                          )),
-                    ],
-                  ),
-                ))),
-      ],
-    );
+    return widget.canBeEdited ||
+            (!widget.canBeEdited && widget.initialImageUrl != null)
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                      width: 364,
+                      height: 280,
+                      padding: const EdgeInsets.all(8),
+                      child: GestureDetector(
+                        onTap: () {
+                          if (widget.canBeEdited) {
+                            _selectImage();
+                          }
+                        },
+                        child: Stack(
+                          children: [
+                            _showImageContainer(imageUrl, context),
+                            Positioned(
+                                width: 70,
+                                height: 70,
+                                top: 0,
+                                right: 0,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      imageUrl = null;
+                                    });
+                                    widget.onFileChanged(null);
+                                    _showImageContainer(imageUrl, context);
+                                  },
+                                  child: imageUrl != null
+                                      ? const Icon(
+                                          Icons.delete_outline_outlined,
+                                          size: 25,
+                                          color: Colors.blueGrey,
+                                        )
+                                      : null,
+                                )),
+                          ],
+                        ),
+                      ))),
+            ],
+          )
+        : const SizedBox(
+            height: 30,
+          );
   }
 
   /// Lets the user select an image by either accessing

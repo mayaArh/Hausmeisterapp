@@ -28,7 +28,7 @@ class DialogDisplay {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text('Ausloggen.'),
+            title: const Text('Abmelden.'),
             content: const Text('Sind sie sicher?'),
             actions: [
               TextButton(
@@ -40,7 +40,7 @@ class DialogDisplay {
                   onPressed: () {
                     Navigator.of(context).pop(true);
                   },
-                  child: const Text('Ausloggen'))
+                  child: const Text('Abmelden'))
             ],
           );
         }).then((value) => value ?? false);

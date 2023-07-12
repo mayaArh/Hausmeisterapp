@@ -61,6 +61,7 @@ class TicketList extends StatelessWidget {
                       child: Row(
                         children: [
                           Expanded(
+                            flex: 1,
                             child: Column(
                               children: [
                                 Center(

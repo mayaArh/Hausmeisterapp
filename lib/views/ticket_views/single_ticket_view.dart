@@ -28,7 +28,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
     _topic = TextEditingController(text: widget.selectedTicket.topic);
     _description =
         TextEditingController(text: widget.selectedTicket.description);
-    _imageUrl = widget.selectedTicket.imageUrl!;
+    _imageUrl = widget.selectedTicket.imageUrl;
     super.initState();
   }
 

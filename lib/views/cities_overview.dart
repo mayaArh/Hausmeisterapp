@@ -48,7 +48,7 @@ class _CitiesOverviewState extends State<CitiesOverview> {
                   itemBuilder: (context) {
                     return const [
                       PopupMenuItem<MenuEntry>(
-                          value: MenuEntry.logout, child: Text('Log out'))
+                          value: MenuEntry.logout, child: Text('Abmelden'))
                     ];
                   },
                 )
