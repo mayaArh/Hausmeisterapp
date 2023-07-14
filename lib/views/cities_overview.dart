@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart'; // Import this for the GridView
 
 import '../constants/routes.dart';
 import '../enums/menu_entries.dart';
@@ -54,20 +54,28 @@ class _CitiesOverviewState extends State<CitiesOverview> {
                 )
               ],
             ),
-            body: ListView(
+            body: SingleChildScrollView(
+              child: GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                childAspectRatio: MediaQuery.of(context).size.width /
+                    (MediaQuery.of(context).size.height / 5),
                 children: Provider.of<List<String>>(context)
                     .map((String city) => OutlinedButton(
-                        onPressed: () {
-                          Navigator.of(context)
-                              .pushNamed(housesOverviewRoute, arguments: city);
-                        },
-                        style: ButtonStyle(
-                            shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(100.0),
-                        ))),
-                        child: Text(city)))
-                    .toList()));
+                          onPressed: () {
+                            Navigator.of(context).pushNamed(housesOverviewRoute,
+                                arguments: city);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(0, 255, 255, 255),
+                          ),
+                          child: Text(city),
+                        ))
+                    .toList(),
+              ),
+            ));
       },
     );
   }

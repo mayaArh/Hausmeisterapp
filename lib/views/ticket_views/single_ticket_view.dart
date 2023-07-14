@@ -65,59 +65,78 @@ class _SingleTicketViewState extends State<SingleTicketView> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-        onWillPop: () async {
-          _executeOnDialogDismissed();
-          return true;
-        },
-        child: SingleChildScrollView(
-          child: Column(
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+            Expanded(child: _displayTopic()),
+          ]),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                Expanded(child: _displayTopic()),
-              ]),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(child: _displayDescription()),
-                ],
-              ),
-              _displayUserImage(widget.selectedTicket.imageUrl),
-              const SizedBox(
-                height: 8,
-              ),
-              ElevatedButton(
-                  style: ButtonStyle(
-                      backgroundColor:
-                          widget.selectedTicket.status == TicketStatus.open
-                              ? MaterialStateProperty.all(Colors.green.shade400)
-                              : MaterialStateProperty.all(
-                                  Colors.deepOrange.shade400)),
-                  onPressed: () async {
-                    if (widget.selectedTicket.status == TicketStatus.open) {
-                      await _ticketService.updateTicketStatus(
-                          widget.selectedTicket, TicketStatus.done);
-                    } else {
-                      await _ticketService.updateTicketStatus(
-                          widget.selectedTicket, TicketStatus.open);
-                    }
-                    Navigator.pop(context);
-                  },
-                  child: widget.selectedTicket.status == TicketStatus.open
-                      ? const Text(
-                          'als fertiggestellt markieren',
-                          selectionColor: Colors.green,
-                        )
-                      : const Text(
-                          'Als offen markieren',
-                          selectionColor: Colors.deepOrange,
-                        )),
-              const SizedBox(
-                height: 32,
-              )
+              Expanded(child: _displayDescription()),
             ],
           ),
-        ));
+          _displayUserImage(widget.selectedTicket.imageUrl),
+          const SizedBox(
+            height: 8,
+          ),
+          ElevatedButton(
+              onPressed: () async {
+                if (widget.canBeEdited) {
+                  if (_imageUrl != widget.selectedTicket.imageUrl) {
+                    await _ticketService.changeTicketImage(
+                      widget.selectedTicket,
+                      _imageUrl,
+                    );
+                  }
+                  if (_topic.text != widget.selectedTicket.topic) {
+                    await _ticketService.changeTicketTopic(
+                      widget.selectedTicket,
+                      _topic.text,
+                    );
+                  }
+                  if (_description.text != widget.selectedTicket.description) {
+                    await _ticketService.changeTicketDescription(
+                      widget.selectedTicket,
+                      _description.text,
+                    );
+                  }
+                }
+                Navigator.pop(context);
+              },
+              child: const Text('Änderungen speichern')),
+          ElevatedButton(
+              style: ButtonStyle(
+                  backgroundColor: widget.selectedTicket.status ==
+                          TicketStatus.open
+                      ? MaterialStateProperty.all(Colors.green.shade400)
+                      : MaterialStateProperty.all(Colors.deepOrange.shade400)),
+              onPressed: () async {
+                if (widget.selectedTicket.status == TicketStatus.open) {
+                  await _ticketService.updateTicketStatus(
+                      widget.selectedTicket, TicketStatus.done);
+                } else {
+                  await _ticketService.updateTicketStatus(
+                      widget.selectedTicket, TicketStatus.open);
+                }
+                Navigator.pop(context);
+              },
+              child: widget.selectedTicket.status == TicketStatus.open
+                  ? const Text(
+                      'als fertiggestellt markieren',
+                      selectionColor: Colors.green,
+                    )
+                  : const Text(
+                      'Als offen markieren',
+                      selectionColor: Colors.deepOrange,
+                    )),
+          const SizedBox(
+            height: 32,
+          )
+        ],
+      ),
+    );
   }
 
   /// Display the topic of the ticket in a text field

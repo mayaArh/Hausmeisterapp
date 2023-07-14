@@ -76,14 +76,15 @@ class RegisterViewState extends State<RegisterView> {
                         'Leider sind Sie nicht in unserem System gespeichert. Bitte überprüfen Sie noch einmal Ihre E-Mail Adresse.');
                   }
                 } on WeakPasswordAuthException {
-                  await DialogDisplay.showErrorDialog(
-                      context, 'Password zu schwach');
+                  await DialogDisplay.showErrorDialog(context,
+                      'Password zu schwach. Bitte erstellen Sie ein Passwort aus mindestens 6 Zeichen.');
                 } on EmailAlreadyInUseAuthException {
                   await DialogDisplay.showErrorDialog(context,
                       'Es existiert bereits ein verifizierter Nutzer mit dieser E-Mail Adresse.');
-                } on InvalidEmailAuthException {
-                  await DialogDisplay.showErrorDialog(
-                      context, 'Keine valide E-Mail Adresse.');
+                } //TODO: Vergleich mit Mac
+                on NoInternetAuthException {
+                  await DialogDisplay.showErrorDialog(context,
+                      'Es besteht keine Internetverbindung. Bitte stellen Sie eine Internetverbindung her und versuchen Sie es erneut.');
                 } on GenericAuthException {
                   await DialogDisplay.showErrorDialog(context,
                       'Es gab einen Fehler bei der Registrierung. Bitte versuchen Sie es später erneut.');

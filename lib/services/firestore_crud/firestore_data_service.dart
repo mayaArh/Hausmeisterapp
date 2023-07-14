@@ -136,9 +136,11 @@ class FirestoreDataService {
     required String? image,
   }) async {
     final staffUser = await AuthService.firebase().currentStaff;
-    DocumentReference<Map<String, dynamic>> ticketRef =
-        await house.firestoreRef.collection('Tickets').add({
-      'Vorname': staffUser!.firstName,
+    DocumentReference<Map<String, dynamic>> ticketRef = house.firestoreRef
+        .collection('Tickets')
+        .doc('${staffUser!.firestoreRef.id}at${DateTime.now()}');
+    ticketRef.set({
+      'Vorname': staffUser.firstName,
       'Nachname': staffUser.lastName,
       'erstellt am': dateTime,
       'Problembeschreibung': description,
@@ -200,6 +202,11 @@ class FirestoreDataService {
       await imageRef.delete();
     }
   }
+
+  /*Future<bool> userHasPermissionToEditTicket(Ticket ticket) async {
+    final user = AuthService.firebase().currentUser;
+    if (ticket.firestoreRef.id == user!.uid) {}
+  }*/
 
   //sets the id of the firestore document to the uid of the user
   Future<void> changeDocIdtoUID(AuthUser user) async {

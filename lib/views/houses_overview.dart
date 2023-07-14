@@ -51,24 +51,26 @@ class _HousesOverviewState extends State<HousesOverview> {
                   )
                 ],
               ),
-              body: StreamProvider<List<House>>.value(
-                  value: FirestoreDataService().streamHousesForCity(city),
-                  initialData: const [],
-                  child: ListView(
-                      children: Provider.of<List<House>>(context)
-                          .map((House house) => OutlinedButton(
-                              onPressed: () async {
-                                await Navigator.of(context).pushNamed(
-                                    ticketsOverviewRoute,
-                                    arguments: house);
-                              },
-                              style: ButtonStyle(
-                                  shape: MaterialStateProperty.all(
-                                      RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(100.0),
-                              ))),
-                              child: Text(house.shortAddress)))
-                          .toList())));
+              body: GridView.count(
+                crossAxisCount: 2, // Two tiles per row
+                childAspectRatio: MediaQuery.of(context).size.width /
+                    (MediaQuery.of(context).size.height /
+                        5), // Aspect ratio of 2:1
+                children: Provider.of<List<House>>(context)
+                    .map((House house) => OutlinedButton(
+                          onPressed: () async {
+                            await Navigator.of(context).pushNamed(
+                                ticketsOverviewRoute,
+                                arguments: house);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(0, 255, 255, 255),
+                          ),
+                          child: Text(house.shortAddress),
+                        ))
+                    .toList(),
+              ));
         });
   }
 }

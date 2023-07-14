@@ -52,7 +52,7 @@ class TicketList extends StatelessWidget {
                     );
                   },
                   child: Container(
-                      height: 70,
+                      height: 80,
                       width: double.maxFinite,
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.black87),
@@ -72,26 +72,22 @@ class TicketList extends StatelessWidget {
                                   ),
                                 ),
                                 Center(
-                                  child:
-                                      Text('erstellt am: ${ticket.dateTime}'),
+                                  child: Text('erstellt am ${ticket.dateTime}'),
                                 ),
                               ],
                             ),
                           ),
                           Align(
                               alignment: Alignment.centerRight,
-                              child: canBeEdited
-                                  ? IconButton(
-                                      onPressed: () async {
-                                        FirestoreDataService()
-                                            .deleteTicket(ticket);
-                                      },
-                                      icon: const Icon(Icons.delete_outlined))
-                                  : null),
+                              child: IconButton(
+                                  onPressed: () async {
+                                    FirestoreDataService().deleteTicket(ticket);
+                                  },
+                                  icon: const Icon(Icons.delete_outlined))),
                         ],
                       )));
             },
           )
-        : const Text('');
+        : const Text('Für dieses Haus sind keine Tickets vorhanden.');
   }
 }
