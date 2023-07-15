@@ -51,26 +51,36 @@ class _HousesOverviewState extends State<HousesOverview> {
                   )
                 ],
               ),
-              body: GridView.count(
-                crossAxisCount: 2, // Two tiles per row
-                childAspectRatio: MediaQuery.of(context).size.width /
-                    (MediaQuery.of(context).size.height /
-                        5), // Aspect ratio of 2:1
-                children: Provider.of<List<House>>(context)
-                    .map((House house) => OutlinedButton(
-                          onPressed: () async {
-                            await Navigator.of(context).pushNamed(
-                                ticketsOverviewRoute,
-                                arguments: house);
-                          },
-                          style: OutlinedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(0, 255, 255, 255),
-                          ),
-                          child: Text(house.shortAddress),
-                        ))
-                    .toList(),
-              ));
+              body: Consumer<List<House>>(builder: (context, houses, _) {
+                if (houses.isEmpty) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else {
+                  return GridView.count(
+                    crossAxisCount: 2,
+                    childAspectRatio: MediaQuery.of(context).size.width /
+                        (MediaQuery.of(context).size.height / 5),
+                    children: Provider.of<List<House>>(context)
+                        .map((House house) => OutlinedButton(
+                              onPressed: () async {
+                                await Navigator.of(context).pushNamed(
+                                    ticketsOverviewRoute,
+                                    arguments: house);
+                              },
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(0, 255, 255, 255),
+                              ),
+                              child: Text(
+                                house.shortAddress,
+                                style: const TextStyle(fontSize: 15),
+                              ),
+                            ))
+                        .toList(),
+                  );
+                }
+              }));
         });
   }
 }

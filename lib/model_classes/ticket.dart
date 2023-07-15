@@ -42,4 +42,6 @@ class Ticket {
       throw TicketDoesntHaveAllFields();
     }
   }
+
+  String get date => dateTime.substring(0, 10);
 }

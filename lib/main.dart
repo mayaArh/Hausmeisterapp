@@ -4,6 +4,7 @@ import 'package:mein_digitaler_hausmeister/views/houses_overview.dart';
 import 'package:mein_digitaler_hausmeister/views/authentication_views.dart/login_view.dart';
 import 'package:mein_digitaler_hausmeister/views/authentication_views.dart/register_view.dart';
 import 'package:mein_digitaler_hausmeister/views/cities_overview.dart';
+import 'package:mein_digitaler_hausmeister/views/ticket_views/single_ticket_view.dart';
 import 'package:mein_digitaler_hausmeister/views/ticket_views/ticket_creation_view.dart';
 import 'package:mein_digitaler_hausmeister/views/ticket_views/ticket_overview.dart';
 import 'constants/routes.dart';
@@ -26,6 +27,7 @@ void main() {
           housesOverviewRoute: (context) => const HousesOverview(),
           ticketsOverviewRoute: (context) => const TicketViewChanger(),
           ticketCreationRoute: (context) => const TicketCreationView(),
+          singleTicketRoute: (context) => const SingleTicketView(),
         }),
   );
 }

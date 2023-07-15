@@ -1,34 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 
+import '../../constants/colors.dart';
+import '../../enums/ticket_status.dart';
 import '../../model_classes/image.dart';
 import '../../model_classes/ticket.dart';
 
-/// Displays a single ticket and allows editing it if its status is open.
+// View for creating a new ticket.
 class SingleTicketView extends StatefulWidget {
-  final Ticket selectedTicket;
-  final bool canBeEdited;
-
-  const SingleTicketView(
-      {super.key, required this.selectedTicket, required this.canBeEdited});
+  const SingleTicketView({super.key});
 
   @override
   State<SingleTicketView> createState() => _SingleTicketViewState();
 }
 
 class _SingleTicketViewState extends State<SingleTicketView> {
-  late final TextEditingController _topic;
-  late final TextEditingController _description;
+  late TextEditingController _topic;
+  late TextEditingController _description;
+  late bool canBeEdited;
   String? _imageUrl;
   final FirestoreDataService _ticketService = FirestoreDataService();
 
   @override
   void initState() {
-    _topic = TextEditingController(text: widget.selectedTicket.topic);
-    _description =
-        TextEditingController(text: widget.selectedTicket.description);
-    _imageUrl = widget.selectedTicket.imageUrl;
+    _topic = TextEditingController();
+    _description = TextEditingController();
     super.initState();
   }
 
@@ -39,90 +35,129 @@ class _SingleTicketViewState extends State<SingleTicketView> {
     super.dispose();
   }
 
-  void _executeOnDialogDismissed() async {
-    if (widget.canBeEdited) {
-      Ticket changedTicket = widget.selectedTicket;
-      if (_imageUrl != widget.selectedTicket.imageUrl) {
-        changedTicket = await _ticketService.changeTicketImage(
-          changedTicket,
-          _imageUrl,
-        );
-      }
-      if (_topic.text != widget.selectedTicket.topic) {
-        changedTicket = await _ticketService.changeTicketTopic(
-          changedTicket,
-          _topic.text,
-        );
-      }
-      if (_description.text != widget.selectedTicket.description) {
-        changedTicket = await _ticketService.changeTicketDescription(
-          changedTicket,
-          _description.text,
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
+    final Map arguments = ModalRoute.of(context)!.settings.arguments as Map;
+    final Ticket selectedTicket = arguments['ticket'] as Ticket;
+    canBeEdited = arguments['canBeEdited'] as bool;
+    _topic = TextEditingController(text: selectedTicket.topic);
+    _description = TextEditingController(text: selectedTicket.description);
+    final initialImageUrl = selectedTicket.imageUrl;
+    _imageUrl = selectedTicket.imageUrl;
+    bool hasBeenChanged = false;
+    return Scaffold(
+      appBar: AppBar(
+          title: Text(
+              '${selectedTicket.date}, ${selectedTicket.firstName} ${selectedTicket.lastName}')),
+      body: SingleChildScrollView(
+          child: Column(
         children: [
-          Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-            Expanded(child: _displayTopic()),
-          ]),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(child: _displayDescription()),
-            ],
-          ),
-          _displayUserImage(widget.selectedTicket.imageUrl),
-          const SizedBox(
-            height: 8,
-          ),
-          ElevatedButton(
-              onPressed: () async {
-                if (widget.canBeEdited) {
-                  if (_imageUrl != widget.selectedTicket.imageUrl) {
-                    await _ticketService.changeTicketImage(
-                      widget.selectedTicket,
-                      _imageUrl,
-                    );
-                  }
-                  if (_topic.text != widget.selectedTicket.topic) {
-                    await _ticketService.changeTicketTopic(
-                      widget.selectedTicket,
-                      _topic.text,
-                    );
-                  }
-                  if (_description.text != widget.selectedTicket.description) {
-                    await _ticketService.changeTicketDescription(
-                      widget.selectedTicket,
-                      _description.text,
-                    );
-                  }
-                }
-                Navigator.pop(context);
+          Container(
+              padding: const EdgeInsets.all(3.5),
+              child: TextField(
+                controller: _topic,
+                keyboardType: TextInputType.text,
+                readOnly: !canBeEdited,
+                onChanged: (value) => hasBeenChanged = true,
+                textAlign: TextAlign.left,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+                decoration: const InputDecoration(border: InputBorder.none),
+              )),
+          Container(
+              height: 200,
+              padding: const EdgeInsets.all(3.5),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(4.0),
+              ),
+              child: SizedBox(
+                  child: SingleChildScrollView(
+                      child: TextField(
+                          controller: _description,
+                          keyboardType: TextInputType.multiline,
+                          maxLines: null,
+                          readOnly: !canBeEdited,
+                          onChanged: (value) => hasBeenChanged = true,
+                          decoration: _description.text == ''
+                              ? const InputDecoration(
+                                  hintText: 'Problembeschreibung',
+                                  border: InputBorder.none)
+                              : null)))),
+          Container(
+            padding: const EdgeInsets.all(0),
+            decoration: BoxDecoration(
+              border: Border.all(style: BorderStyle.none),
+              borderRadius: BorderRadius.circular(4.0),
+            ),
+            child: UserImage(
+              onFileChanged: (imageUrl) {
+                setState(() {
+                  hasBeenChanged = true;
+                  _ticketService.deleteStorageImage(_imageUrl);
+                  _imageUrl = imageUrl;
+                });
               },
-              child: const Text('Änderungen speichern')),
+              initialImageUrl: initialImageUrl,
+              canBeEdited: canBeEdited,
+            ),
+          ),
+          const SizedBox(
+            height: 25,
+          ),
+          canBeEdited
+              ? ElevatedButton(
+                  style: ButtonStyle(
+                    minimumSize: MaterialStateProperty.all(const Size(170, 43)),
+                    backgroundColor: !hasBeenChanged
+                        ? MaterialStatePropertyAll(Colors.blueGrey.shade200)
+                        : const MaterialStatePropertyAll(Colors.blueGrey),
+                  ),
+                  onPressed: () async {
+                    if (canBeEdited && hasBeenChanged) {
+                      if (_imageUrl != selectedTicket.imageUrl) {
+                        await _ticketService.changeTicketImage(
+                          selectedTicket,
+                          _imageUrl,
+                        );
+                      }
+                      if (_topic.text != selectedTicket.topic) {
+                        await _ticketService.changeTicketTopic(
+                          selectedTicket,
+                          _topic.text,
+                        );
+                      }
+                      if (_description.text != selectedTicket.description) {
+                        await _ticketService.changeTicketDescription(
+                          selectedTicket,
+                          _description.text,
+                        );
+                      }
+                    }
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Änderungen speichern'))
+              : Container(),
+          const SizedBox(
+            height: 20,
+          ),
           ElevatedButton(
               style: ButtonStyle(
-                  backgroundColor: widget.selectedTicket.status ==
-                          TicketStatus.open
-                      ? MaterialStateProperty.all(Colors.green.shade400)
-                      : MaterialStateProperty.all(Colors.deepOrange.shade400)),
+                backgroundColor: selectedTicket.status == TicketStatus.open
+                    ? const MaterialStatePropertyAll(green)
+                    : MaterialStateProperty.all(Colors.deepOrange.shade400),
+                minimumSize: MaterialStateProperty.all(const Size(170, 43)),
+              ),
               onPressed: () async {
-                if (widget.selectedTicket.status == TicketStatus.open) {
+                if (selectedTicket.status == TicketStatus.open) {
                   await _ticketService.updateTicketStatus(
-                      widget.selectedTicket, TicketStatus.done);
+                      selectedTicket, TicketStatus.done);
                 } else {
                   await _ticketService.updateTicketStatus(
-                      widget.selectedTicket, TicketStatus.open);
+                      selectedTicket, TicketStatus.open);
                 }
                 Navigator.pop(context);
               },
-              child: widget.selectedTicket.status == TicketStatus.open
+              child: selectedTicket.status == TicketStatus.open
                   ? const Text(
                       'als fertiggestellt markieren',
                       selectionColor: Colors.green,
@@ -132,26 +167,130 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                       selectionColor: Colors.deepOrange,
                     )),
           const SizedBox(
-            height: 32,
-          )
+            height: 10,
+          ),
         ],
-      ),
+      )),
     );
+  }
+}
+
+/*
+
+
+  @override
+  Widget build(BuildContext context) {
+    final Map arguments = ModalRoute.of(context)!.settings.arguments as Map;
+    final Ticket selectedTicket = arguments['ticket'] as Ticket;
+    canBeEdited = arguments['canBeEdited'] as bool;
+    _topic = TextEditingController(text: selectedTicket.topic);
+    _description = TextEditingController(text: selectedTicket.description);
+    _imageUrl = selectedTicket.imageUrl;
+    return Align(
+        alignment: AlignmentDirectional.topStart,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(flex: 1, child: _displayTopic()),
+            Expanded(flex: canBeEdited ? 2 : 7, child: _displayDescription()),
+            Expanded(
+                flex: canBeEdited ? 5 : 0,
+                child: _displayUserImage(selectedTicket.imageUrl)),
+            Align(
+              alignment: Alignment.center,
+              child: Column(children: [
+                canBeEdited
+                    ? ElevatedButton(
+                        style: ButtonStyle(
+                          minimumSize:
+                              MaterialStateProperty.all(const Size(170, 43)),
+                        ),
+                        onPressed: () async {
+                          if (canBeEdited) {
+                            if (_imageUrl != selectedTicket.imageUrl) {
+                              await _ticketService.changeTicketImage(
+                                selectedTicket,
+                                _imageUrl,
+                              );
+                            }
+                            if (_topic.text != selectedTicket.topic) {
+                              await _ticketService.changeTicketTopic(
+                                selectedTicket,
+                                _topic.text,
+                              );
+                            }
+                            if (_description.text !=
+                                selectedTicket.description) {
+                              await _ticketService.changeTicketDescription(
+                                selectedTicket,
+                                _description.text,
+                              );
+                            }
+                          }
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Änderungen speichern'))
+                    : Container(),
+                const SizedBox(
+                  height: 10,
+                ),
+                ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor:
+                          selectedTicket.status == TicketStatus.open
+                              ? const MaterialStatePropertyAll(green)
+                              : MaterialStateProperty.all(
+                                  Colors.deepOrange.shade400),
+                      minimumSize:
+                          MaterialStateProperty.all(const Size(170, 43)),
+                    ),
+                    onPressed: () async {
+                      if (selectedTicket.status == TicketStatus.open) {
+                        await _ticketService.updateTicketStatus(
+                            selectedTicket, TicketStatus.done);
+                      } else {
+                        await _ticketService.updateTicketStatus(
+                            selectedTicket, TicketStatus.open);
+                      }
+                      Navigator.pop(context);
+                    },
+                    child: selectedTicket.status == TicketStatus.open
+                        ? const Text(
+                            'als fertiggestellt markieren',
+                            selectionColor: Colors.green,
+                          )
+                        : const Text(
+                            'Als offen markieren',
+                            selectionColor: Colors.deepOrange,
+                          )),
+              ]),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${selectedTicket.dateTime},',
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${selectedTicket.firstName} ${selectedTicket.lastName}',
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 16,
+            ),
+          ],
+        ));
   }
 
   /// Display the topic of the ticket in a text field
   /// that can be edited if the ticket status is open.
   Widget _displayTopic() {
-    return Container(
-        padding: const EdgeInsets.all(3.5),
-        child: TextField(
-          controller: _topic,
-          keyboardType: TextInputType.text,
-          readOnly: !widget.canBeEdited,
-          textAlign: TextAlign.left,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-          decoration: const InputDecoration(border: InputBorder.none),
-        ));
+    
   }
 
   /// Display the description of the ticket in a text field
@@ -171,7 +310,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                     controller: _description,
                     keyboardType: TextInputType.multiline,
                     maxLines: null,
-                    readOnly: !widget.canBeEdited,
+                    readOnly: !canBeEdited,
                     decoration: _description.text == ''
                         ? const InputDecoration(
                             hintText: 'Problembeschreibung',
@@ -181,15 +320,19 @@ class _SingleTicketViewState extends State<SingleTicketView> {
 
   /// Display the image of the ticket as a [UserImage] widget.
   Widget _displayUserImage(String? imgUrl) {
-    return UserImage(
-      onFileChanged: (imageUrl) {
-        setState(() {
-          _ticketService.deleteStorageImage(_imageUrl);
-          _imageUrl = imageUrl;
-        });
-      },
-      initialImageUrl: imgUrl,
-      canBeEdited: widget.canBeEdited,
-    );
+    return SizedBox(
+        height: 200,
+        child: ListView(reverse: true, children: [
+          UserImage(
+            onFileChanged: (imageUrl) {
+              setState(() {
+                _ticketService.deleteStorageImage(_imageUrl);
+                _imageUrl = imageUrl;
+              });
+            },
+            initialImageUrl: imgUrl,
+            canBeEdited: canBeEdited,
+          )
+        ]));
   }
-}
+}*/

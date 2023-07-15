@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mein_digitaler_hausmeister/constants/colors.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 import 'package:mein_digitaler_hausmeister/utilities/show_dialog.dart';
 
@@ -93,10 +94,10 @@ class _TicketCreationViewState extends State<TicketCreationView> {
           ),
           OutlinedButton(
               style: const ButtonStyle(
+                  minimumSize: MaterialStatePropertyAll(Size(170, 43)),
                   elevation: MaterialStatePropertyAll(1.0),
                   foregroundColor: MaterialStatePropertyAll(Colors.black54),
-                  backgroundColor: MaterialStatePropertyAll(
-                      Color.fromARGB(255, 126, 216, 130))),
+                  backgroundColor: MaterialStatePropertyAll(green)),
               onPressed: () async {
                 final topic = _topic.text;
                 final description = _description.text;
