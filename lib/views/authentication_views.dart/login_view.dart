@@ -58,6 +58,9 @@ class _LoginViewState extends State<LoginView> {
               hintText: 'Passwort',
             ),
           ),
+          const SizedBox(
+            height: 15,
+          ),
           TextButton(
             onPressed: () async {
               final email = _email.text;
@@ -94,7 +97,10 @@ class _LoginViewState extends State<LoginView> {
                     'Bei der Anmeldung ist ein unbekannter Fehler aufgetreten. Bitte versuchen Sie es später erneut.');
               }
             },
-            child: const Text('Anmelden.'),
+            child: const Text(
+              'Anmelden.',
+              style: TextStyle(fontSize: 14),
+            ),
           ),
           TextButton(
               onPressed: () {
@@ -102,7 +108,9 @@ class _LoginViewState extends State<LoginView> {
                     .pushNamedAndRemoveUntil(registerRoute, (route) => false);
               },
               child: const Text(
-                  "Noch nicht registriert? Hier geht's zur Registrierung!"))
+                "Noch nicht registriert? Hier geht's zur Registrierung!",
+                style: TextStyle(fontSize: 14),
+              ))
         ],
       ),
     );

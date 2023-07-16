@@ -55,7 +55,7 @@ class HomePage extends StatelessWidget {
                 return const RegisterView();
               }
             default:
-              return const CircularProgressIndicator();
+              return const Center(child: CircularProgressIndicator());
           }
         });
   }

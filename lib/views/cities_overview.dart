@@ -29,54 +29,67 @@ class _CitiesOverviewState extends State<CitiesOverview> {
       initialData: const [],
       builder: (context, child) {
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('Städte'),
-            actions: [
-              PopupMenuButton<MenuEntry>(
-                onSelected: (value) async {
-                  switch (value) {
-                    case MenuEntry.logout:
-                      final shouldLogout =
-                          await DialogDisplay.showLogoutDialog(context);
-                      if (shouldLogout) {
-                        await FirebaseAuthProvider().logOut();
-                        Navigator.of(context)
-                            .pushNamedAndRemoveUntil(loginRoute, (_) => false);
-                      }
-                  }
-                },
-                itemBuilder: (context) {
-                  return const [
-                    PopupMenuItem<MenuEntry>(
-                        value: MenuEntry.logout, child: Text('Abmelden'))
-                  ];
-                },
-              )
-            ],
-          ),
-          body: GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            childAspectRatio: MediaQuery.of(context).size.width /
-                (MediaQuery.of(context).size.height / 5),
-            children: Provider.of<List<String>>(context)
-                .map((String city) => OutlinedButton(
-                      onPressed: () {
-                        Navigator.of(context)
-                            .pushNamed(housesOverviewRoute, arguments: city);
-                      },
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(0, 255, 255, 255),
-                      ),
-                      child: Text(
-                        city,
-                        style: const TextStyle(fontSize: 15),
-                      ),
-                    ))
-                .toList(),
-          ),
-        );
+            appBar: AppBar(
+              title: const Text('Städte'),
+              actions: [
+                PopupMenuButton<MenuEntry>(
+                  onSelected: (value) async {
+                    switch (value) {
+                      case MenuEntry.logout:
+                        final shouldLogout =
+                            await DialogDisplay.showLogoutDialog(context);
+                        if (shouldLogout) {
+                          await FirebaseAuthProvider().logOut();
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                              loginRoute, (_) => false);
+                        }
+                    }
+                  },
+                  itemBuilder: (context) {
+                    return const [
+                      PopupMenuItem<MenuEntry>(
+                          value: MenuEntry.logout, child: Text('Abmelden'))
+                    ];
+                  },
+                )
+              ],
+            ),
+            body: Consumer<List<String>>(builder: (context, cities, _) {
+              if (cities.isEmpty) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else {
+                return GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  childAspectRatio:
+                      MediaQuery.of(context).orientation == Orientation.portrait
+                          ? MediaQuery.of(context).size.width /
+                              (MediaQuery.of(context).size.height / 5)
+                          : MediaQuery.of(context).size.width /
+                              (MediaQuery.of(context).size.height / 3),
+                  children: Provider.of<List<String>>(context)
+                      .map((String city) => OutlinedButton(
+                            onPressed: () {
+                              Navigator.of(context).pushNamed(
+                                  housesOverviewRoute,
+                                  arguments: city);
+                            },
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(0, 255, 255, 255),
+                            ),
+                            child: Text(
+                              city,
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                          ))
+                      .toList(),
+                );
+              }
+            }));
       },
     );
   }

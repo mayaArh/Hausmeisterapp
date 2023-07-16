@@ -20,6 +20,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
   final FirestoreDataService _ticketService = FirestoreDataService();
   late final TextEditingController _topic;
   late final TextEditingController _description;
+  bool saveChanges = false;
   String? _imageUrl;
 
   @override
@@ -33,6 +34,9 @@ class _TicketCreationViewState extends State<TicketCreationView> {
   void dispose() {
     _topic.dispose();
     _description.dispose();
+    if (!saveChanges) {
+      _ticketService.deleteStorageImage(_imageUrl);
+    }
     super.dispose();
   }
 
@@ -44,44 +48,16 @@ class _TicketCreationViewState extends State<TicketCreationView> {
       body: SingleChildScrollView(
           child: Column(
         children: [
+          _displayTopic(),
           Container(
             padding: const EdgeInsets.all(3.5),
-            child: TextField(
-                controller: _topic,
-                keyboardType: TextInputType.text,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-                decoration: const InputDecoration(
-                    hintText: 'Thema', border: InputBorder.none)),
-          ),
-          Container(
-            height: 200,
-            padding: const EdgeInsets.all(3.5),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(4.0),
-            ),
-            child: SizedBox(
-                child: SingleChildScrollView(
-              child: TextField(
-                  controller: _description,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  decoration: const InputDecoration(
-                      hintText: 'Problembeschreibung',
-                      border: InputBorder.none)),
-            )),
-          ),
-          Container(
-            padding: const EdgeInsets.all(0),
-            decoration: BoxDecoration(
-              border: Border.all(style: BorderStyle.none),
               borderRadius: BorderRadius.circular(4.0),
             ),
             child: UserImage(
               onFileChanged: (imageUrl) {
                 setState(() {
                   _ticketService.deleteStorageImage(_imageUrl);
-
                   _imageUrl = imageUrl;
                 });
               },
@@ -89,6 +65,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
               canBeEdited: true,
             ),
           ),
+          _displayDescription(),
           const SizedBox(
             height: 25,
           ),
@@ -99,6 +76,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                   foregroundColor: MaterialStatePropertyAll(Colors.black54),
                   backgroundColor: MaterialStatePropertyAll(green)),
               onPressed: () async {
+                saveChanges = true;
                 final topic = _topic.text;
                 final description = _description.text;
                 final dateTime =
@@ -120,6 +98,49 @@ class _TicketCreationViewState extends State<TicketCreationView> {
               child: const Text('Ticket abschicken'))
         ],
       )),
+    );
+  }
+
+  Widget _displayTopic() {
+    return Container(
+      padding: const EdgeInsets.all(3.5),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+      ),
+      child: TextField(
+        controller: _topic,
+        keyboardType: TextInputType.text,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+        decoration:
+            const InputDecoration(hintText: 'Thema', border: InputBorder.none),
+      ),
+    );
+  }
+
+  Widget _displayDescription() {
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+      ),
+      child: SizedBox(
+        child: SingleChildScrollView(
+          child: TextField(
+            controller: _description,
+            keyboardType: TextInputType.text,
+            maxLines: null,
+            textAlign: TextAlign.center,
+            decoration: _description.text == ''
+                ? const InputDecoration(
+                    hintText: 'Problembeschreibung...',
+                    border: InputBorder.none,
+                  )
+                : null,
+          ),
+        ),
+      ),
     );
   }
 }

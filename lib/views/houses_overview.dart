@@ -59,8 +59,12 @@ class _HousesOverviewState extends State<HousesOverview> {
                 } else {
                   return GridView.count(
                     crossAxisCount: 2,
-                    childAspectRatio: MediaQuery.of(context).size.width /
-                        (MediaQuery.of(context).size.height / 5),
+                    childAspectRatio: MediaQuery.of(context).orientation ==
+                            Orientation.portrait
+                        ? MediaQuery.of(context).size.width /
+                            (MediaQuery.of(context).size.height / 5)
+                        : MediaQuery.of(context).size.width /
+                            (MediaQuery.of(context).size.height / 3),
                     children: Provider.of<List<House>>(context)
                         .map((House house) => OutlinedButton(
                               onPressed: () async {

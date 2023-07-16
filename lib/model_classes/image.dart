@@ -52,28 +52,28 @@ class _UserImageState extends State<UserImage> {
   @override
   Widget build(BuildContext context) {
     return widget.canBeEdited ||
-            (widget.canBeEdited && widget.initialImageUrl != null)
+            (!widget.canBeEdited && widget.initialImageUrl != null)
         ? Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Align(
                 alignment: Alignment.center,
-                child: Container(
-                  width: 364,
-                  height: 280,
-                  padding: const EdgeInsets.all(8),
-                  child: GestureDetector(
-                    onTap: () {
-                      if (widget.canBeEdited) {
-                        _selectImage();
-                      }
-                    },
+                child: GestureDetector(
+                  onTap: () {
+                    if (widget.canBeEdited) {
+                      _selectImage();
+                    }
+                  },
+                  child: Container(
+                    width: 405,
+                    height: 270,
+                    padding: const EdgeInsets.all(8),
                     child: Stack(
                       children: [
                         _showImageContainer(imageUrl, context),
                         Positioned(
-                          width: 70,
-                          height: 70,
+                          width: 50,
+                          height: 50,
                           top: 0,
                           right: 0,
                           child: GestureDetector(
@@ -81,16 +81,20 @@ class _UserImageState extends State<UserImage> {
                               setState(() {
                                 imageUrl = null;
                               });
-                              widget.onFileChanged(
-                                  null); // Notify parent widget about the image deletion
+                              widget.onFileChanged(null);
                               _showImageContainer(imageUrl, context);
                             },
                             child: imageUrl != null
-                                ? const Icon(
-                                    Icons.delete_outline_outlined,
-                                    size: 25,
-                                    color: Colors.blueGrey,
-                                  )
+                                ? Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white70,
+                                      borderRadius: BorderRadius.circular(3.0),
+                                    ),
+                                    padding: const EdgeInsets.all(3.0),
+                                    child: const Icon(
+                                      Icons.delete_outline_outlined,
+                                      size: 26,
+                                    ))
                                 : null,
                           ),
                         ),
@@ -142,7 +146,7 @@ class _UserImageState extends State<UserImage> {
     }
     final croppedFile = await _imageCropper.cropImage(
       sourcePath: pickedFile.path,
-      aspectRatio: const CropAspectRatio(ratioX: 1.3, ratioY: 1),
+      aspectRatio: const CropAspectRatio(ratioX: 1.5, ratioY: 1),
     );
     if (croppedFile == null) {
       return;
@@ -173,25 +177,49 @@ class _UserImageState extends State<UserImage> {
     widget.onFileChanged(fileUrl);
   }
 
-  Container _showImageContainer(String? imageUrl, BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: imageUrl == null
-            ? Align(
-                alignment: Alignment.center,
-                child: Icon(
-                  Icons.add_a_photo_outlined,
-                  size: 50,
-                  color: Theme.of(context).primaryColor,
-                ),
-              )
-            : Image(
-                width: 364,
-                height: 280,
-                image: NetworkImage(imageUrl),
+  GestureDetector _showImageContainer(String? imageUrl, BuildContext context) {
+    return GestureDetector(
+      onTap: () => _selectImage(),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          ClipRRect(
+            child: imageUrl != null
+                ? Image.network(
+                    imageUrl,
+                    width: 405,
+                    height: 270,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child;
+                      } else {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!,
+                          ),
+                        );
+                      }
+                    },
+                  )
+                : Center(
+                    child: Icon(
+                      Icons.add_a_photo_outlined,
+                      size: 50,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+          ),
+          if (widget.canBeEdited)
+            Positioned(
+              width: 200,
+              height: 200,
+              child: GestureDetector(
+                onTap: () => _selectImage(),
+                behavior: HitTestBehavior.translucent,
               ),
+            ),
+        ],
       ),
     );
   }

@@ -47,7 +47,6 @@ class _TicketListState extends State<TicketList> {
     if (widget.tickets.isNotEmpty) {
       return ListView.builder(
         itemCount: widget.tickets.length,
-        itemExtent: MediaQuery.of(context).size.height / 10,
         itemBuilder: (context, index) {
           final ticket = widget.tickets[index];
           return GestureDetector(

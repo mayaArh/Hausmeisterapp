@@ -176,12 +176,8 @@ class FirestoreDataService {
     return ticket;
   }
 
-  /// deletes the image stored for the ticket
-  /// and adds a potentially new image to the ticket
+  /// changed the image of the given ticket to the new image
   Future<Ticket> changeTicketImage(Ticket ticket, String? newImageUrl) async {
-    if (ticket.imageUrl != null) {
-      deleteStorageImage(ticket.imageUrl!);
-    }
     ticket.imageUrl = newImageUrl;
     await ticket.firestoreRef.update({'Bild': newImageUrl});
     return ticket;
