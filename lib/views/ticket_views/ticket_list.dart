@@ -21,23 +21,19 @@ class TicketList extends StatefulWidget {
 }
 
 class _TicketListState extends State<TicketList> {
-  Timer _timer = Timer(const Duration(seconds: 3), () {});
-  bool? _showProgressIndicator;
+  Timer _timer = Timer(const Duration(seconds: 1), () {});
+  bool? _showNoTicketsText;
 
   @override
   void initState() {
     super.initState();
-    if (widget.canBeEdited) {
-      _timer = Timer(const Duration(seconds: 3), () {
-        if (widget.tickets.isEmpty) {
-          setState(() {
-            _showProgressIndicator = true;
-          });
-        }
-      });
-    } else {
-      _showProgressIndicator = false;
-    }
+    _timer = Timer(const Duration(milliseconds: 500), () {
+      if (widget.tickets.isEmpty) {
+        setState(() {
+          _showNoTicketsText = true;
+        });
+      }
+    });
   }
 
   @override
@@ -111,9 +107,7 @@ class _TicketListState extends State<TicketList> {
         },
       );
     } else {
-      if (_showProgressIndicator != null && _showProgressIndicator!) {
-        return const Center(child: CircularProgressIndicator());
-      } else if (_showProgressIndicator != null && !_showProgressIndicator!) {
+      if (_showNoTicketsText != null) {
         return const Center(child: Text('Noch keine Tickets vorhanden.'));
       } else {
         return Container();
