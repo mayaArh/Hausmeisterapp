@@ -58,6 +58,9 @@ class RegisterViewState extends State<RegisterView> {
                 hintText: 'App-Passwort festlegen',
               ),
             ),
+            const SizedBox(
+              height: 15,
+            ),
             TextButton(
               onPressed: () async {
                 final email = _email.text;
@@ -90,7 +93,7 @@ class RegisterViewState extends State<RegisterView> {
                       'Es gab einen Fehler bei der Registrierung. Bitte versuchen Sie es später erneut.');
                 }
               },
-              child: const Text('Registrierung'),
+              child: const Text('Registrieren', style: TextStyle(fontSize: 14)),
             ),
             TextButton(
                 onPressed: () {
@@ -98,7 +101,8 @@ class RegisterViewState extends State<RegisterView> {
                       .pushNamedAndRemoveUntil(loginRoute, (route) => false);
                 },
                 child: const Text(
-                    "Bereits registriert? Hier geht's zur Anmeldung!"))
+                    "Bereits registriert? Hier geht's zur Anmeldung!",
+                    style: TextStyle(fontSize: 14)))
           ],
         ));
   }

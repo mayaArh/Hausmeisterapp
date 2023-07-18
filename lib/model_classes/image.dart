@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mein_digitaler_hausmeister/constants/layout_sizes.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -65,41 +66,24 @@ class _UserImageState extends State<UserImage> {
                     }
                   },
                   child: Container(
-                    width: 405,
-                    height: 270,
+                    width: imageWidth,
+                    height: imageHeight,
                     padding: const EdgeInsets.all(8),
-                    child: Stack(
-                      children: [
-                        _showImageContainer(imageUrl, context),
-                        Positioned(
-                          width: 50,
-                          height: 50,
-                          top: 0,
-                          right: 0,
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                imageUrl = null;
-                              });
-                              widget.onFileChanged(null);
-                              _showImageContainer(imageUrl, context);
-                            },
-                            child: imageUrl != null
-                                ? Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white70,
-                                      borderRadius: BorderRadius.circular(3.0),
-                                    ),
-                                    padding: const EdgeInsets.all(3.0),
-                                    child: const Icon(
-                                      Icons.delete_outline_outlined,
-                                      size: 26,
-                                    ))
-                                : null,
-                          ),
-                        ),
-                      ],
-                    ),
+                    child: widget.canBeEdited || imageUrl != null
+                        ? Stack(
+                            children: [
+                              _showImageContainer(imageUrl, context),
+                              widget.canBeEdited
+                                  ? Positioned(
+                                      width: 50,
+                                      height: 50,
+                                      top: 0,
+                                      right: 0,
+                                      child: _showDeleteButton())
+                                  : Container()
+                            ],
+                          )
+                        : Container(),
                   ),
                 ),
               ),
@@ -179,7 +163,7 @@ class _UserImageState extends State<UserImage> {
 
   GestureDetector _showImageContainer(String? imageUrl, BuildContext context) {
     return GestureDetector(
-      onTap: () => _selectImage(),
+      onTap: () => widget.canBeEdited ? _selectImage() : null,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -187,8 +171,8 @@ class _UserImageState extends State<UserImage> {
             child: imageUrl != null
                 ? Image.network(
                     imageUrl,
-                    width: 405,
-                    height: 270,
+                    width: imageWidth,
+                    height: imageHeight,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) {
                         return child;
@@ -221,6 +205,30 @@ class _UserImageState extends State<UserImage> {
             ),
         ],
       ),
+    );
+  }
+
+  GestureDetector _showDeleteButton() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          imageUrl = null;
+        });
+        widget.onFileChanged(null);
+        _showImageContainer(imageUrl, context);
+      },
+      child: imageUrl != null
+          ? Container(
+              decoration: BoxDecoration(
+                color: Colors.white70,
+                borderRadius: BorderRadius.circular(3.0),
+              ),
+              padding: const EdgeInsets.all(3.0),
+              child: const Icon(
+                Icons.delete_outline_outlined,
+                size: 26,
+              ))
+          : null,
     );
   }
 }

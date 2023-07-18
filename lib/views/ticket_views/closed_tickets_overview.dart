@@ -3,8 +3,8 @@ import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_dat
 import 'package:mein_digitaler_hausmeister/views/ticket_views/ticket_list.dart';
 import 'package:provider/provider.dart';
 
-import '../../model_classes/house.dart';
 import '../../model_classes/ticket.dart';
+import '../../services/providers/selected_house_provider.dart';
 
 /// Displays all closed tickets for a house.
 class ClosedTicketsOverview extends StatefulWidget {
@@ -17,10 +17,11 @@ class ClosedTicketsOverview extends StatefulWidget {
 class _ClosedTicketsOverviewState extends State<ClosedTicketsOverview> {
   @override
   Widget build(BuildContext context) {
-    final House house = ModalRoute.of(context)!.settings.arguments as House;
+    final houseProvider = Provider.of<SelectedHouseProvider>(context);
+    final selectedHouse = houseProvider.selectedHouse!;
     return StreamProvider<List<Ticket>>(
         create: (_) => FirestoreDataService()
-            .streamTicketsForHouse(house, filterOpenTickets: false),
+            .streamTicketsForHouse(selectedHouse, filterOpenTickets: false),
         initialData: const [],
         builder: (context, child) {
           return TicketList(

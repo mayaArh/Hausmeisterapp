@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/views/ticket_views/closed_tickets_overview.dart';
+import 'package:provider/provider.dart';
 
-import '../../model_classes/house.dart';
 import '../../model_classes/ticket.dart';
+import '../../services/providers/selected_house_provider.dart';
 import 'open_tickets_overview.dart';
 
 //Controls the view of the tickets for a house and allows the user
@@ -22,17 +23,17 @@ class TicketViewChangerState extends State<TicketViewChanger> {
 
   @override
   Widget build(BuildContext context) {
-    final House house = ModalRoute.of(context)!.settings.arguments as House;
+    final houseProvider = Provider.of<SelectedHouseProvider>(context);
+    final selectedHouse = houseProvider.selectedHouse!;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text(house.shortAddress),
+        title: Text(selectedHouse.shortAddress),
         actions: [
           _currentIndex == 0
               ? IconButton(
                   onPressed: () async {
-                    await Navigator.of(context)
-                        .pushNamed(ticketCreationRoute, arguments: house);
+                    await Navigator.of(context).pushNamed(ticketCreationRoute);
                     setState(() {});
                   },
                   icon: const Icon(Icons.add),
@@ -53,23 +54,26 @@ class TicketViewChangerState extends State<TicketViewChanger> {
           ]),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(
               Icons.check_box_outline_blank_sharp,
-              color: Colors.deepOrange,
+              color: Colors.deepOrange.shade400,
             ),
             label: 'Offen',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.check_box_outlined, color: Colors.green),
             label: 'Fertiggestellt',
           )
         ],
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.grey[200],
-        selectedItemColor: Colors.black,
+        selectedItemColor: Colors.black87,
         unselectedItemColor: Colors.grey,
+        selectedFontSize: 15,
+        unselectedFontSize: 14,
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
         onTap: (index) {
           setState(() {
             _pageController.animateToPage(index,

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
+import 'package:provider/provider.dart';
 
+import '../../enums/ticket_status.dart';
 import '../../model_classes/ticket.dart';
 import 'dart:async';
+
+import '../../services/providers/selected_ticket_provider.dart';
 
 /// Displays a list of tickets and the possibility to delete them.
 class TicketList extends StatefulWidget {
@@ -23,6 +27,7 @@ class TicketList extends StatefulWidget {
 class _TicketListState extends State<TicketList> {
   Timer _timer = Timer(const Duration(seconds: 1), () {});
   bool? _showNoTicketsText;
+  final FirestoreDataService _ticketService = FirestoreDataService();
 
   @override
   void initState() {
@@ -46,63 +51,112 @@ class _TicketListState extends State<TicketList> {
   Widget build(BuildContext context) {
     if (widget.tickets.isNotEmpty) {
       return ListView.builder(
-        itemCount: widget.tickets.length,
+        itemCount: widget.tickets.length + 1,
         itemBuilder: (context, index) {
-          final ticket = widget.tickets[index];
-          return GestureDetector(
-            onTap: () {
-              Navigator.of(context).pushNamed(singleTicketRoute, arguments: {
-                'ticket': ticket,
-                'canBeEdited': widget.canBeEdited
-              });
-            },
-            child: Container(
-              height: 80,
-              width: double.maxFinite,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black87),
-              ),
-              padding: const EdgeInsets.all(18),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Center(
-                          child: Text(
-                            ticket.topic,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
+          if (index == widget.tickets.length) {
+            return Container(
+                height: 80,
+                width: double.maxFinite,
+                decoration: const BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: Colors.black87, width: 1.3),
+                  ),
+                ));
+          } else {
+            final ticket = widget.tickets[index];
+            bool isChecked = !widget.canBeEdited;
+            return GestureDetector(
+              onTap: () {
+                final ticketProvider =
+                    Provider.of<SelectedTicketProvider>(context, listen: false);
+                ticketProvider.selectedTicket = ticket;
+                Navigator.of(context).pushNamed(singleTicketRoute,
+                    arguments: widget.canBeEdited);
+              },
+              child: Container(
+                height: 80,
+                width: double.maxFinite,
+                decoration: BoxDecoration(
+                    border: Border(
+                        top:
+                            const BorderSide(color: Colors.black87, width: 1.3),
+                        right: _ticketService.nrOfOpenTickets >
+                                    _ticketService.nrOfClosedTickets &&
+                                widget.canBeEdited
+                            ? const BorderSide(
+                                color: Colors.black87, width: 1.3)
+                            : BorderSide.none,
+                        left: _ticketService.nrOfClosedTickets >
+                                    _ticketService.nrOfOpenTickets &&
+                                !widget.canBeEdited
+                            ? const BorderSide(
+                                color: Colors.black87, width: 1.3)
+                            : BorderSide.none)),
+                padding: const EdgeInsets.all(18),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Text(
+                              ticket.topic,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Center(
-                          child: Text('erstellt am ${ticket.date}'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      onPressed: () async {
-                        FirestoreDataService().deleteTicket(ticket);
-                      },
-                      icon: const Icon(
-                        Icons.delete_outlined,
-                        size: 25,
+                          const SizedBox(height: 6),
+                          Center(
+                            child: Text('erstellt am ${ticket.date}'),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: widget.canBeEdited
+                          ? Checkbox(
+                              value: isChecked,
+                              onChanged: (bool? value) async {
+                                setState(() {
+                                  isChecked = value ?? false;
+                                });
+                                if (isChecked) {
+                                  await _ticketService.updateTicketStatus(
+                                    ticket,
+                                    TicketStatus.done,
+                                  );
+                                }
+                              })
+                          : Checkbox(
+                              value: isChecked,
+                              onChanged: (bool? value) async {
+                                setState(() {
+                                  isChecked = value ?? !widget.canBeEdited;
+                                });
+                                if (isChecked) {
+                                  await _ticketService.updateTicketStatus(
+                                    ticket,
+                                    TicketStatus.done,
+                                  );
+                                } else {
+                                  await _ticketService.updateTicketStatus(
+                                    ticket,
+                                    TicketStatus.open,
+                                  );
+                                }
+                              }),
+                    )
+                  ],
+                ),
               ),
-            ),
-          );
+            );
+          }
         },
       );
     } else {

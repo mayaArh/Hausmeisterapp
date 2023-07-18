@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mein_digitaler_hausmeister/constants/colors.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 import 'package:provider/provider.dart'; // Import this for the GridView
 
 import '../constants/routes.dart';
 import '../enums/menu_entries.dart';
+import '../services/providers/selected_city_provider.dart';
 import '../utilities/show_dialog.dart';
 
 /// This class is responsible for displaying all the cities
@@ -73,17 +75,22 @@ class _CitiesOverviewState extends State<CitiesOverview> {
                   children: Provider.of<List<String>>(context)
                       .map((String city) => OutlinedButton(
                             onPressed: () {
-                              Navigator.of(context).pushNamed(
-                                  housesOverviewRoute,
-                                  arguments: city);
+                              final cityProvider =
+                                  Provider.of<SelectedCityProvider>(context,
+                                      listen: false);
+                              cityProvider.selectedCity = city;
+                              Navigator.of(context)
+                                  .pushNamed(housesOverviewRoute);
                             },
                             style: OutlinedButton.styleFrom(
-                              backgroundColor:
-                                  const Color.fromARGB(0, 255, 255, 255),
+                              backgroundColor: darkBorderColor,
                             ),
                             child: Text(
                               city,
-                              style: const TextStyle(fontSize: 15),
+                              style: TextStyle(
+                                  fontSize: 15.5,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.blueGrey.shade600),
                             ),
                           ))
                       .toList(),

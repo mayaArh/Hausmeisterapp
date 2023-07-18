@@ -20,6 +20,10 @@ class FirestoreDataService {
   static final FirestoreDataService _shared =
       FirestoreDataService._sharedInstance();
   factory FirestoreDataService() => _shared;
+  int _nrOfOpenTickets = 0;
+  int _nrOfClosedTickets = 0;
+  int get nrOfOpenTickets => _nrOfOpenTickets;
+  int get nrOfClosedTickets => _nrOfClosedTickets;
 
   final db = FirebaseFirestore.instance;
   final storage = FirebaseStorage.instance;
@@ -87,6 +91,7 @@ class FirestoreDataService {
   //with status done are returned
   Stream<List<Ticket>> streamTicketsForHouse(House house,
       {required bool filterOpenTickets}) {
+    filterOpenTickets ? _nrOfOpenTickets = 0 : _nrOfClosedTickets = 0;
     return house.firestoreRef.collection('Tickets').snapshots().map((data) {
       List<Ticket> ticketList = [];
       for (QueryDocumentSnapshot<Map<String, dynamic>> ticketDoc in data.docs) {
@@ -94,9 +99,11 @@ class FirestoreDataService {
         if (filterOpenTickets &&
             ticketData['Status'] == TicketStatus.open.name) {
           final ticket = Ticket.fromFirestore(ticketDoc);
+          _nrOfOpenTickets++;
           ticketList.add(ticket);
         } else if (filterOpenTickets == false &&
             ticketDoc.data()['Status'] == TicketStatus.done.name) {
+          _nrOfClosedTickets++;
           final ticket = Ticket.fromFirestore(ticketDoc);
           ticketList.add(ticket);
         }

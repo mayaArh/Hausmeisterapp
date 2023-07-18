@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:mein_digitaler_hausmeister/constants/colors.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
+import 'package:mein_digitaler_hausmeister/services/providers/selected_city_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../enums/menu_entries.dart';
 import '../model_classes/house.dart';
 import '../services/auth/firebase_auth_provider.dart';
+import '../services/providers/selected_house_provider.dart';
 import '../utilities/show_dialog.dart';
 
 /// Displays all houses for a city the user has access to.
@@ -19,15 +22,16 @@ class HousesOverview extends StatefulWidget {
 class _HousesOverviewState extends State<HousesOverview> {
   @override
   Widget build(BuildContext context) {
-    final String city = ModalRoute.of(context)!.settings.arguments as String;
+    final cityProvider = Provider.of<SelectedCityProvider>(context);
+    final selectedCity = cityProvider.selectedCity!;
 
     return StreamProvider<List<House>>(
-        create: (_) => FirestoreDataService().streamHousesForCity(city),
+        create: (_) => FirestoreDataService().streamHousesForCity(selectedCity),
         initialData: const [],
         builder: (context, child) {
           return Scaffold(
               appBar: AppBar(
-                title: Text(city),
+                title: Text(selectedCity),
                 actions: [
                   PopupMenuButton<MenuEntry>(
                     onSelected: (value) async {
@@ -68,17 +72,22 @@ class _HousesOverviewState extends State<HousesOverview> {
                     children: Provider.of<List<House>>(context)
                         .map((House house) => OutlinedButton(
                               onPressed: () async {
+                                final houseProvider =
+                                    Provider.of<SelectedHouseProvider>(context,
+                                        listen: false);
+                                houseProvider.selectedHouse = house;
                                 await Navigator.of(context).pushNamed(
-                                    ticketsOverviewRoute,
-                                    arguments: house);
+                                  ticketsOverviewRoute,
+                                );
                               },
                               style: OutlinedButton.styleFrom(
-                                backgroundColor:
-                                    const Color.fromARGB(0, 255, 255, 255),
+                                backgroundColor: darkBorderColor,
                               ),
                               child: Text(
                                 house.shortAddress,
-                                style: const TextStyle(fontSize: 15),
+                                style: TextStyle(
+                                    fontSize: 15.5,
+                                    color: Colors.blueGrey.shade700),
                               ),
                             ))
                         .toList(),

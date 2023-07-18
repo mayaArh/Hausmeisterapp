@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/colors.dart';
+import 'package:mein_digitaler_hausmeister/constants/layout_sizes.dart';
+import 'package:mein_digitaler_hausmeister/model_classes/house.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
+import 'package:provider/provider.dart';
 
-import '../../enums/ticket_status.dart';
 import '../../model_classes/image.dart';
 import '../../model_classes/ticket.dart';
+import '../../services/providers/selected_house_provider.dart';
+import '../../services/providers/selected_ticket_provider.dart';
 
 // View for creating a new ticket.
 class SingleTicketView extends StatefulWidget {
@@ -18,6 +22,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
   late TextEditingController _topic;
   late TextEditingController _description;
   late Ticket selectedTicket;
+  late House selectedHouse;
   late bool canBeEdited;
   bool hasBeenChanged = false;
   bool isInitialized = false;
@@ -53,9 +58,11 @@ class _SingleTicketViewState extends State<SingleTicketView> {
   @override
   Widget build(BuildContext context) {
     if (!isInitialized) {
-      final Map arguments = ModalRoute.of(context)!.settings.arguments as Map;
-      selectedTicket = arguments['ticket'] as Ticket;
-      canBeEdited = arguments['canBeEdited'] as bool;
+      final ticketProvider = Provider.of<SelectedTicketProvider>(context);
+      selectedTicket = ticketProvider.selectedTicket!;
+      final houseProvider = Provider.of<SelectedHouseProvider>(context);
+      selectedHouse = houseProvider.selectedHouse!;
+      canBeEdited = ModalRoute.of(context)!.settings.arguments as bool;
       _imageUrl = selectedTicket.imageUrl;
       _topic.text = selectedTicket.topic;
       _description.text = selectedTicket.description;
@@ -64,17 +71,18 @@ class _SingleTicketViewState extends State<SingleTicketView> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text(
-              '${selectedTicket.date}, ${selectedTicket.firstName} ${selectedTicket.lastName}'),
+          title: Text('${selectedTicket.dateTime} Uhr'),
         ),
         body: SingleChildScrollView(
           child: Column(children: [
             _displayTopic(),
             _displayUserImage(_imageUrl, canBeEdited),
             _displayDescription(canBeEdited),
-            const SizedBox(height: 25),
+            const SizedBox(height: 35),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: canBeEdited
+                  ? MainAxisAlignment.spaceEvenly
+                  : MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 _displaySaveButton(),
@@ -82,11 +90,23 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                     ? _displayStatusChangeButton()
                     : Container(
                         padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height / 5),
-                        child: _displayStatusChangeButton()),
-                const SizedBox(height: 10),
+                            top: _imageUrl == null ? imageHeight : 0),
+                        child: Center(child: _displayStatusChangeButton())),
               ],
             ),
+            Align(
+                alignment: Alignment.center,
+                child: Padding(
+                    padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).size.height * 0.04),
+                    child: Column(children: [
+                      Text(
+                        selectedHouse.longAddress,
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                          '${selectedTicket.firstName} ${selectedTicket.lastName}')
+                    ])))
           ]),
         ));
   }
@@ -96,9 +116,11 @@ class _SingleTicketViewState extends State<SingleTicketView> {
         ? ElevatedButton(
             style: ButtonStyle(
               minimumSize: MaterialStateProperty.all(const Size(170, 43)),
+              foregroundColor: const MaterialStatePropertyAll(buttonTextColor),
               backgroundColor: !hasBeenChanged
-                  ? MaterialStatePropertyAll(Colors.blueGrey.shade200)
-                  : const MaterialStatePropertyAll(Colors.blueGrey),
+                  ? const MaterialStatePropertyAll(unactivatedSaveButtonColor)
+                  : const MaterialStatePropertyAll(activatedSaveButtonColor),
+              elevation: const MaterialStatePropertyAll(1.0),
             ),
             onPressed: () async {
               if (hasBeenChanged) {
@@ -127,43 +149,29 @@ class _SingleTicketViewState extends State<SingleTicketView> {
               }
               Navigator.pop(context);
             },
-            child: const Text('Änderungen speichern'),
+            child: const Text('Änderungen speichern',
+                style: TextStyle(fontWeight: FontWeight.w500)),
           )
         : Container(height: 43);
   }
 
   Widget _displayStatusChangeButton() {
     return ElevatedButton(
-      style: ButtonStyle(
-        backgroundColor: selectedTicket.status == TicketStatus.open
-            ? const MaterialStatePropertyAll(green)
-            : MaterialStatePropertyAll(Colors.deepOrange.shade400),
-        minimumSize: MaterialStateProperty.all(const Size(170, 43)),
-      ),
-      onPressed: () async {
-        if (selectedTicket.status == TicketStatus.open) {
-          await _ticketService.updateTicketStatus(
-            selectedTicket,
-            TicketStatus.done,
-          );
-        } else {
-          await _ticketService.updateTicketStatus(
-            selectedTicket,
-            TicketStatus.open,
-          );
-        }
-        Navigator.pop(context);
-      },
-      child: selectedTicket.status == TicketStatus.open
-          ? const Text(
-              'als fertiggestellt markieren',
-              selectionColor: Colors.green,
-            )
-          : const Text(
-              'Als offen markieren',
-              selectionColor: Colors.deepOrange,
-            ),
-    );
+        style: ButtonStyle(
+          textStyle: MaterialStateProperty.all(
+              const TextStyle(fontWeight: FontWeight.w500)),
+          minimumSize: MaterialStateProperty.all(const Size(170, 43)),
+          foregroundColor: const MaterialStatePropertyAll(buttonTextColor),
+          backgroundColor: MaterialStatePropertyAll(Colors.deepOrange.shade300),
+          elevation: const MaterialStatePropertyAll(1.0),
+        ),
+        onPressed: () async {
+          FirestoreDataService().deleteTicket(selectedTicket);
+          Navigator.pop(context);
+        },
+        child: const Text(
+          'Löschen',
+        ));
   }
 
   Widget _displayTopic() {
@@ -189,38 +197,41 @@ class _SingleTicketViewState extends State<SingleTicketView> {
   }
 
   Widget _displayDescription(bool canBeEdited) {
-    return canBeEdited
-        ? Container(
-            height: 200,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-            ),
-            child: SizedBox(
-              child: SingleChildScrollView(
-                child: TextField(
-                  controller: _description,
-                  keyboardType: TextInputType.text,
-                  maxLines: null,
-                  readOnly: !canBeEdited,
-                  textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    setState(() {
-                      hasBeenChanged = true;
-                    });
-                  },
-                  decoration: _description.text == ''
-                      ? InputDecoration(
-                          hintText:
-                              canBeEdited ? 'Problembeschreibung...' : null,
-                          border: InputBorder.none,
-                        )
-                      : null,
-                ),
+    final isDescriptionEmpty = _description.text.isEmpty;
+
+    return Container(
+        height: MediaQuery.of(context).size.height * 0.2,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: !isDescriptionEmpty || canBeEdited
+            ? BoxDecoration(
+                border: Border.all(color: Colors.grey),
+              )
+            : null,
+        child: SizedBox(
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: TextField(
+                controller: _description,
+                keyboardType: TextInputType.text,
+                maxLines: null,
+                readOnly: !canBeEdited,
+                textAlign: TextAlign.center,
+                onChanged: (value) {
+                  setState(() {
+                    hasBeenChanged = true;
+                  });
+                },
+                decoration: isDescriptionEmpty
+                    ? InputDecoration(
+                        hintText: canBeEdited ? 'Problembeschreibung...' : null,
+                        border: InputBorder.none,
+                      )
+                    : null,
               ),
             ),
-          )
-        : Container();
+          ),
+        ));
   }
 
   Widget _displayUserImage(String? imgUrl, bool canBeEdited) {

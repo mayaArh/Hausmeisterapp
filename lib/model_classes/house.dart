@@ -38,7 +38,7 @@ class House {
   }
 
   String get longAddress {
-    return '$street ${houseNumber.toString()}, $city';
+    return '$street ${houseNumber.toString()}, $postalCode $city';
   }
 
   @override
