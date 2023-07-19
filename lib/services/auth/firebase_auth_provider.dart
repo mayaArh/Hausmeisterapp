@@ -67,9 +67,9 @@ class FirebaseAuthProvider extends AuthProvider {
           (await FirestoreDataService().getFirestoreUserDoc(user.email!))!;
       Staff? staffUser;
       await userDoc.get().then((snapshot) {
-        if (userDoc.parent.id == 'Hausverwaltung') {
+        if (userDoc.parent.id == 'PropertyManagement') {
           staffUser = BuildingManager.fromFirebase(snapshot);
-        } else if (userDoc.parent.id == 'Hausmeister') {
+        } else if (userDoc.parent.id == 'Janitors') {
           staffUser = Janitor.fromFirebase(snapshot);
         } else {
           throw CouldNotFindUser();

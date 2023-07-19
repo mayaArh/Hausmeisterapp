@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/colors.dart';
 import 'package:mein_digitaler_hausmeister/constants/layout_sizes.dart';
 import 'package:mein_digitaler_hausmeister/model_classes/house.dart';
+import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 import 'package:provider/provider.dart';
 
+import '../../enums/ticket_status.dart';
 import '../../model_classes/image.dart';
 import '../../model_classes/ticket.dart';
 import '../../services/providers/selected_house_provider.dart';
@@ -23,10 +25,11 @@ class _SingleTicketViewState extends State<SingleTicketView> {
   late TextEditingController _description;
   late Ticket selectedTicket;
   late House selectedHouse;
-  late bool canBeEdited;
+  late bool userHasEditPermission;
   bool hasBeenChanged = false;
   bool isInitialized = false;
   bool saveChanges = false;
+  bool canBeEdited = false;
   String? _imageUrl;
   final List<String> _imageUrls = [];
 
@@ -62,11 +65,15 @@ class _SingleTicketViewState extends State<SingleTicketView> {
       selectedTicket = ticketProvider.selectedTicket!;
       final houseProvider = Provider.of<SelectedHouseProvider>(context);
       selectedHouse = houseProvider.selectedHouse!;
-      canBeEdited = ModalRoute.of(context)!.settings.arguments as bool;
+      userHasEditPermission = selectedTicket.status == TicketStatus.open;
       _imageUrl = selectedTicket.imageUrl;
       _topic.text = selectedTicket.topic;
       _description.text = selectedTicket.description;
       isInitialized = true;
+      canBeEdited =
+          selectedTicket.uId == FirebaseAuthProvider().currentUser!.uid ||
+              FirebaseAuthProvider().currentUser!.email ==
+                  'maya.arhold11@gmail.com';
     }
 
     return Scaffold(
@@ -76,24 +83,26 @@ class _SingleTicketViewState extends State<SingleTicketView> {
         body: SingleChildScrollView(
           child: Column(children: [
             _displayTopic(),
-            _displayUserImage(_imageUrl, canBeEdited),
-            _displayDescription(canBeEdited),
+            _displayUserImage(_imageUrl),
+            _displayDescription(),
             const SizedBox(height: 35),
-            Row(
-              mainAxisAlignment: canBeEdited
-                  ? MainAxisAlignment.spaceEvenly
-                  : MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _displaySaveButton(),
-                canBeEdited
-                    ? _displayStatusChangeButton()
-                    : Container(
-                        padding: EdgeInsets.only(
-                            top: _imageUrl == null ? imageHeight : 0),
-                        child: Center(child: _displayStatusChangeButton())),
-              ],
-            ),
+            canBeEdited
+                ? Row(
+                    mainAxisAlignment: userHasEditPermission
+                        ? MainAxisAlignment.spaceEvenly
+                        : MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _displaySaveButton(),
+                      userHasEditPermission
+                          ? _displayDeleteButton()
+                          : Container(
+                              padding: EdgeInsets.only(
+                                  top: _imageUrl == null ? imageHeight : 0),
+                              child: Center(child: _displayDeleteButton())),
+                    ],
+                  )
+                : Container(),
             Align(
                 alignment: Alignment.center,
                 child: Padding(
@@ -103,16 +112,26 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                       Text(
                         selectedHouse.longAddress,
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 15),
                       Text(
-                          '${selectedTicket.firstName} ${selectedTicket.lastName}')
+                        'erstellt von: ${selectedTicket.nameCreator}',
+                        style: const TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                      const SizedBox(height: 10),
+                      selectedTicket.nameCompleter != '' &&
+                              selectedTicket.status == TicketStatus.done
+                          ? Text(
+                              'erledigt von: ${selectedTicket.nameCompleter}',
+                              style:
+                                  const TextStyle(fontStyle: FontStyle.italic))
+                          : Container()
                     ])))
           ]),
         ));
   }
 
   Widget _displaySaveButton() {
-    return canBeEdited
+    return userHasEditPermission
         ? ElevatedButton(
             style: ButtonStyle(
               minimumSize: MaterialStateProperty.all(const Size(170, 43)),
@@ -155,7 +174,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
         : Container(height: 43);
   }
 
-  Widget _displayStatusChangeButton() {
+  Widget _displayDeleteButton() {
     return ElevatedButton(
         style: ButtonStyle(
           textStyle: MaterialStateProperty.all(
@@ -183,7 +202,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
       child: TextField(
         controller: _topic,
         keyboardType: TextInputType.text,
-        readOnly: !canBeEdited,
+        readOnly: !canBeEdited || !userHasEditPermission,
         textAlign: TextAlign.center,
         onChanged: (value) {
           setState(() {
@@ -196,7 +215,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
     );
   }
 
-  Widget _displayDescription(bool canBeEdited) {
+  Widget _displayDescription() {
     final isDescriptionEmpty = _description.text.isEmpty;
 
     return Container(
@@ -215,7 +234,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                 controller: _description,
                 keyboardType: TextInputType.text,
                 maxLines: null,
-                readOnly: !canBeEdited,
+                readOnly: !canBeEdited || !userHasEditPermission,
                 textAlign: TextAlign.center,
                 onChanged: (value) {
                   setState(() {
@@ -234,8 +253,8 @@ class _SingleTicketViewState extends State<SingleTicketView> {
         ));
   }
 
-  Widget _displayUserImage(String? imgUrl, bool canBeEdited) {
-    return canBeEdited || imgUrl != null
+  Widget _displayUserImage(String? imgUrl) {
+    return (canBeEdited && userHasEditPermission) || imgUrl != null
         ? Container(
             padding: const EdgeInsets.all(0),
             decoration: BoxDecoration(

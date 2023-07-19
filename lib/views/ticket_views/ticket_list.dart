@@ -12,12 +12,12 @@ import '../../services/providers/selected_ticket_provider.dart';
 /// Displays a list of tickets and the possibility to delete them.
 class TicketList extends StatefulWidget {
   final List<Ticket> tickets;
-  final bool canBeEdited;
+  final bool ticketsHaveStatusOpen;
 
   const TicketList({
     Key? key,
     required this.tickets,
-    required this.canBeEdited,
+    required this.ticketsHaveStatusOpen,
   }) : super(key: key);
 
   @override
@@ -64,14 +64,13 @@ class _TicketListState extends State<TicketList> {
                 ));
           } else {
             final ticket = widget.tickets[index];
-            bool isChecked = !widget.canBeEdited;
+            bool isChecked = !widget.ticketsHaveStatusOpen;
             return GestureDetector(
               onTap: () {
                 final ticketProvider =
                     Provider.of<SelectedTicketProvider>(context, listen: false);
                 ticketProvider.selectedTicket = ticket;
-                Navigator.of(context).pushNamed(singleTicketRoute,
-                    arguments: widget.canBeEdited);
+                Navigator.of(context).pushNamed(singleTicketRoute);
               },
               child: Container(
                 height: 80,
@@ -82,13 +81,13 @@ class _TicketListState extends State<TicketList> {
                             const BorderSide(color: Colors.black87, width: 1.3),
                         right: _ticketService.nrOfOpenTickets >
                                     _ticketService.nrOfClosedTickets &&
-                                widget.canBeEdited
+                                widget.ticketsHaveStatusOpen
                             ? const BorderSide(
                                 color: Colors.black87, width: 1.3)
                             : BorderSide.none,
                         left: _ticketService.nrOfClosedTickets >
                                     _ticketService.nrOfOpenTickets &&
-                                !widget.canBeEdited
+                                !widget.ticketsHaveStatusOpen
                             ? const BorderSide(
                                 color: Colors.black87, width: 1.3)
                             : BorderSide.none)),
@@ -119,7 +118,7 @@ class _TicketListState extends State<TicketList> {
                     ),
                     Align(
                       alignment: Alignment.centerRight,
-                      child: widget.canBeEdited
+                      child: widget.ticketsHaveStatusOpen
                           ? Checkbox(
                               value: isChecked,
                               onChanged: (bool? value) async {
@@ -137,7 +136,8 @@ class _TicketListState extends State<TicketList> {
                               value: isChecked,
                               onChanged: (bool? value) async {
                                 setState(() {
-                                  isChecked = value ?? !widget.canBeEdited;
+                                  isChecked =
+                                      value ?? !widget.ticketsHaveStatusOpen;
                                 });
                                 if (isChecked) {
                                   await _ticketService.updateTicketStatus(
@@ -161,7 +161,12 @@ class _TicketListState extends State<TicketList> {
       );
     } else {
       if (_showNoTicketsText != null) {
-        return const Center(child: Text('Noch keine Tickets vorhanden.'));
+        return const Center(
+          child: Text(
+            'Noch keine Tickets vorhanden.',
+            style: TextStyle(fontSize: 15),
+          ),
+        );
       } else {
         return Container();
       }

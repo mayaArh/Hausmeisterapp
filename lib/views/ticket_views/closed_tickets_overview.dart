@@ -26,7 +26,7 @@ class _ClosedTicketsOverviewState extends State<ClosedTicketsOverview> {
         builder: (context, child) {
           return TicketList(
             tickets: Provider.of<List<Ticket>>(context),
-            canBeEdited: false,
+            ticketsHaveStatusOpen: false,
           );
         });
   }

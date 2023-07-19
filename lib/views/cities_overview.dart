@@ -88,7 +88,7 @@ class _CitiesOverviewState extends State<CitiesOverview> {
                             child: Text(
                               city,
                               style: TextStyle(
-                                  fontSize: 15.5,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.blueGrey.shade600),
                             ),

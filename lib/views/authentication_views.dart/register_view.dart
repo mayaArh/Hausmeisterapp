@@ -38,7 +38,8 @@ class RegisterViewState extends State<RegisterView> {
         appBar: AppBar(
           title: const Text('Registrieren'),
         ),
-        body: Column(
+        body: SingleChildScrollView(
+            child: Column(
           children: [
             TextField(
               controller: _email,
@@ -46,54 +47,76 @@ class RegisterViewState extends State<RegisterView> {
               autocorrect: false,
               keyboardType: TextInputType.emailAddress,
               decoration: const InputDecoration(
-                hintText: 'Arbeits-Email-Adresse',
+                  hintText: 'Arbeits-Mail-Adresse',
+                  border: UnderlineInputBorder(),
+                  contentPadding: EdgeInsets.all(8)),
+              style: const TextStyle(
+                fontSize: 17,
+                height: 2,
               ),
             ),
             TextField(
-              controller: _password,
-              obscureText: true,
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: const InputDecoration(
-                hintText: 'App-Passwort festlegen',
-              ),
-            ),
+                controller: _password,
+                obscureText: true,
+                enableSuggestions: false,
+                autocorrect: false,
+                decoration: const InputDecoration(
+                    hintText: 'App-Passwort festlegen',
+                    border: UnderlineInputBorder(),
+                    contentPadding: EdgeInsets.all(8)),
+                style: const TextStyle(
+                  fontSize: 17,
+                  height: 2,
+                )),
             const SizedBox(
-              height: 15,
+              height: 22,
             ),
-            TextButton(
-              onPressed: () async {
-                final email = _email.text;
-                final password = _password.text;
-                try {
-                  //check if firestore user exists
-                  if (await FirestoreDataService().isAllowedUser(email)) {
-                    await FirebaseAuthProvider().createUser(
-                      email: email,
-                      password: password,
-                    );
-                    await FirebaseAuthProvider().sendEmailVerification();
-                    Navigator.of(context).pushNamed(verifyEmailRoute);
-                  } else {
-                    DialogDisplay.showErrorDialog(context,
-                        'Leider sind Sie nicht in unserem System gespeichert. Bitte überprüfen Sie noch einmal Ihre E-Mail Adresse.');
+            OutlinedButton(
+                style: ButtonStyle(
+                    side: MaterialStateProperty.all<BorderSide>(
+                      BorderSide(width: 2.0, color: Colors.blueGrey.shade500),
+                    ),
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white12)),
+                onPressed: () async {
+                  final email = _email.text;
+                  final password = _password.text;
+                  try {
+                    //check if firestore user exists
+                    if (await FirestoreDataService().isAllowedUser(email)) {
+                      await FirebaseAuthProvider().createUser(
+                        email: email,
+                        password: password,
+                      );
+                      await FirebaseAuthProvider().sendEmailVerification();
+                      Navigator.of(context).pushNamed(verifyEmailRoute);
+                    } else {
+                      DialogDisplay.showErrorDialog(context,
+                          'Leider sind Sie nicht in unserem System gespeichert. Bitte überprüfen Sie noch einmal Ihre E-Mail Adresse.');
+                    }
+                  } on WeakPasswordAuthException {
+                    await DialogDisplay.showErrorDialog(context,
+                        'Password zu schwach. Bitte erstellen Sie ein Passwort aus mindestens 6 Zeichen.');
+                  } on EmailAlreadyInUseAuthException {
+                    await DialogDisplay.showErrorDialog(context,
+                        'Es existiert bereits ein verifizierter Nutzer mit dieser E-Mail Adresse.');
+                  } //TODO: Vergleich mit Mac
+                  on NoInternetAuthException {
+                    await DialogDisplay.showErrorDialog(context,
+                        'Es besteht keine Internetverbindung. Bitte stellen Sie eine Internetverbindung her und versuchen Sie es erneut.');
+                  } on GenericAuthException {
+                    await DialogDisplay.showErrorDialog(context,
+                        'Es gab einen Fehler bei der Registrierung. Bitte versuchen Sie es später erneut.');
                   }
-                } on WeakPasswordAuthException {
-                  await DialogDisplay.showErrorDialog(context,
-                      'Password zu schwach. Bitte erstellen Sie ein Passwort aus mindestens 6 Zeichen.');
-                } on EmailAlreadyInUseAuthException {
-                  await DialogDisplay.showErrorDialog(context,
-                      'Es existiert bereits ein verifizierter Nutzer mit dieser E-Mail Adresse.');
-                } //TODO: Vergleich mit Mac
-                on NoInternetAuthException {
-                  await DialogDisplay.showErrorDialog(context,
-                      'Es besteht keine Internetverbindung. Bitte stellen Sie eine Internetverbindung her und versuchen Sie es erneut.');
-                } on GenericAuthException {
-                  await DialogDisplay.showErrorDialog(context,
-                      'Es gab einen Fehler bei der Registrierung. Bitte versuchen Sie es später erneut.');
-                }
-              },
-              child: const Text('Registrieren', style: TextStyle(fontSize: 14)),
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(11),
+                  child: Text('Registrieren',
+                      style: TextStyle(
+                          fontSize: 16, color: Colors.blueGrey.shade700)),
+                )),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.55,
             ),
             TextButton(
                 onPressed: () {
@@ -102,8 +125,8 @@ class RegisterViewState extends State<RegisterView> {
                 },
                 child: const Text(
                     "Bereits registriert? Hier geht's zur Anmeldung!",
-                    style: TextStyle(fontSize: 14)))
+                    style: TextStyle(fontSize: 14.4)))
           ],
-        ));
+        )));
   }
 }

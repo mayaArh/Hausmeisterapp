@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:mein_digitaler_hausmeister/enums/ticket_status.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
+import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.dart';
 
 import '../../model_classes/house.dart';
 import '../../model_classes/staff.dart';
@@ -38,8 +39,9 @@ class FirestoreDataService {
         yield* userDoc.snapshots().map((userSnapshot) {
           final userData = userSnapshot.data();
           List<String> cityNames = [];
+
           if (userData != null) {
-            final cityList = userData['Gebäude'];
+            final cityList = userData['Houses'];
             cityNames = cityList.keys.toList() ?? [];
             cityNames.sort((elemA, elemB) => elemA.compareTo(elemB));
           }
@@ -65,12 +67,15 @@ class FirestoreDataService {
           final userData = userSnapshot.data();
           List<House> houseList = [];
           if (userData != null) {
-            Map<String, dynamic> houseMap = userData['Gebäude'];
+            Map<String, dynamic> houseMap = userData['Houses'];
+
             if (houseMap.containsKey(city)) {
               List<dynamic> houseDocs = houseMap[city];
+
               for (DocumentReference<Map<String, dynamic>> houseDoc in houseDocs
                   .cast<DocumentReference<Map<String, dynamic>>>()) {
                 final houseSnapshot = await houseDoc.get();
+
                 houseList.add(House.fromFirestore(houseSnapshot));
               }
             }
@@ -118,7 +123,7 @@ class FirestoreDataService {
     DocumentReference<Map<String, dynamic>>? userDoc;
     try {
       CollectionReference<Map<String, dynamic>> staffCollection =
-          db.collection('Hausverwaltung');
+          db.collection('PropertyManagement');
       for (int i = 0; i < 2; i++) {
         final QuerySnapshot<Map<String, dynamic>> queryUser =
             await staffCollection.where('Email', isEqualTo: email).get();
@@ -128,7 +133,7 @@ class FirestoreDataService {
         if (queryUser.size > 1) {
           throw SeveralUsersWithSameEmail();
         }
-        staffCollection = db.collection('Hausmeister');
+        staffCollection = db.collection('Janitors');
       }
     } catch (_) {}
     return userDoc;
@@ -143,17 +148,17 @@ class FirestoreDataService {
     required String? image,
   }) async {
     final staffUser = await AuthService.firebase().currentStaff;
-    DocumentReference<Map<String, dynamic>> ticketRef = house.firestoreRef
-        .collection('Tickets')
-        .doc('${staffUser!.firestoreRef.id}at${DateTime.now()}');
+    DocumentReference<Map<String, dynamic>> ticketRef =
+        house.firestoreRef.collection('Tickets').doc();
     ticketRef.set({
-      'Vorname': staffUser.firstName,
-      'Nachname': staffUser.lastName,
+      'Ersteller': '${staffUser!.firstName} ${staffUser.lastName}',
       'erstellt am': dateTime,
+      'erledigt von': '',
       'Problembeschreibung': description,
       'Thema': topic,
       'Bild': image ?? '',
       'Status': 'open',
+      'uId': FirebaseAuthProvider().currentUser!.uid,
     });
     final ticketSnapshot = await ticketRef.get();
     Ticket ticket = Ticket.fromFirestore(ticketSnapshot);
@@ -176,9 +181,17 @@ class FirestoreDataService {
   }
 
   //updates the status of the given ticket to the new status
+  //if the new status is done, the name of the staff member who
+  //completed the ticket is added to the ticket
   Future<Ticket> updateTicketStatus(
       Ticket ticket, TicketStatus newStatus) async {
     ticket.status = newStatus;
+    final currentStaff = await FirebaseAuthProvider().currentStaff;
+    if (newStatus == TicketStatus.done) {
+      ticket.nameCompleter =
+          '${currentStaff!.firstName} ${currentStaff.lastName}';
+      ticket.firestoreRef.update({'erledigt von': ticket.nameCompleter});
+    }
     await ticket.firestoreRef.update({'Status': newStatus.name});
     return ticket;
   }

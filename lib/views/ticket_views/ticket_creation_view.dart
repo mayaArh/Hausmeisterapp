@@ -74,34 +74,35 @@ class _TicketCreationViewState extends State<TicketCreationView> {
               const SizedBox(
                 height: 35,
               ),
-              OutlinedButton(
-                  style: const ButtonStyle(
-                      minimumSize: MaterialStatePropertyAll(Size(170, 43)),
-                      foregroundColor:
-                          MaterialStatePropertyAll(buttonTextColor),
-                      backgroundColor: MaterialStatePropertyAll(green),
-                      elevation: MaterialStatePropertyAll(1.0)),
-                  onPressed: () async {
-                    saveChanges = true;
-                    final topic = _topic.text;
-                    final description = _description.text;
-                    final dateTime =
-                        DateFormat('dd.MM.yyyy, HH:mm').format(DateTime.now());
-                    if (topic.isEmpty) {
-                      DialogDisplay.showErrorDialog(context,
-                          'Bitte geben Sie das Thema des Problems an.');
-                    } else {
-                      await _ticketService.addTicketToHouse(
-                        house: selectedHouse,
-                        topic: topic,
-                        description: description,
-                        dateTime: dateTime,
-                        image: _imageUrl,
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: const Text('Ticket abschicken')),
+              Center(
+                  child: OutlinedButton(
+                      style: const ButtonStyle(
+                          minimumSize: MaterialStatePropertyAll(Size(170, 43)),
+                          foregroundColor:
+                              MaterialStatePropertyAll(buttonTextColor),
+                          backgroundColor: MaterialStatePropertyAll(green),
+                          elevation: MaterialStatePropertyAll(1.0)),
+                      onPressed: () async {
+                        saveChanges = true;
+                        final topic = _topic.text;
+                        final description = _description.text;
+                        final dateTime = DateFormat('dd.MM.yyyy, HH:mm')
+                            .format(DateTime.now());
+                        if (topic.isEmpty) {
+                          DialogDisplay.showErrorDialog(context,
+                              'Bitte geben Sie das Thema des Problems an.');
+                        } else {
+                          await _ticketService.addTicketToHouse(
+                            house: selectedHouse,
+                            topic: topic,
+                            description: description,
+                            dateTime: dateTime,
+                            image: _imageUrl,
+                          );
+                          Navigator.pop(context);
+                        }
+                      },
+                      child: const Text('Ticket abschicken'))),
               Align(
                   alignment: Alignment.center,
                   child: Padding(

@@ -35,84 +35,106 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Anmelden'),
-      ),
-      body: Column(
-        children: [
-          TextField(
-            controller: _email,
-            enableSuggestions: false,
-            autocorrect: false,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              hintText: 'Email',
-            ),
+        appBar: AppBar(
+          title: const Text('Anmelden'),
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              TextField(
+                controller: _email,
+                enableSuggestions: false,
+                autocorrect: false,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                    hintText: 'Arbeits-Mail-Adresse',
+                    border: UnderlineInputBorder(),
+                    contentPadding: EdgeInsets.all(8)),
+                style: const TextStyle(
+                  fontSize: 17,
+                  height: 2,
+                ),
+              ),
+              TextField(
+                  controller: _password,
+                  obscureText: true,
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  decoration: const InputDecoration(
+                      hintText: 'Passwort',
+                      border: UnderlineInputBorder(),
+                      contentPadding: EdgeInsets.all(8)),
+                  style: const TextStyle(
+                    fontSize: 17,
+                    height: 2,
+                  )),
+              const SizedBox(
+                height: 22,
+              ),
+              OutlinedButton(
+                style: ButtonStyle(
+                    side: MaterialStateProperty.all<BorderSide>(
+                      BorderSide(width: 2.0, color: Colors.blueGrey.shade500),
+                    ),
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white12)),
+                onPressed: () async {
+                  final email = _email.text;
+                  final password = _password.text;
+                  try {
+                    await FirebaseAuthProvider().logIn(
+                      email: email,
+                      password: password,
+                    );
+                    final user = FirebaseAuthProvider().currentUser;
+                    if (user?.isEmailVerified ?? false) {
+                      FirestoreDataService().changeDocIdtoUID(user!);
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        citiesOverviewRoute,
+                        (route) => false,
+                      );
+                    } else {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        verifyEmailRoute,
+                        (route) => false,
+                      );
+                    }
+                  } on UserNotFoundAuthException {
+                    await DialogDisplay.showErrorDialog(
+                        context, 'Der angegebene Benutzer existiert nicht');
+                  } on WrongPasswordAuthException {
+                    await DialogDisplay.showErrorDialog(
+                        context, 'Falsches Passwort');
+                  } on NoInternetAuthException {
+                    await DialogDisplay.showErrorDialog(
+                        context, 'Bitte verbinden Sie sich mit dem Internet.');
+                  } on GenericAuthException {
+                    await DialogDisplay.showErrorDialog(context,
+                        'Bei der Anmeldung ist ein unbekannter Fehler aufgetreten. Bitte versuchen Sie es später erneut.');
+                  }
+                },
+                child: Padding(
+                    padding: const EdgeInsets.all(11),
+                    child: Text(
+                      'Anmelden',
+                      style: TextStyle(
+                          fontSize: 16, color: Colors.blueGrey.shade700),
+                    )),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.55,
+              ),
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        registerRoute, (route) => false);
+                  },
+                  child: const Text(
+                    "Noch nicht registriert? Hier geht's zur Registrierung!",
+                    style: TextStyle(fontSize: 14.4),
+                  ))
+            ],
           ),
-          TextField(
-            controller: _password,
-            obscureText: true,
-            enableSuggestions: false,
-            autocorrect: false,
-            decoration: const InputDecoration(
-              hintText: 'Passwort',
-            ),
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          TextButton(
-            onPressed: () async {
-              final email = _email.text;
-              final password = _password.text;
-              try {
-                await FirebaseAuthProvider().logIn(
-                  email: email,
-                  password: password,
-                );
-                final user = FirebaseAuthProvider().currentUser;
-                if (user?.isEmailVerified ?? false) {
-                  FirestoreDataService().changeDocIdtoUID(user!);
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    citiesOverviewRoute,
-                    (route) => false,
-                  );
-                } else {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    verifyEmailRoute,
-                    (route) => false,
-                  );
-                }
-              } on UserNotFoundAuthException {
-                await DialogDisplay.showErrorDialog(
-                    context, 'Der angegebene Benutzer existiert nicht');
-              } on WrongPasswordAuthException {
-                await DialogDisplay.showErrorDialog(
-                    context, 'Falsches Passwort');
-              } on NoInternetAuthException {
-                await DialogDisplay.showErrorDialog(
-                    context, 'Bitte verbinden Sie sich mit dem Internet.');
-              } on GenericAuthException {
-                await DialogDisplay.showErrorDialog(context,
-                    'Bei der Anmeldung ist ein unbekannter Fehler aufgetreten. Bitte versuchen Sie es später erneut.');
-              }
-            },
-            child: const Text(
-              'Anmelden.',
-              style: TextStyle(fontSize: 14),
-            ),
-          ),
-          TextButton(
-              onPressed: () {
-                Navigator.of(context)
-                    .pushNamedAndRemoveUntil(registerRoute, (route) => false);
-              },
-              child: const Text(
-                "Noch nicht registriert? Hier geht's zur Registrierung!",
-                style: TextStyle(fontSize: 14),
-              ))
-        ],
-      ),
-    );
+        ));
   }
 }

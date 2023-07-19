@@ -34,10 +34,10 @@ class Janitor extends Staff {
       Map<String, dynamic> data = doc.data()!;
       return Janitor(
         firestoreRef: doc.reference,
-        firstName: data['Vorname'],
-        lastName: data['Nachname'],
+        firstName: data['FirstName'],
+        lastName: data['LastName'],
         email: data['Email'],
-        phoneNumber: data['Telefonnummer'],
+        phoneNumber: data['PhoneNumber'],
       );
     } catch (_) {
       throw JanitorDoesntHaveAllFields();
@@ -62,10 +62,10 @@ class BuildingManager extends Staff {
       Map<String, dynamic> data = doc.data()!;
       return BuildingManager(
         firestoreRef: doc.reference,
-        firstName: data['Vorname'],
-        lastName: data['Nachname'],
+        firstName: data['FirstName'],
+        lastName: data['LastName'],
         email: data['Email'],
-        phoneNumber: data['Telefonnummer'],
+        phoneNumber: data['PhoneNumber'],
       );
     } catch (_) {
       throw BuildingManagerDoesntHaveAllFields();

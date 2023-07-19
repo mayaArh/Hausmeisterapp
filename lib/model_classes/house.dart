@@ -23,10 +23,10 @@ class House {
       Map<String, dynamic> data = doc.data()!;
       return House(
         firestoreRef: doc.reference,
-        street: data['Strasse'],
-        houseNumber: data['Hausnummer'],
-        postalCode: data['Postleitzahl'],
-        city: data['Ort'],
+        street: data['street'],
+        houseNumber: data['houseNumber'],
+        postalCode: data['postalCode'],
+        city: data['city'],
       );
     } catch (_) {
       throw HouseDoesntHaveAllFields();

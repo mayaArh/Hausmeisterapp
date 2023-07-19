@@ -36,7 +36,11 @@ class TicketViewChangerState extends State<TicketViewChanger> {
                     await Navigator.of(context).pushNamed(ticketCreationRoute);
                     setState(() {});
                   },
-                  icon: const Icon(Icons.add),
+                  padding: const EdgeInsets.only(right: 32),
+                  icon: const Icon(
+                    Icons.add,
+                    size: 29,
+                  ),
                 )
               : Container(),
         ],

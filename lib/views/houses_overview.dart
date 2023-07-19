@@ -86,8 +86,8 @@ class _HousesOverviewState extends State<HousesOverview> {
                               child: Text(
                                 house.shortAddress,
                                 style: TextStyle(
-                                    fontSize: 15.5,
-                                    color: Colors.blueGrey.shade700),
+                                    fontSize: 16,
+                                    color: Colors.blueGrey.shade600),
                               ),
                             ))
                         .toList(),
