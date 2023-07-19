@@ -63,10 +63,9 @@ class FirebaseAuthProvider extends AuthProvider {
     final user = FirebaseAuth.instance.currentUser;
     Staff? staff;
     if (user != null) {
-      print('here here1');
       final userDoc =
           (await FirestoreDataService().getFirestoreUserDoc(user.email!))!;
-      print('here here2');
+
       Staff? staffUser;
       await userDoc.get().then((snapshot) {
         if (userDoc.parent.id == 'PropertyManagement') {

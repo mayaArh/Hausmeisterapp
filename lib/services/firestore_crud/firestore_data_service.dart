@@ -198,7 +198,6 @@ class FirestoreDataService {
 
   /// changed the image of the given ticket to the new image
   Future<Ticket> changeTicketImage(Ticket ticket, String? newImageUrl) async {
-    print('ehre');
     ticket.imageUrl = newImageUrl;
     await ticket.firestoreRef.update({'Bild': newImageUrl});
     return ticket;
