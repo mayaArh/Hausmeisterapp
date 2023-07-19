@@ -36,7 +36,7 @@ class RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Registrieren'),
+          title: const Text('Gebäudeservice Giebert'),
         ),
         body: SingleChildScrollView(
             child: Column(
@@ -82,7 +82,6 @@ class RegisterViewState extends State<RegisterView> {
                   final email = _email.text;
                   final password = _password.text;
                   try {
-                    //check if firestore user exists
                     if (await FirestoreDataService().isAllowedUser(email)) {
                       await FirebaseAuthProvider().createUser(
                         email: email,
@@ -100,8 +99,7 @@ class RegisterViewState extends State<RegisterView> {
                   } on EmailAlreadyInUseAuthException {
                     await DialogDisplay.showErrorDialog(context,
                         'Es existiert bereits ein verifizierter Nutzer mit dieser E-Mail Adresse.');
-                  } //TODO: Vergleich mit Mac
-                  on NoInternetAuthException {
+                  } on NoInternetAuthException {
                     await DialogDisplay.showErrorDialog(context,
                         'Es besteht keine Internetverbindung. Bitte stellen Sie eine Internetverbindung her und versuchen Sie es erneut.');
                   } on GenericAuthException {
@@ -113,7 +111,7 @@ class RegisterViewState extends State<RegisterView> {
                   padding: const EdgeInsets.all(11),
                   child: Text('Registrieren',
                       style: TextStyle(
-                          fontSize: 16, color: Colors.blueGrey.shade700)),
+                          fontSize: 16, color: Colors.blueGrey.shade600)),
                 )),
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.55,

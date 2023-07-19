@@ -36,7 +36,7 @@ class _LoginViewState extends State<LoginView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Anmelden'),
+          title: const Text('Gebäudeservice Giebert'),
         ),
         body: SingleChildScrollView(
           child: Column(
@@ -118,7 +118,7 @@ class _LoginViewState extends State<LoginView> {
                     child: Text(
                       'Anmelden',
                       style: TextStyle(
-                          fontSize: 16, color: Colors.blueGrey.shade700),
+                          fontSize: 16, color: Colors.blueGrey.shade600),
                     )),
               ),
               SizedBox(

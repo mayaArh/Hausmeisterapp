@@ -65,12 +65,12 @@ class _SingleTicketViewState extends State<SingleTicketView> {
       selectedTicket = ticketProvider.selectedTicket!;
       final houseProvider = Provider.of<SelectedHouseProvider>(context);
       selectedHouse = houseProvider.selectedHouse!;
-      userHasEditPermission = selectedTicket.status == TicketStatus.open;
+      canBeEdited = selectedTicket.status == TicketStatus.open;
       _imageUrl = selectedTicket.imageUrl;
       _topic.text = selectedTicket.topic;
       _description.text = selectedTicket.description;
       isInitialized = true;
-      canBeEdited =
+      userHasEditPermission =
           selectedTicket.uId == FirebaseAuthProvider().currentUser!.uid ||
               FirebaseAuthProvider().currentUser!.email ==
                   'maya.arhold11@gmail.com';
@@ -85,7 +85,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
             _displayTopic(),
             _displayUserImage(_imageUrl),
             _displayDescription(),
-            const SizedBox(height: 35),
+            const SizedBox(height: 33),
             canBeEdited
                 ? Row(
                     mainAxisAlignment: userHasEditPermission
@@ -107,7 +107,9 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                 alignment: Alignment.center,
                 child: Padding(
                     padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height * 0.04),
+                        top: canBeEdited
+                            ? MediaQuery.of(context).size.height * 0.025
+                            : MediaQuery.of(context).size.height * 0.055),
                     child: Column(children: [
                       Text(
                         selectedHouse.longAddress,
@@ -221,11 +223,9 @@ class _SingleTicketViewState extends State<SingleTicketView> {
     return Container(
         height: MediaQuery.of(context).size.height * 0.2,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: !isDescriptionEmpty || canBeEdited
-            ? BoxDecoration(
-                border: Border.all(color: Colors.grey),
-              )
-            : null,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+        ),
         child: SizedBox(
           child: SingleChildScrollView(
             child: Container(
@@ -267,14 +267,14 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                   setState(() {
                     hasBeenChanged = true;
                   });
-
-                  _imageUrls.add(imageUrl!);
-
+                  if (imageUrl != null) {
+                    _imageUrls.add(imageUrl);
+                  }
                   _imageUrl = imageUrl;
                 });
               },
               initialImageUrl: imgUrl,
-              canBeEdited: canBeEdited,
+              canBeEdited: canBeEdited && userHasEditPermission,
             ),
           )
         : Container();

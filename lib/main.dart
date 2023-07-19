@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
           title: 'Hausmeisterapp',
           theme: ThemeData(
             primarySwatch: Colors.blueGrey,
-            fontFamily: GoogleFonts.roboto().fontFamily,
+            fontFamily: GoogleFonts.radioCanada().fontFamily,
           ),
           home: const HomePage(),
           routes: {

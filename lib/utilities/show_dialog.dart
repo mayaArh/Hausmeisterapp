@@ -29,7 +29,7 @@ class DialogDisplay {
         builder: (context) {
           return AlertDialog(
             title: const Text('Abmelden.'),
-            content: const Text('Sind sie sicher?'),
+            content: const Text('Sind Sie sicher?'),
             actions: [
               TextButton(
                   onPressed: () {
