@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/colors.dart';
-import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
-import 'package:provider/provider.dart'; // Import this for the GridView
+import 'package:provider/provider.dart';
 
 import '../constants/routes.dart';
 import '../enums/menu_entries.dart';
+import '../services/auth/auth_service.dart';
 import '../services/providers/selected_city_provider.dart';
 import '../utilities/show_dialog.dart';
 
@@ -41,7 +41,7 @@ class _CitiesOverviewState extends State<CitiesOverview> {
                         final shouldLogout =
                             await DialogDisplay.showLogoutDialog(context);
                         if (shouldLogout) {
-                          await FirebaseAuthProvider().logOut();
+                          await AuthService.firebase().logOut();
                           Navigator.of(context).pushNamedAndRemoveUntil(
                               loginRoute, (_) => false);
                         }

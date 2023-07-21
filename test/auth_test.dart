@@ -66,6 +66,7 @@ class NotInitializedException implements Exception {}
 
 class MockAuthProvider implements FirebaseAuthProvider {
   AuthUser? _user;
+  late Future<Staff?> _staff;
   var _isInitialized = false;
   bool get isInitialized => _isInitialized;
   final _wrongEmail = "m";
@@ -81,6 +82,9 @@ class MockAuthProvider implements FirebaseAuthProvider {
 
   @override
   AuthUser? get currentUser => _user;
+
+  @override
+  Future<Staff?> get currentStaff => _staff;
 
   @override
   Future<void> initialize() async {
@@ -114,8 +118,4 @@ class MockAuthProvider implements FirebaseAuthProvider {
     const newUser = AuthUser(email: 'dummy', isEmailVerified: true, uid: '');
     _user = newUser;
   }
-
-  @override
-  // TODO: implement currentStaff
-  Future<Staff?> get currentStaff => throw UnimplementedError();
 }

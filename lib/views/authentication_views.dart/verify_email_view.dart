@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/colors.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 
-import '../../services/auth/firebase_auth_provider.dart';
+import '../../services/auth/auth_service.dart';
 
 /// This class is responsible for asking the user to verify his email address.
 class VerifyEmailView extends StatefulWidget {
@@ -38,7 +38,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
               ])),
           TextButton(
               onPressed: () async {
-                await FirebaseAuthProvider().sendEmailVerification();
+                await AuthService.firebase().sendEmailVerification();
               },
               child: const Padding(
                   padding: EdgeInsets.all(18),
@@ -52,7 +52,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
                   backgroundColor:
                       MaterialStateProperty.all<Color>(veryLightBlack)),
               onPressed: () async {
-                await FirebaseAuthProvider().logOut();
+                await AuthService.firebase().logOut();
                 Navigator.of(context)
                     .pushNamedAndRemoveUntil(loginRoute, (route) => false);
               },

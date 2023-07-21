@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/colors.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
+import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import '../../services/auth/auth_exceptions.dart';
-import '../../services/auth/firebase_auth_provider.dart';
 import '../../services/firestore_crud/firestore_data_service.dart';
 import '../../utilities/show_dialog.dart';
 
@@ -84,11 +84,11 @@ class RegisterViewState extends State<RegisterView> {
                   final password = _password.text;
                   try {
                     if (await FirestoreDataService().isAllowedUser(email)) {
-                      await FirebaseAuthProvider().createUser(
+                      await AuthService.firebase().createUser(
                         email: email,
                         password: password,
                       );
-                      await FirebaseAuthProvider().sendEmailVerification();
+                      await AuthService.firebase().sendEmailVerification();
                       Navigator.of(context).pushNamed(verifyEmailRoute);
                     } else {
                       DialogDisplay.showErrorDialog(context,

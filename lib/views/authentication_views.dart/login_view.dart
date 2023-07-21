@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/colors.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_exceptions.dart';
-import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.dart';
+import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import '../../services/firestore_crud/firestore_data_service.dart';
 import '../../utilities/show_dialog.dart';
 
@@ -83,11 +83,11 @@ class _LoginViewState extends State<LoginView> {
                   final email = _email.text;
                   final password = _password.text;
                   try {
-                    await FirebaseAuthProvider().logIn(
+                    await AuthService.firebase().logIn(
                       email: email,
                       password: password,
                     );
-                    final user = FirebaseAuthProvider().currentUser;
+                    final user = AuthService.firebase().currentUser;
                     if (user?.isEmailVerified ?? false) {
                       FirestoreDataService().changeDocIdtoUID(user!);
                       Navigator.of(context).pushNamedAndRemoveUntil(

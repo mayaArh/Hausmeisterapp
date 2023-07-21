@@ -57,7 +57,8 @@ class FirebaseAuthProvider extends AuthProvider {
     }
   }
 
-  //Returns the currently logged in user as a [Staff] object
+  //Returns a future of the current [Staff] if the user is logged in,
+  //otherwise returns <Future<null>>
   @override
   Future<Staff?> get currentStaff async {
     final user = FirebaseAuth.instance.currentUser;

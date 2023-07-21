@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/colors.dart';
 import 'package:mein_digitaler_hausmeister/model_classes/house.dart';
-import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 import 'package:provider/provider.dart';
 
 import '../../enums/ticket_status.dart';
 import '../../model_classes/image.dart';
 import '../../model_classes/ticket.dart';
+import '../../services/auth/auth_service.dart';
 import '../../services/providers/selected_house_provider.dart';
 import '../../services/providers/selected_ticket_provider.dart';
 
@@ -70,8 +70,8 @@ class _SingleTicketViewState extends State<SingleTicketView> {
       _description.text = selectedTicket.description;
       isInitialized = true;
       userHasEditPermission =
-          selectedTicket.uId == FirebaseAuthProvider().currentUser!.uid ||
-              FirebaseAuthProvider().currentUser!.email ==
+          selectedTicket.uId == AuthService.firebase().currentUser!.uid ||
+              AuthService.firebase().currentUser!.email ==
                   'maya.arhold11@gmail.com';
     }
 
@@ -147,7 +147,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
               foregroundColor: const MaterialStatePropertyAll(darkBlack),
               backgroundColor: !hasBeenChanged
                   ? const MaterialStatePropertyAll(lightGrey)
-                  : const MaterialStatePropertyAll(lightBlueGrey),
+                  : const MaterialStatePropertyAll(green),
               elevation: const MaterialStatePropertyAll(1.0),
             ),
             onPressed: () async {
