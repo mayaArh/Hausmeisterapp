@@ -81,13 +81,12 @@ class _HousesOverviewState extends State<HousesOverview> {
                                 );
                               },
                               style: OutlinedButton.styleFrom(
-                                backgroundColor: darkBorderColor,
+                                backgroundColor: lightBlack,
                               ),
                               child: Text(
                                 house.shortAddress,
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.blueGrey.shade600),
+                                style: const TextStyle(
+                                    fontSize: 16, color: darkBlueGrey),
                               ),
                             ))
                         .toList(),

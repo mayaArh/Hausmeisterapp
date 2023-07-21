@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mein_digitaler_hausmeister/constants/colors.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 
 import '../../services/auth/firebase_auth_provider.dart';
@@ -46,10 +47,10 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
           OutlinedButton(
               style: ButtonStyle(
                   side: MaterialStateProperty.all<BorderSide>(
-                    BorderSide(width: 2.0, color: Colors.blueGrey.shade500),
+                    const BorderSide(width: 2.0, color: middleBlueGrey),
                   ),
                   backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.white12)),
+                      MaterialStateProperty.all<Color>(veryLightBlack)),
               onPressed: () async {
                 await FirebaseAuthProvider().logOut();
                 Navigator.of(context)

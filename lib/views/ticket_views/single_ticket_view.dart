@@ -144,10 +144,10 @@ class _SingleTicketViewState extends State<SingleTicketView> {
         ? ElevatedButton(
             style: ButtonStyle(
               minimumSize: MaterialStateProperty.all(const Size(170, 43)),
-              foregroundColor: const MaterialStatePropertyAll(buttonTextColor),
+              foregroundColor: const MaterialStatePropertyAll(darkBlack),
               backgroundColor: !hasBeenChanged
-                  ? const MaterialStatePropertyAll(unactivatedSaveButtonColor)
-                  : const MaterialStatePropertyAll(activatedSaveButtonColor),
+                  ? const MaterialStatePropertyAll(lightGrey)
+                  : const MaterialStatePropertyAll(lightBlueGrey),
               elevation: const MaterialStatePropertyAll(1.0),
             ),
             onPressed: () async {
@@ -184,8 +184,8 @@ class _SingleTicketViewState extends State<SingleTicketView> {
           textStyle: MaterialStateProperty.all(
               const TextStyle(fontWeight: FontWeight.w500)),
           minimumSize: MaterialStateProperty.all(const Size(170, 43)),
-          foregroundColor: const MaterialStatePropertyAll(buttonTextColor),
-          backgroundColor: MaterialStatePropertyAll(Colors.deepOrange.shade300),
+          foregroundColor: const MaterialStatePropertyAll(darkBlack),
+          backgroundColor: const MaterialStatePropertyAll(lightOrange),
           elevation: const MaterialStatePropertyAll(1.0),
         ),
         onPressed: () async {

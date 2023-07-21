@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mein_digitaler_hausmeister/constants/colors.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import '../../services/auth/auth_exceptions.dart';
 import '../../services/auth/firebase_auth_provider.dart';
@@ -74,10 +75,10 @@ class RegisterViewState extends State<RegisterView> {
             OutlinedButton(
                 style: ButtonStyle(
                     side: MaterialStateProperty.all<BorderSide>(
-                      BorderSide(width: 2.0, color: Colors.blueGrey.shade500),
+                      const BorderSide(width: 2.0, color: middleBlueGrey),
                     ),
                     backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.white12)),
+                        MaterialStateProperty.all<Color>(veryLightBlack)),
                 onPressed: () async {
                   final email = _email.text;
                   final password = _password.text;
@@ -107,11 +108,10 @@ class RegisterViewState extends State<RegisterView> {
                         'Es gab einen Fehler bei der Registrierung. Bitte versuchen Sie es später erneut.');
                   }
                 },
-                child: Padding(
-                  padding: const EdgeInsets.all(11),
+                child: const Padding(
+                  padding: EdgeInsets.all(11),
                   child: Text('Registrieren',
-                      style: TextStyle(
-                          fontSize: 16, color: Colors.blueGrey.shade600)),
+                      style: TextStyle(fontSize: 16, color: darkBlueGrey)),
                 )),
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.55,

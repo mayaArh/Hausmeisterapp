@@ -77,8 +77,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                   child: OutlinedButton(
                       style: const ButtonStyle(
                           minimumSize: MaterialStatePropertyAll(Size(170, 43)),
-                          foregroundColor:
-                              MaterialStatePropertyAll(buttonTextColor),
+                          foregroundColor: MaterialStatePropertyAll(darkBlack),
                           backgroundColor: MaterialStatePropertyAll(green),
                           elevation: MaterialStatePropertyAll(1.0)),
                       onPressed: () async {
@@ -121,8 +120,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
         controller: _task,
         keyboardType: TextInputType.text,
         textAlign: TextAlign.center,
-        style:
-            const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+        style: const TextStyle(fontWeight: FontWeight.bold, color: middleBlack),
         decoration: const InputDecoration(
             hintText: 'Was ist zu erledigen?', border: InputBorder.none),
       ),
@@ -150,7 +148,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                   keyboardType: TextInputType.text,
                   maxLines: null,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.black87),
+                  style: const TextStyle(color: middleBlack),
                   decoration: _description.text == ''
                       ? const InputDecoration(
                           hintText: 'Nähere Informationen...',

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mein_digitaler_hausmeister/constants/colors.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/views/ticket_views/closed_tickets_overview.dart';
 import 'package:provider/provider.dart';
@@ -58,22 +59,22 @@ class TicketViewChangerState extends State<TicketViewChanger> {
           ]),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(
               Icons.check_box_outline_blank_sharp,
-              color: Colors.deepOrange.shade400,
+              color: darkOrange,
             ),
             label: 'Offen',
           ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.check_box_outlined, color: Colors.green),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.check_box_outlined, color: green),
             label: 'Fertiggestellt',
           )
         ],
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.grey[200],
-        selectedItemColor: Colors.black87,
+        selectedItemColor: middleBlack,
         unselectedItemColor: Colors.grey,
         selectedFontSize: 15,
         unselectedFontSize: 14,

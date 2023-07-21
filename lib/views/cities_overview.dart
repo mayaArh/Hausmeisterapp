@@ -83,14 +83,14 @@ class _CitiesOverviewState extends State<CitiesOverview> {
                                   .pushNamed(housesOverviewRoute);
                             },
                             style: OutlinedButton.styleFrom(
-                              backgroundColor: darkBorderColor,
+                              backgroundColor: lightBlack,
                             ),
                             child: Text(
                               city,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.blueGrey.shade600),
+                                  color: darkBlueGrey),
                             ),
                           ))
                       .toList(),

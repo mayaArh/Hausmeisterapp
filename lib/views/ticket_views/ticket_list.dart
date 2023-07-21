@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mein_digitaler_hausmeister/constants/colors.dart';
 import 'package:mein_digitaler_hausmeister/constants/routes.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 import 'package:provider/provider.dart';
@@ -59,7 +60,7 @@ class _TicketListState extends State<TicketList> {
                 width: double.maxFinite,
                 decoration: const BoxDecoration(
                   border: Border(
-                    top: BorderSide(color: Colors.black87, width: 1.3),
+                    top: BorderSide(color: middleBlack, width: 1.3),
                   ),
                 ));
           } else {
@@ -77,19 +78,16 @@ class _TicketListState extends State<TicketList> {
                 width: double.maxFinite,
                 decoration: BoxDecoration(
                     border: Border(
-                        top:
-                            const BorderSide(color: Colors.black87, width: 1.3),
+                        top: const BorderSide(color: middleBlack, width: 1.3),
                         right: _ticketService.nrOfOpenTickets >
                                     _ticketService.nrOfClosedTickets &&
                                 widget.ticketsHaveStatusOpen
-                            ? const BorderSide(
-                                color: Colors.black87, width: 1.3)
+                            ? const BorderSide(color: middleBlack, width: 1.3)
                             : BorderSide.none,
                         left: _ticketService.nrOfClosedTickets >
                                     _ticketService.nrOfOpenTickets &&
                                 !widget.ticketsHaveStatusOpen
-                            ? const BorderSide(
-                                color: Colors.black87, width: 1.3)
+                            ? const BorderSide(color: middleBlack, width: 1.3)
                             : BorderSide.none)),
                 padding: const EdgeInsets.all(18),
                 child: Row(
