@@ -1,25 +1,15 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /janitors/{janitorID} {
-     allow read, write: if request.resource.id == request.auth.uid;
-	match /houses/{houseID}{
-
-     		match /privateTickets/{privateTicketID} {
-			allow create: if request.resource.data.renterId == request.auth.uid;
-			allow delete: if request.data.renterId == request.auth.uid
-			allow read, update: if request.data.renterID == request.auth.uid || request.data.janitorId == request.auth.uid
-		}
-		match /publicTickets/{publicTicketID} {
-			allow create: if request.resource.data.renterId == request.auth.uid;
-			allow delete, update: if request.data.renterId == request.auth.uid || request.data.janitorId == request.auth.uid
-			allow read: if request.auth != null
-		}
-		match /renters/{renterID} {
-			allow read: if request.data.renterId == request.auth.uid || request.data.janitorId == request.auth.uid
-			if request.data.renterId == request.auth.uid
-		}
-	}
-    }
+    	match /Hausmeister/{hausmeisterID} {
+     		allow read, write: if request.resource.id == request.auth.uid;
+		  	match /houses/{houseID}{
+					match /Tickets/{ticketID} {
+						allow create: if request.resource.data.renterId == request.auth.uid;
+						allow delete: if request.data.renterId == request.auth.uid
+						allow read, update: if request.data.renterID == request.auth.uid || request.data.janitorId == request.auth.uid
+					}
+				}
+    	}
   }
 }

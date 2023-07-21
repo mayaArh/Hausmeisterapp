@@ -8,8 +8,14 @@ class EmailAlreadyInUseAuthException implements Exception {}
 
 class InvalidEmailAuthException implements Exception {}
 
+class NoInternetAuthException implements Exception {}
+
+class UserNotLoggedInAuthException implements Exception {}
+
+class NoEmailProvidedAuthException implements Exception {}
+
+class NoPasswordProvidedAuthException implements Exception {}
+
 //generic exceptions
 
 class GenericAuthException implements Exception {}
-
-class UserNotLoggedInAuthException implements Exception {}
