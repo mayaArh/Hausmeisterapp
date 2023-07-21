@@ -3,6 +3,7 @@ import 'package:mein_digitaler_hausmeister/constants/ticket_db_fields.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/crud_exceptions.dart';
 
 import '../enums/ticket_status.dart';
+import '../services/firestore_crud/firestore_data_service.dart';
 
 /// Represents a ticket.
 class Ticket {
@@ -54,4 +55,24 @@ class Ticket {
   String get creationDate => creationDateTime.substring(0, 10);
 
   String get completionDate => completionDateTime?.substring(0, 10) ?? '';
+
+  Future<void> updateStatus(TicketStatus status) async {
+    await FirestoreDataService().updateTicketStatus(this, status);
+  }
+
+  Future<void> changeTask(String newTask) async {
+    await FirestoreDataService().changeTicketTask(this, newTask);
+  }
+
+  Future<void> changeDescription(String newDescription) async {
+    await FirestoreDataService().changeTicketDescription(this, newDescription);
+  }
+
+  Future<void> addOrChangeImage(String? imageUrl) async {
+    await FirestoreDataService().addOrChangeTicketImage(this, imageUrl);
+  }
+
+  Future<void> delete() async {
+    await FirestoreDataService().deleteTicket(this);
+  }
 }

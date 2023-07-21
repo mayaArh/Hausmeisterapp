@@ -20,8 +20,10 @@ mixin FirestoreTicketService {
   //returns a stream of tickets for the given house. If filterOpenTickets is true,
   //all tickets with status open are returned, otherwise all tickets
   //with status done are returned
-  Stream<List<Ticket>> streamTicketsForHouse(House house,
-      {required bool filterOpenTickets, required bool showOldestFirst}) {
+  Stream<List<Ticket>> streamTicketsForHouse(
+      {required House house,
+      required bool filterOpenTickets,
+      required bool showOldestFirst}) {
     filterOpenTickets ? _nrOfOpenTickets = 0 : _nrOfClosedTickets = 0;
     return house.firestoreRef.collection('Tickets').snapshots().map((data) {
       List<Ticket> ticketList = [];
@@ -45,7 +47,7 @@ mixin FirestoreTicketService {
   }
 
   //adds a new ticket to the given house
-  Future<Ticket> addTicketToHouse({
+  Future<void> addTicketToHouse({
     required House house,
     required String task,
     required String description,
@@ -67,16 +69,12 @@ mixin FirestoreTicketService {
       statusField: 'open',
       uIdField: FirebaseAuthProvider().currentUser!.uid,
     });
-    final ticketSnapshot = await ticketRef.get();
-    Ticket ticket = Ticket.fromFirestore(ticketSnapshot);
-    return ticket;
   }
 
   //changes the ticket topic to the given topic
-  Future<Ticket> changeTicketTopic(Ticket ticket, String newTask) async {
+  Future<void> changeTicketTask(Ticket ticket, String newTask) async {
     ticket.task = newTask;
     await ticket.firestoreRef.update({taskField: newTask});
-    return ticket;
   }
 
   //changes the ticket description to the given description
@@ -90,8 +88,7 @@ mixin FirestoreTicketService {
   //updates the status of the given ticket to the new status
   //if the new status is done, the name of the staff member who
   //completed the ticket is added to the ticket
-  Future<Ticket> updateTicketStatus(
-      Ticket ticket, TicketStatus newStatus) async {
+  Future<void> updateTicketStatus(Ticket ticket, TicketStatus newStatus) async {
     ticket.status = newStatus;
     final currentStaff = await FirebaseAuthProvider().currentStaff;
     if (newStatus == TicketStatus.done) {
@@ -103,7 +100,6 @@ mixin FirestoreTicketService {
       await _removeTicketCompletionDateTime(ticket);
     }
     await ticket.firestoreRef.update({statusField: newStatus.name});
-    return ticket;
   }
 
   Future<void> _addTicketCompleter(Ticket ticket, String name) async {
@@ -138,7 +134,8 @@ mixin FirestoreTicketService {
   }
 
   /// changed the image of the given ticket to the new image
-  Future<Ticket> changeTicketImage(Ticket ticket, String? newImageUrl) async {
+  Future<Ticket> addOrChangeTicketImage(
+      Ticket ticket, String? newImageUrl) async {
     ticket.imageUrl = newImageUrl;
     await ticket.firestoreRef.update({imageUrlField: newImageUrl});
     return ticket;

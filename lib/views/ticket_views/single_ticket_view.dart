@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mein_digitaler_hausmeister/constants/colors.dart';
-import 'package:mein_digitaler_hausmeister/constants/layout_sizes.dart';
 import 'package:mein_digitaler_hausmeister/model_classes/house.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/firebase_auth_provider.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
@@ -21,7 +20,7 @@ class SingleTicketView extends StatefulWidget {
 }
 
 class _SingleTicketViewState extends State<SingleTicketView> {
-  late TextEditingController _topic;
+  late TextEditingController _task;
   late TextEditingController _description;
   late Ticket selectedTicket;
   late House selectedHouse;
@@ -33,18 +32,18 @@ class _SingleTicketViewState extends State<SingleTicketView> {
   String? _imageUrl;
   final List<String> _imageUrls = [];
 
-  final FirestoreDataService _ticketService = FirestoreDataService();
+  final FirestoreDataService _firestoreDataService = FirestoreDataService();
 
   @override
   void initState() {
     super.initState();
-    _topic = TextEditingController();
+    _task = TextEditingController();
     _description = TextEditingController();
   }
 
   @override
   void dispose() {
-    _topic.dispose();
+    _task.dispose();
     _description.dispose();
     if (!saveChanges) {
       _deleteImages();
@@ -54,7 +53,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
 
   Future<void> _deleteImages() async {
     for (var image in _imageUrls) {
-      await _ticketService.deleteStorageImage(image);
+      await _firestoreDataService.deleteStorageImage(image);
     }
   }
 
@@ -67,7 +66,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
       selectedHouse = houseProvider.selectedHouse!;
       canBeEdited = selectedTicket.status == TicketStatus.open;
       _imageUrl = selectedTicket.imageUrl;
-      _topic.text = selectedTicket.task;
+      _task.text = selectedTicket.task;
       _description.text = selectedTicket.description;
       isInitialized = true;
       userHasEditPermission =
@@ -157,21 +156,16 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                 if (_imageUrl != selectedTicket.imageUrl) {
                   _imageUrls.map((image) {
                     if (image != _imageUrl) {
-                      _ticketService.deleteStorageImage(image);
+                      _firestoreDataService.deleteStorageImage(image);
                     }
                   });
-                  await _ticketService.changeTicketImage(
-                      selectedTicket, _imageUrl);
+                  await selectedTicket.addOrChangeImage(_imageUrl);
                 }
-                if (_topic.text != selectedTicket.task) {
-                  await _ticketService.changeTicketTopic(
-                    selectedTicket,
-                    _topic.text,
-                  );
+                if (_task.text != selectedTicket.task) {
+                  await selectedTicket.changeTask(_task.text);
                 }
                 if (_description.text != selectedTicket.description) {
-                  await _ticketService.changeTicketDescription(
-                    selectedTicket,
+                  await selectedTicket.changeDescription(
                     _description.text,
                   );
                 }
@@ -195,7 +189,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
           elevation: const MaterialStatePropertyAll(1.0),
         ),
         onPressed: () async {
-          FirestoreDataService().deleteTicket(selectedTicket);
+          await selectedTicket.delete();
           Navigator.pop(context);
         },
         child: const Text(
@@ -210,7 +204,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
         border: Border.all(color: Colors.grey),
       ),
       child: TextField(
-        controller: _topic,
+        controller: _task,
         keyboardType: TextInputType.text,
         readOnly: !canBeEdited || !userHasEditPermission,
         textAlign: TextAlign.center,

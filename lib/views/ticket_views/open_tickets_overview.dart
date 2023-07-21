@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 import 'package:mein_digitaler_hausmeister/views/ticket_views/ticket_list.dart';
 import 'package:provider/provider.dart';
 
@@ -20,10 +19,7 @@ class _OpenTicketsOverviewState extends State<OpenTicketsOverview> {
     final houseProvider = Provider.of<SelectedHouseProvider>(context);
     final selectedHouse = houseProvider.selectedHouse!;
     return StreamProvider<List<Ticket>>(
-        create: (_) => FirestoreDataService().streamTicketsForHouse(
-            selectedHouse,
-            filterOpenTickets: true,
-            showOldestFirst: true),
+        create: (_) => selectedHouse.streamOpenTickets(),
         initialData: const [],
         builder: (context, child) {
           return TicketList(

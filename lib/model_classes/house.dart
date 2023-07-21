@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mein_digitaler_hausmeister/model_classes/ticket.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/crud_exceptions.dart';
+import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 
 /// Represents a house in the database
 class House {
@@ -8,6 +10,24 @@ class House {
   final int houseNumber;
   final int postalCode;
   final String city;
+
+  Stream<List<Ticket>> streamOpenTickets() {
+    return FirestoreDataService().streamTicketsForHouse(
+        house: this, filterOpenTickets: true, showOldestFirst: true);
+  }
+
+  Stream<List<Ticket>> streamClosedTickets() {
+    return FirestoreDataService().streamTicketsForHouse(
+        house: this, filterOpenTickets: false, showOldestFirst: false);
+  }
+
+  Future<void> addTicket(
+      {required String task,
+      required String description,
+      required String? imageUrl}) async {
+    await FirestoreDataService().addTicketToHouse(
+        house: this, task: task, description: description, imageUrl: imageUrl);
+  }
 
   House({
     required this.firestoreRef,

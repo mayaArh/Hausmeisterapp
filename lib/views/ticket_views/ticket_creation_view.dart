@@ -17,7 +17,7 @@ class TicketCreationView extends StatefulWidget {
 
 class _TicketCreationViewState extends State<TicketCreationView> {
   final FirestoreDataService _ticketService = FirestoreDataService();
-  late final TextEditingController _topic;
+  late final TextEditingController _task;
   late final TextEditingController _description;
   bool saveChanges = false;
   String? _imageUrl;
@@ -25,7 +25,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
 
   @override
   void initState() {
-    _topic = TextEditingController();
+    _task = TextEditingController();
     _description = TextEditingController();
     _descriptionFocusNode = FocusNode();
     super.initState();
@@ -33,7 +33,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
 
   @override
   void dispose() {
-    _topic.dispose();
+    _task.dispose();
     _description.dispose();
     _descriptionFocusNode.dispose();
     if (!saveChanges) {
@@ -83,19 +83,17 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                           elevation: MaterialStatePropertyAll(1.0)),
                       onPressed: () async {
                         saveChanges = true;
-                        final topic = _topic.text;
+                        final task = _task.text;
                         final description = _description.text;
 
-                        if (topic.isEmpty) {
+                        if (task.isEmpty) {
                           DialogDisplay.showErrorDialog(
                               context, 'Bitte geben Sie das Problem an.');
                         } else {
-                          await _ticketService.addTicketToHouse(
-                            house: selectedHouse,
-                            task: topic,
-                            description: description,
-                            imageUrl: _imageUrl,
-                          );
+                          await selectedHouse.addTicket(
+                              task: task,
+                              description: description,
+                              imageUrl: _imageUrl);
                           Navigator.pop(context);
                         }
                       },
@@ -120,7 +118,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
         border: Border.all(color: Colors.grey),
       ),
       child: TextField(
-        controller: _topic,
+        controller: _task,
         keyboardType: TextInputType.text,
         textAlign: TextAlign.center,
         style:

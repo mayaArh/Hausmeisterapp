@@ -128,10 +128,7 @@ class _TicketListState extends State<TicketList> {
                                   isChecked = value ?? false;
                                 });
                                 if (isChecked) {
-                                  await _ticketService.updateTicketStatus(
-                                    ticket,
-                                    TicketStatus.done,
-                                  );
+                                  await ticket.updateStatus(TicketStatus.done);
                                 }
                               })
                           : Checkbox(
@@ -142,15 +139,9 @@ class _TicketListState extends State<TicketList> {
                                       value ?? !widget.ticketsHaveStatusOpen;
                                 });
                                 if (isChecked) {
-                                  await _ticketService.updateTicketStatus(
-                                    ticket,
-                                    TicketStatus.done,
-                                  );
+                                  await ticket.updateStatus(TicketStatus.done);
                                 } else {
-                                  await _ticketService.updateTicketStatus(
-                                    ticket,
-                                    TicketStatus.open,
-                                  );
+                                  await ticket.updateStatus(TicketStatus.open);
                                 }
                               }),
                     )

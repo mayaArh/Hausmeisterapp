@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mein_digitaler_hausmeister/constants/layout_sizes.dart';
 import 'package:mein_digitaler_hausmeister/services/auth/auth_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -234,3 +233,6 @@ class _UserImageState extends State<UserImage> {
     );
   }
 }
+
+const imageWidth = 405.0;
+const imageHeight = 270.0;
