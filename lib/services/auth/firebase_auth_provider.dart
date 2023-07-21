@@ -40,7 +40,7 @@ class FirebaseAuthProvider extends AuthProvider {
       } else {
         throw GenericAuthException();
       }
-    } catch (_) {
+    } catch (h) {
       throw GenericAuthException();
     }
   }
@@ -103,6 +103,10 @@ class FirebaseAuthProvider extends AuthProvider {
         throw WrongPasswordAuthException();
       } else if (e.code == 'network-request-failed') {
         throw NoInternetAuthException();
+      } else if (email.isEmpty) {
+        throw NoEmailProvidedAuthException();
+      } else if (password.isEmpty) {
+        throw NoPasswordProvidedAuthException();
       } else {
         throw GenericAuthException();
       }

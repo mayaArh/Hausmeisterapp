@@ -67,7 +67,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
       selectedHouse = houseProvider.selectedHouse!;
       canBeEdited = selectedTicket.status == TicketStatus.open;
       _imageUrl = selectedTicket.imageUrl;
-      _topic.text = selectedTicket.topic;
+      _topic.text = selectedTicket.task;
       _description.text = selectedTicket.description;
       isInitialized = true;
       userHasEditPermission =
@@ -78,11 +78,12 @@ class _SingleTicketViewState extends State<SingleTicketView> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text('${selectedTicket.dateTime} Uhr'),
-        ),
+            title: canBeEdited
+                ? Text('${selectedTicket.creationDateTime} Uhr')
+                : Text('${selectedTicket.completionDateTime} Uhr')),
         body: SingleChildScrollView(
           child: Column(children: [
-            _displayTopic(),
+            _displayTask(),
             _displayUserImage(_imageUrl),
             _displayDescription(),
             const SizedBox(height: 33),
@@ -99,7 +100,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                           : Container(
                               padding: EdgeInsets.only(
                                   top: _imageUrl == null ? imageHeight : 0),
-                              child: Center(child: _displayDeleteButton())),
+                            ),
                     ],
                   )
                 : Container(),
@@ -115,15 +116,22 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                         selectedHouse.longAddress,
                       ),
                       const SizedBox(height: 15),
-                      Text(
-                        'erstellt von: ${selectedTicket.nameCreator}',
-                        style: const TextStyle(fontStyle: FontStyle.italic),
-                      ),
+                      canBeEdited
+                          ? Text(
+                              'erstellt von: ${selectedTicket.nameCreator}',
+                              style:
+                                  const TextStyle(fontStyle: FontStyle.italic),
+                            )
+                          : Text(
+                              'erstellt von ${selectedTicket.nameCreator} am ${selectedTicket.creationDate}',
+                              style:
+                                  const TextStyle(fontStyle: FontStyle.italic),
+                            ),
                       const SizedBox(height: 10),
                       selectedTicket.nameCompleter != '' &&
                               selectedTicket.status == TicketStatus.done
                           ? Text(
-                              'erledigt von: ${selectedTicket.nameCompleter}',
+                              'erledigt von ${selectedTicket.nameCompleter} am ${selectedTicket.completionDate}',
                               style:
                                   const TextStyle(fontStyle: FontStyle.italic))
                           : Container()
@@ -155,7 +163,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                   await _ticketService.changeTicketImage(
                       selectedTicket, _imageUrl);
                 }
-                if (_topic.text != selectedTicket.topic) {
+                if (_topic.text != selectedTicket.task) {
                   await _ticketService.changeTicketTopic(
                     selectedTicket,
                     _topic.text,
@@ -195,7 +203,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
         ));
   }
 
-  Widget _displayTopic() {
+  Widget _displayTask() {
     return Container(
       padding: const EdgeInsets.all(3.5),
       decoration: BoxDecoration(
@@ -243,7 +251,8 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                 },
                 decoration: isDescriptionEmpty
                     ? InputDecoration(
-                        hintText: canBeEdited ? 'Problembeschreibung...' : null,
+                        hintText:
+                            canBeEdited ? 'Nähere Informationen...' : null,
                         border: InputBorder.none,
                       )
                     : null,
@@ -274,7 +283,7 @@ class _SingleTicketViewState extends State<SingleTicketView> {
                 });
               },
               initialImageUrl: imgUrl,
-              canBeEdited: canBeEdited && userHasEditPermission,
+              canBeEdited: (canBeEdited && userHasEditPermission),
             ),
           )
         : Container();

@@ -168,7 +168,7 @@ class _UserImageState extends State<UserImage> {
         alignment: Alignment.center,
         children: [
           ClipRRect(
-            child: imageUrl != null
+            child: imageUrl != null && imageUrl.isNotEmpty
                 ? Image.network(
                     imageUrl,
                     width: imageWidth,
@@ -186,13 +186,15 @@ class _UserImageState extends State<UserImage> {
                       }
                     },
                   )
-                : Center(
-                    child: Icon(
-                      Icons.add_a_photo_outlined,
-                      size: 50,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
+                : widget.canBeEdited
+                    ? Center(
+                        child: Icon(
+                          Icons.add_a_photo_outlined,
+                          size: 50,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      )
+                    : null,
           ),
           if (widget.canBeEdited)
             Positioned(
@@ -217,7 +219,7 @@ class _UserImageState extends State<UserImage> {
         widget.onFileChanged(null);
         _showImageContainer(imageUrl, context);
       },
-      child: imageUrl != null
+      child: imageUrl != null && imageUrl != ''
           ? Container(
               decoration: BoxDecoration(
                 color: Colors.white70,

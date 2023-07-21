@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mein_digitaler_hausmeister/constants/colors.dart';
 import 'package:mein_digitaler_hausmeister/services/firestore_crud/firestore_data_service.dart';
 import 'package:mein_digitaler_hausmeister/utilities/show_dialog.dart';
@@ -50,7 +49,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
     return Scaffold(
         appBar: AppBar(title: const Text('Neues Ticket erstellen')),
         body: Column(children: [
-          _displayTopic(),
+          _displayTask(),
           Expanded(
               child: ListView(
             children: [
@@ -86,18 +85,16 @@ class _TicketCreationViewState extends State<TicketCreationView> {
                         saveChanges = true;
                         final topic = _topic.text;
                         final description = _description.text;
-                        final dateTime = DateFormat('dd.MM.yyyy, HH:mm')
-                            .format(DateTime.now());
+
                         if (topic.isEmpty) {
-                          DialogDisplay.showErrorDialog(context,
-                              'Bitte geben Sie das Thema des Problems an.');
+                          DialogDisplay.showErrorDialog(
+                              context, 'Bitte geben Sie das Problem an.');
                         } else {
                           await _ticketService.addTicketToHouse(
                             house: selectedHouse,
-                            topic: topic,
+                            task: topic,
                             description: description,
-                            dateTime: dateTime,
-                            image: _imageUrl,
+                            imageUrl: _imageUrl,
                           );
                           Navigator.pop(context);
                         }
@@ -116,7 +113,7 @@ class _TicketCreationViewState extends State<TicketCreationView> {
         ]));
   }
 
-  Widget _displayTopic() {
+  Widget _displayTask() {
     return Container(
       padding: const EdgeInsets.all(3.5),
       decoration: BoxDecoration(
@@ -128,8 +125,8 @@ class _TicketCreationViewState extends State<TicketCreationView> {
         textAlign: TextAlign.center,
         style:
             const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
-        decoration:
-            const InputDecoration(hintText: 'Thema', border: InputBorder.none),
+        decoration: const InputDecoration(
+            hintText: 'Was ist zu erledigen?', border: InputBorder.none),
       ),
     );
   }
@@ -147,19 +144,22 @@ class _TicketCreationViewState extends State<TicketCreationView> {
           ),
           child: SizedBox(
             child: SingleChildScrollView(
-              child: TextField(
-                controller: _description,
-                focusNode: _descriptionFocusNode,
-                keyboardType: TextInputType.text,
-                maxLines: null,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.black87),
-                decoration: _description.text == ''
-                    ? const InputDecoration(
-                        hintText: 'Problembeschreibung...',
-                        border: InputBorder.none,
-                      )
-                    : null,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: TextField(
+                  controller: _description,
+                  focusNode: _descriptionFocusNode,
+                  keyboardType: TextInputType.text,
+                  maxLines: null,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.black87),
+                  decoration: _description.text == ''
+                      ? const InputDecoration(
+                          hintText: 'Nähere Informationen...',
+                          border: InputBorder.none,
+                        )
+                      : null,
+                ),
               ),
             ),
           ),

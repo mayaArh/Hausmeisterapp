@@ -19,3 +19,9 @@ class CouldNotDeleteTicket implements Exception {}
 class CouldNotFindTicket implements Exception {}
 
 class CouldNotUpdateTicket implements Exception {}
+
+class UserDoesntExistInFirestore implements Exception {}
+
+class UnknownFirestoreError implements Exception {}
+
+class CouldNotFindFirestoreCollection implements Exception {}

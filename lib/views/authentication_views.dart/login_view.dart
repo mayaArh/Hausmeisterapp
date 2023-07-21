@@ -101,10 +101,16 @@ class _LoginViewState extends State<LoginView> {
                     }
                   } on UserNotFoundAuthException {
                     await DialogDisplay.showErrorDialog(
-                        context, 'Der angegebene Benutzer existiert nicht');
+                        context, 'Der angegebene Benutzer existiert nicht.');
+                  } on NoEmailProvidedAuthException {
+                    await DialogDisplay.showErrorDialog(
+                        context, 'Bitte geben Sie Ihre E-Mail-Adresse an.');
+                  } on NoPasswordProvidedAuthException {
+                    await DialogDisplay.showErrorDialog(
+                        context, 'Bitte geben Sie Ihr Passwort an.');
                   } on WrongPasswordAuthException {
                     await DialogDisplay.showErrorDialog(
-                        context, 'Falsches Passwort');
+                        context, 'Falsches Passwort.');
                   } on NoInternetAuthException {
                     await DialogDisplay.showErrorDialog(
                         context, 'Bitte verbinden Sie sich mit dem Internet.');

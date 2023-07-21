@@ -20,8 +20,10 @@ class _OpenTicketsOverviewState extends State<OpenTicketsOverview> {
     final houseProvider = Provider.of<SelectedHouseProvider>(context);
     final selectedHouse = houseProvider.selectedHouse!;
     return StreamProvider<List<Ticket>>(
-        create: (_) => FirestoreDataService()
-            .streamTicketsForHouse(selectedHouse, filterOpenTickets: true),
+        create: (_) => FirestoreDataService().streamTicketsForHouse(
+            selectedHouse,
+            filterOpenTickets: true,
+            showOldestFirst: true),
         initialData: const [],
         builder: (context, child) {
           return TicketList(

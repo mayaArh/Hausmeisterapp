@@ -20,11 +20,15 @@ class Sort {
 
   /// Sorts the given list of tickets by the date and time of the ticket creation,
   /// starting with the oldest ticket.
-  static void sortTicketsByDateTime(List<Ticket> tickets) {
+  static void sortTicketsByDateTime(List<Ticket> tickets, bool oldestFirst) {
     tickets.sort((ticketA, ticketB) {
-      final dateTimeA = DateFormat('dd.MM.yyyy, HH:mm').parse(ticketA.dateTime);
-      final dateTimeB = DateFormat('dd.MM.yyyy, HH:mm').parse(ticketB.dateTime);
-      return dateTimeA.compareTo(dateTimeB);
+      final dateTimeA =
+          DateFormat('dd.MM.yyyy, HH:mm').parse(ticketA.creationDateTime);
+      final dateTimeB =
+          DateFormat('dd.MM.yyyy, HH:mm').parse(ticketB.creationDateTime);
+      return oldestFirst
+          ? dateTimeA.compareTo(dateTimeB)
+          : dateTimeB.compareTo(dateTimeA);
     });
   }
 }

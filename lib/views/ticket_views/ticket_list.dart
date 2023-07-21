@@ -102,7 +102,7 @@ class _TicketListState extends State<TicketList> {
                         children: [
                           Center(
                             child: Text(
-                              ticket.topic,
+                              ticket.task,
                               style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
@@ -111,7 +111,9 @@ class _TicketListState extends State<TicketList> {
                           ),
                           const SizedBox(height: 6),
                           Center(
-                            child: Text('erstellt am ${ticket.date}'),
+                            child: widget.ticketsHaveStatusOpen
+                                ? Text('erstellt am ${ticket.creationDate}')
+                                : Text('erledigt am ${ticket.completionDate}'),
                           ),
                         ],
                       ),
